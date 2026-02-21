@@ -1,0 +1,3 @@
+- Before adding or installing any new libraries or dependencies (e.g., via npm, yarn, or expo install), ALWAYS ask the user for permission and clarify why the library is needed.
+
+- NEVER use hardcoded colors (like '#333', '#FFFFFF', 'red'). ALWAYS import and use colors from the COLORS constant in 'utils/Constants.js'.
