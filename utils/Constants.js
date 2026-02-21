@@ -7,4 +7,5 @@ export const COLORS = {
 
 export const SCREEN = {
   homescreen: "Home Screen",
+  statsscreen: "Stats",
 };
