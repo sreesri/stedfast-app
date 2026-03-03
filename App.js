@@ -45,10 +45,16 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="HomeTabs" component={HomeTabs} />
-          <Stack.Screen 
-            name={SCREEN.meallogs} 
-            component={MealLogsScreen} 
-            options={{ headerShown: false}}
+          <Stack.Screen
+            name={SCREEN.meallogs}
+            component={MealLogsScreen}
+            options={{
+              headerShown: true,
+              headerStyle: {
+                backgroundColor: COLORS.secondary,
+              },
+              headerTitleAlign: "center",
+            }}
           />
         </Stack.Navigator>
       </NavigationContainer>

@@ -24,7 +24,7 @@ const Homescreen = () => {
         eatRatio={6}
       />
       <Divider />
-      <DailySummary />
+      <DailySummary consumed={1000} maxLimit={2000} mealLog={mealLog} />
     </View>
   );
 };

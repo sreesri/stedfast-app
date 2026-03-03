@@ -3,7 +3,7 @@ import React from "react";
 import WeightLogStats from "../components/WeightLogStats";
 
 const StatsScreen = () => {
-  const WEIGHT_DATA = [120.7, 120.9, 120.5, 120.1, 120.3];
+  const WEIGHT_DATA = [];
 
   return (
     <View>

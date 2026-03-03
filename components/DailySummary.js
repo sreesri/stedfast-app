@@ -5,12 +5,10 @@ import CalorieTracker from "./CalorieTracker";
 import Divider from "./Divider";
 import MealLogContainer from "./MealLogContainer";
 
-const DailySummary = () => {
+const DailySummary = ({ consumed, maxLimit, mealLog }) => {
   // Hardcoded test variables in the parent meant to simulate API data eventually
-  const currentConsumed = 1500;
-  const currentMax = 2000;
 
-  const mealLog = [
+  const mealLogs = [
     {
       id: 1,
       name: "Breakfast",
@@ -58,12 +56,9 @@ const DailySummary = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.titleText}>DailySummary</Text>
-      <CalorieTracker
-        consumedCalories={currentConsumed}
-        maxCalories={currentMax}
-      />
+      <CalorieTracker consumedCalories={consumed} maxCalories={maxLimit} />
       <Divider />
-      <MealLogContainer meal={mealLog} />
+      <MealLogContainer meal={mealLogs} />
     </View>
   );
 };
