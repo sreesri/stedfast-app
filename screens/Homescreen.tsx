@@ -11,7 +11,7 @@ const Homescreen = () => {
 
   const handleTogglePhase = () => {
     setTrackingState((prev) => (prev === "FASTING" ? "EATING" : "FASTING"));
-    setStartTime(Date.now());
+    setStartTime(new Date());
   };
 
   return (
@@ -24,7 +24,7 @@ const Homescreen = () => {
         eatRatio={6}
       />
       <Divider />
-      <DailySummary consumed={1000} maxLimit={2000} mealLog={mealLog} />
+      <DailySummary consumed={1000} maxLimit={2000} mealLog={[]} />
     </View>
   );
 };

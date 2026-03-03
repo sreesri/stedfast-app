@@ -14,6 +14,7 @@ const Tabs = createBottomTabNavigator();
 function HomeTabs() {
   return (
     <Tabs.Navigator
+      id="HomeTabsNavigator"
       screenOptions={{
         headerStyle: {
           backgroundColor: COLORS.secondary,
@@ -43,7 +44,10 @@ export default function App() {
   return (
     <>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Navigator
+          id="RootStackNavigator"
+          screenOptions={{ headerShown: false }}
+        >
           <Stack.Screen name="HomeTabs" component={HomeTabs} />
           <Stack.Screen
             name={SCREEN.meallogs}

@@ -3,8 +3,8 @@ import React from "react";
 import { COLORS, SCREEN } from "../utils/Constants";
 import { useNavigation } from "@react-navigation/native";
 
-const CalorieTracker = ({ consumedCalories, maxCalories }) => {
-  const navigation = useNavigation();
+const CalorieTracker = ({ consumedCalories, maxCalories }: any) => {
+  const navigation = useNavigation<any>();
   const percentage = Math.round((consumedCalories / maxCalories) * 100);
   const isOverLimit = consumedCalories > maxCalories;
 
