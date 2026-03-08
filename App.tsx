@@ -7,6 +7,7 @@ import Homescreen from "./screens/Homescreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import StatsScreen from "./screens/StatsScreen";
 import MealLogsScreen from "./screens/MealLogsScreen";
+import Toast from "react-native-toast-message";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -62,6 +63,7 @@ export default function App() {
           />
         </Stack.Navigator>
       </NavigationContainer>
+      <Toast />
     </>
   );
 }
