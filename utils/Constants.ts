@@ -9,4 +9,6 @@ export const SCREEN = {
   homescreen: "Home Screen",
   statsscreen: "Stats",
   meallogs: "Meal Logs",
+  login: "Login",
+  signup: "Signup",
 };
