@@ -3,6 +3,7 @@ export const COLORS = {
   primary: "#36656B",
   secondary: "#75B06F",
   ascent: "#DAD887",
+  input: "#F0F8A4",
 };
 
 export const SCREEN = {
@@ -11,4 +12,5 @@ export const SCREEN = {
   meallogs: "Meal Logs",
   login: "Login",
   signup: "Signup",
+  baseconfig: "Base Config",
 };

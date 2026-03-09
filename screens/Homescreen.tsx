@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { COLORS } from "../utils/Constants";
 import FastingTracker from "../components/FastingTracker";
@@ -6,10 +6,12 @@ import Divider from "../components/Divider";
 import DailySummary from "../components/DailySummary";
 import { getFastingStatus, updateFastingStatus } from "../utils/http";
 import Toast from "react-native-toast-message";
+import { StatusBar } from "expo-status-bar";
 
 const Homescreen = () => {
+  const [isLoading, setLoading] = useState(true);
   const [trackingState, setTrackingState] = useState("FASTING");
-  const [startTime, setStartTime] = useState(new Date("2026-02-20T23:30:05Z"));
+  const [startTime, setStartTime] = useState(new Date());
 
   const handleTogglePhase = async () => {
     try {
@@ -42,11 +44,12 @@ const Homescreen = () => {
   useEffect(() => {
     const fetchFastingStatus = async () => {
       try {
-        const fastingStatus = await getFastingStatus({ userId: "user_1234" });
+        const fastingStatus = await getFastingStatus();
         console.log("Fetch success:", fastingStatus);
 
         setTrackingState(fastingStatus.status);
         setStartTime(new Date(fastingStatus.startTime));
+        setLoading(false);
       } catch (error) {
         console.error("Failed to fetch fasting status:", error);
         Toast.show({
@@ -63,17 +66,25 @@ const Homescreen = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <FastingTracker
-        trackingState={trackingState}
-        startTime={startTime}
-        onToggle={handleTogglePhase}
-        fastRatio={18}
-        eatRatio={6}
-      />
-      <Divider />
-      <DailySummary consumed={1000} maxLimit={2000} mealLog={[]} />
-    </View>
+    <>
+      <View style={styles.container}>
+        {isLoading ? (
+          <ActivityIndicator />
+        ) : (
+          <>
+            <FastingTracker
+              trackingState={trackingState}
+              startTime={startTime}
+              onToggle={handleTogglePhase}
+              fastRatio={18}
+              eatRatio={6}
+            />
+            <Divider />
+            <DailySummary consumed={1000} maxLimit={2000} mealLog={[]} />
+          </>
+        )}
+      </View>
+    </>
   );
 };
 
@@ -84,5 +95,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
     padding: 10,
+    justifyContent: "center",
   },
 });

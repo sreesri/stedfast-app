@@ -22,6 +22,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 40,
     borderRadius: 30,
+    alignItems: "center",
   },
   actionText: {
     color: COLORS.background,

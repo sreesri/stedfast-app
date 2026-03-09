@@ -1,10 +1,11 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { doLogin, doSignup } from "../utils/http";
+import { doLogin, doSignup, setAuthToken } from "../utils/http";
 
 interface AuthContextData {
   isLoggedIn: boolean;
   isLoading: boolean;
+  userToken: string | null;
   login: (credentials: { email: string; password: string }) => Promise<void>;
   signup: (credentials: {
     name: string;
@@ -21,13 +22,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [userToken, setUserToken] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if user is logged in on mount
     const checkLoginStatus = async () => {
       try {
-        const value = await AsyncStorage.getItem("userToken");
-        if (value !== null) {
+        const token = await AsyncStorage.getItem("userToken");
+        if (token !== null) {
+          setUserToken(token);
+          setAuthToken(token);
           setIsLoggedIn(true);
         }
       } catch (e) {
@@ -49,8 +53,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }) => {
     try {
       const response = await doLogin({ email, password });
-      await AsyncStorage.setItem("userToken", "dummy-token");
-      setIsLoggedIn(true);
+      // response.token and response.userId are assumed based on plan
+      const { token } = response;
+      if (token) {
+        await AsyncStorage.setItem("userToken", token);
+        setUserToken(token);
+        setAuthToken(token);
+        setIsLoggedIn(true);
+      }
     } catch (e) {
       console.error("Failed to save login status", e);
     }
@@ -75,6 +85,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const logout = async () => {
     try {
       await AsyncStorage.removeItem("userToken");
+      await AsyncStorage.removeItem("userId");
+      setUserToken(null);
+      setAuthToken(null);
       setIsLoggedIn(false);
     } catch (e) {
       console.error("Failed to remove login status", e);
@@ -83,7 +96,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, isLoading, login, signup, logout }}
+      value={{
+        isLoggedIn,
+        isLoading,
+        userToken,
+        login,
+        signup,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -1,15 +1,23 @@
 import axios from "axios";
 
-// axios.interceptors.request.use((request) => {
-//   console.log("Starting Request", JSON.stringify(request, null, 2));
-//   return request;
-// });
-// axios.interceptors.response.use((response) => {
-//   console.log("Response:", JSON.stringify(response.data, null, 2));
-//   return response;
-// });
+axios.interceptors.request.use((request) => {
+  console.log("Starting Request", JSON.stringify(request, null, 2));
+  return request;
+});
+axios.interceptors.response.use((response) => {
+  console.log("Response:", JSON.stringify(response.data, null, 2));
+  return response;
+});
 
 const API_URL = "https://stedfast-backend.onrender.com";
+
+export const setAuthToken = (token: string | null) => {
+  if (token) {
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  } else {
+    delete axios.defaults.headers.common["Authorization"];
+  }
+};
 
 export const doLogin = async ({
   email,
@@ -42,17 +50,14 @@ export const doSignup = async ({
   return response.data;
 };
 
-export const getFastingStatus = async ({ userId }: { userId: string }) => {
-  const response = await axios.get(
-    `${API_URL}/api/fasting/${userId}/current-status`,
-  );
+export const getFastingStatus = async () => {
+  const response = await axios.get(`${API_URL}/api/fasting/current-status`);
   console.log(response.data);
 
   return response.data;
 };
 
 export const updateFastingStatus = async ({
-  userId,
   trackingState,
   startTime,
 }: {
@@ -60,13 +65,33 @@ export const updateFastingStatus = async ({
   trackingState: string;
   startTime: string;
 }) => {
-  const response = await axios.post(
-    `${API_URL}/api/fasting/${userId}/change-status`,
-    {
-      status: trackingState,
-      startTime: startTime,
-    },
-  );
+  const response = await axios.post(`${API_URL}/api/fasting/change-status`, {
+    status: trackingState,
+    startTime: startTime,
+  });
 
+  return response.data;
+};
+
+interface userSummaryRequest {
+  date: Date;
+}
+
+export const getUserSummary = async ({ date }: userSummaryRequest) => {
+  const response = await axios.get(`${API_URL}/api/user/summary`);
+};
+
+export const setupBaseConfig = async ({
+  fastingWindow,
+  eatingWindow,
+  fastingStartTime,
+  dailyCalorieLimit,
+}) => {
+  const response = await axios.post(`${API_URL}/api/user/settings`, {
+    fastingWindow,
+    eatingWindow,
+    fastingStartTime,
+    dailyCalorieLimit,
+  });
   return response.data;
 };

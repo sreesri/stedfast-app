@@ -18,6 +18,8 @@ import Toast from "react-native-toast-message";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
+import { BaseProvider, useBaseContext } from "./context/BaseContext";
+import BaseConfigScreen from "./screens/BaseConfigScreen";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -79,7 +81,8 @@ function AuthenticatedStack() {
       id="RootStackNavigator"
       screenOptions={{ headerShown: false }}
     >
-      <Stack.Screen name="HomeTabs" component={HomeTabs} />
+      {/* <Stack.Screen name="HomeTabs" component={HomeTabs} /> */}
+      <Stack.Screen name={SCREEN.homescreen} component={Homescreen} />
       <Stack.Screen
         name={SCREEN.meallogs}
         component={MealLogsScreen}
@@ -97,6 +100,7 @@ function AuthenticatedStack() {
 
 function Navigation() {
   const { isLoggedIn, isLoading } = useAuth();
+  const { isBaseConfigDone } = useBaseContext();
 
   if (isLoading) {
     return (
@@ -115,7 +119,23 @@ function Navigation() {
 
   return (
     <NavigationContainer>
-      {isLoggedIn ? <AuthenticatedStack /> : <AuthStack />}
+      {isLoggedIn ? (
+        isBaseConfigDone ? (
+          <AuthenticatedStack />
+        ) : (
+          <Stack.Navigator
+            id="BaseConfigNavigator"
+            screenOptions={{ headerShown: false }}
+          >
+            <Stack.Screen
+              name={SCREEN.baseconfig}
+              component={BaseConfigScreen}
+            />
+          </Stack.Navigator>
+        )
+      ) : (
+        <AuthStack />
+      )}
     </NavigationContainer>
   );
 }
@@ -123,8 +143,10 @@ function Navigation() {
 export default function App() {
   return (
     <AuthProvider>
-      <Navigation />
-      <Toast />
+      <BaseProvider>
+        <Navigation />
+        <Toast />
+      </BaseProvider>
     </AuthProvider>
   );
 }
