@@ -1,17 +1,16 @@
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import React, { useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import React, { useCallback, useState } from "react";
 import { COLORS } from "../utils/Constants";
 import FastingTracker from "../components/FastingTracker";
 import Divider from "../components/Divider";
 import DailySummary from "../components/DailySummary";
 import {
-  getFastingStatus,
-  getMealLogs,
   getUserSummary,
   updateFastingStatus,
 } from "../utils/http";
 import Toast from "react-native-toast-message";
 import { useBaseContext } from "../context/BaseContext";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Homescreen = () => {
   const [isLoading, setLoading] = useState(true);
@@ -20,6 +19,27 @@ const Homescreen = () => {
   const [mealLogs, setMealLogs] = useState([]);
   const [consumedCalories, setConsumedCalories] = useState(0);
   const { baseConfig } = useBaseContext();
+
+  const fetchUserSummary = useCallback(async () => {
+    try {
+      setLoading(true);
+      const userSummary = await getUserSummary();
+      setTrackingState(userSummary.fasting.status);
+      setStartTime(new Date(userSummary.fasting.startTime));
+      setMealLogs(userSummary.mealLogs ?? []);
+      setConsumedCalories(userSummary.totalCalories ?? 0);
+    } catch (error) {
+      console.error("Failed to fetch user summary:", error);
+      Toast.show({
+        type: "error",
+        text1: "Load Failed",
+        text2: "Could not refresh your dashboard.",
+        position: "bottom",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const handleTogglePhase = async () => {
     try {
@@ -48,18 +68,11 @@ const Homescreen = () => {
     }
   };
 
-  useEffect(() => {
-    const fetUserSummary = async () => {
-      const userSummary = await getUserSummary();
-
-      setTrackingState(userSummary.fasting.status);
-      setStartTime(new Date(userSummary.fasting.startTime));
-      setMealLogs(userSummary.mealLogs);
-      setConsumedCalories(userSummary.totalCalories);
-      setLoading(false);
-    };
-    fetUserSummary();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserSummary();
+    }, [fetchUserSummary])
+  );
 
   return (
     <>
@@ -77,9 +90,9 @@ const Homescreen = () => {
             />
             <Divider />
             <DailySummary
-              consumed={1000}
+              consumed={consumedCalories}
               maxLimit={baseConfig?.dailyCalorieLimit}
-              mealLog={[]}
+              mealLog={mealLogs}
             />
           </>
         )}

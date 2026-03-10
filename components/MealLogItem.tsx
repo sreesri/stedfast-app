@@ -7,10 +7,10 @@ const MealLogItem = ({ meal }) => {
     <View style={styles.contianer}>
       <View style={styles.mealLogItem}>
         <View style={styles.mealLogItemHeader}>
-          <Text style={styles.mealLogItemTitle}>{meal.name}</Text>
+          <Text style={styles.mealLogItemTitle}>{meal.mealType}</Text>
         </View>
         <View style={styles.mealLogItemBody}>
-          <Text style={styles.mealLogItemTime}>{meal.time}</Text>
+          <Text style={styles.mealLogItemTime}>{meal.mealTime}</Text>
           <Text style={styles.mealLogItemDish}>{meal.dish}</Text>
         </View>
       </View>

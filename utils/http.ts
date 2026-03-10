@@ -83,6 +83,28 @@ export const getMealLogs = async () => {
   return response.data;
 };
 
+export const createMealLog = async ({
+  name,
+  time,
+  calories,
+  dish,
+  date,
+}: {
+  name: string;
+  time: string;
+  calories: number;
+  dish: string;
+  date?: string;
+}) => {
+  const response = await axios.post(`${API_URL}/api/meallog`, {
+    mealType: name,
+    mealTime: time,
+    calories,
+    dish,
+  });
+  return response.data;
+};
+
 export const setupBaseConfig = async ({
   fastingWindow,
   eatingWindow,

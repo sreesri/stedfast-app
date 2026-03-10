@@ -9,13 +9,19 @@ import {
   Platform,
   Keyboard,
   TouchableWithoutFeedback,
+  ActivityIndicator,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { COLORS } from "../utils/Constants";
 import MealLogContainer from "../components/MealLogContainer";
+import { createMealLog, getMealLogs } from "../utils/http";
+import Toast from "react-native-toast-message";
+import { useNavigation } from "@react-navigation/native";
 
 const MealLogsScreen = () => {
   const [mealLogs, setMealLogs] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const navigation = useNavigation<any>();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [name, setName] = useState("");
@@ -23,19 +29,49 @@ const MealLogsScreen = () => {
   const [calories, setCalories] = useState("");
   const [dish, setDish] = useState("");
 
-  const handleSave = () => {
-    if (!name || !time || !calories || !dish) return;
-
-    const newMeal = {
-      id: Date.now(),
-      name,
-      time,
-      calories: parseInt(calories) || 0,
-      dish,
+  useEffect(() => {
+    const fetchMealLogs = async () => {
+      try {
+        const response = await getMealLogs();
+        setMealLogs(response?.mealLogs ?? response ?? []);
+      } catch (error) {
+        console.error("Failed to fetch meal logs:", error);
+      }
     };
+    fetchMealLogs();
+  }, []);
 
-    setMealLogs((prev) => [...prev, newMeal]);
-    handleCloseModal();
+  const handleSave = async () => {
+    if (!name || !calories || !dish) return;
+
+    try {
+      setIsSaving(true);
+      await createMealLog({
+        name,
+        time: new Date().toISOString(),
+        calories: parseInt(calories) || 0,
+        dish,
+      });
+
+      Toast.show({
+        type: "success",
+        text1: "Meal saved",
+        position: "bottom",
+      });
+
+      handleCloseModal();
+      navigation.goBack();
+    } catch (error) {
+      console.error("Failed to save meal:", error);
+      Toast.show({
+        type: "error",
+        text1: "Save failed",
+        text2: "Could not save your meal. Please try again.",
+        position: "bottom",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCloseModal = () => {
@@ -81,13 +117,6 @@ const MealLogsScreen = () => {
               />
               <TextInput
                 style={styles.input}
-                placeholder="Time (e.g. 04:00 PM)"
-                placeholderTextColor="#888"
-                value={time}
-                onChangeText={setTime}
-              />
-              <TextInput
-                style={styles.input}
                 placeholder="Calories"
                 placeholderTextColor="#888"
                 value={calories}
@@ -112,8 +141,13 @@ const MealLogsScreen = () => {
                 <TouchableOpacity
                   style={[styles.button, styles.saveButton]}
                   onPress={handleSave}
+                  disabled={isSaving}
                 >
-                  <Text style={styles.saveButtonText}>Save</Text>
+                  {isSaving ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text style={styles.saveButtonText}>Save</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </KeyboardAvoidingView>

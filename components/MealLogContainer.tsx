@@ -8,7 +8,7 @@ const MealLogContainer = ({ meal }) => {
     <View style={styles.mealLogContainer}>
       <FlatList
         data={meal}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item, index) => String(item?.id ?? item?._id ?? index)}
         renderItem={({ item }) => <MealLogItem meal={item} />}
         showsVerticalScrollIndicator={false}
       />
