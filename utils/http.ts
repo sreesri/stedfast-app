@@ -61,7 +61,6 @@ export const updateFastingStatus = async ({
   trackingState,
   startTime,
 }: {
-  userId: string;
   trackingState: string;
   startTime: string;
 }) => {
@@ -73,12 +72,15 @@ export const updateFastingStatus = async ({
   return response.data;
 };
 
-interface userSummaryRequest {
-  date: Date;
-}
-
-export const getUserSummary = async ({ date }: userSummaryRequest) => {
+export const getUserSummary = async () => {
   const response = await axios.get(`${API_URL}/api/user/summary`);
+  return response.data;
+};
+
+export const getMealLogs = async () => {
+  const url = `${API_URL}/api/meallog?date=${new Date().toISOString()}`;
+  const response = await axios.get(url);
+  return response.data;
 };
 
 export const setupBaseConfig = async ({
@@ -87,11 +89,21 @@ export const setupBaseConfig = async ({
   fastingStartTime,
   dailyCalorieLimit,
 }) => {
+  console.log(fastingStartTime);
+
+  const { hour, minute } = fastingStartTime;
+  // const ampm = hour >= 12 ? "PM" : "AM";
+  // const h = hour % 12 || 12;
+  const mm = minute < 10 ? `0${minute}` : minute;
+  // const formattedTime = `${h}:${mm} ${ampm}`;
+
+  const formattedTime = `${hour}:${mm}:00`;
+
   const response = await axios.post(`${API_URL}/api/user/settings`, {
     fastingWindow,
     eatingWindow,
-    fastingStartTime,
-    dailyCalorieLimit,
+    fastingStartTime: formattedTime,
+    calorieLimit: dailyCalorieLimit,
   });
   return response.data;
 };

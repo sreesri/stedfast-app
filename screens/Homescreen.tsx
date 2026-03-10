@@ -4,19 +4,26 @@ import { COLORS } from "../utils/Constants";
 import FastingTracker from "../components/FastingTracker";
 import Divider from "../components/Divider";
 import DailySummary from "../components/DailySummary";
-import { getFastingStatus, updateFastingStatus } from "../utils/http";
+import {
+  getFastingStatus,
+  getMealLogs,
+  getUserSummary,
+  updateFastingStatus,
+} from "../utils/http";
 import Toast from "react-native-toast-message";
-import { StatusBar } from "expo-status-bar";
+import { useBaseContext } from "../context/BaseContext";
 
 const Homescreen = () => {
   const [isLoading, setLoading] = useState(true);
   const [trackingState, setTrackingState] = useState("FASTING");
   const [startTime, setStartTime] = useState(new Date());
+  const [mealLogs, setMealLogs] = useState([]);
+  const [consumedCalories, setConsumedCalories] = useState(0);
+  const { baseConfig } = useBaseContext();
 
   const handleTogglePhase = async () => {
     try {
       const fastingStatus = await updateFastingStatus({
-        userId: "user_1234",
         trackingState: trackingState === "FASTING" ? "EATING" : "FASTING",
         startTime: new Date().toISOString(),
       });
@@ -42,27 +49,16 @@ const Homescreen = () => {
   };
 
   useEffect(() => {
-    const fetchFastingStatus = async () => {
-      try {
-        const fastingStatus = await getFastingStatus();
-        console.log("Fetch success:", fastingStatus);
+    const fetUserSummary = async () => {
+      const userSummary = await getUserSummary();
 
-        setTrackingState(fastingStatus.status);
-        setStartTime(new Date(fastingStatus.startTime));
-        setLoading(false);
-      } catch (error) {
-        console.error("Failed to fetch fasting status:", error);
-        Toast.show({
-          type: "error",
-          text1: "Sync Failed",
-          text2: "Couldn't retrieve your latest fasting status.",
-          position: "bottom",
-        });
-      }
+      setTrackingState(userSummary.fasting.status);
+      setStartTime(new Date(userSummary.fasting.startTime));
+      setMealLogs(userSummary.mealLogs);
+      setConsumedCalories(userSummary.totalCalories);
+      setLoading(false);
     };
-    console.log("use effect");
-
-    fetchFastingStatus();
+    fetUserSummary();
   }, []);
 
   return (
@@ -76,11 +72,15 @@ const Homescreen = () => {
               trackingState={trackingState}
               startTime={startTime}
               onToggle={handleTogglePhase}
-              fastRatio={18}
-              eatRatio={6}
+              fastRatio={baseConfig?.fastingWindow}
+              eatRatio={baseConfig?.eatingWindow}
             />
             <Divider />
-            <DailySummary consumed={1000} maxLimit={2000} mealLog={[]} />
+            <DailySummary
+              consumed={1000}
+              maxLimit={baseConfig?.dailyCalorieLimit}
+              mealLog={[]}
+            />
           </>
         )}
       </View>
