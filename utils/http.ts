@@ -1,13 +1,13 @@
 import axios from "axios";
 
-axios.interceptors.request.use((request) => {
-  console.log("Starting Request", JSON.stringify(request, null, 2));
-  return request;
-});
-axios.interceptors.response.use((response) => {
-  console.log("Response:", JSON.stringify(response.data, null, 2));
-  return response;
-});
+// axios.interceptors.request.use((request) => {
+//   console.log("Starting Request", JSON.stringify(request, null, 2));
+//   return request;
+// });
+// axios.interceptors.response.use((response) => {
+//   console.log("Response:", JSON.stringify(response.data, null, 2));
+//   return response;
+// });
 
 const API_URL = "https://stedfast-backend.onrender.com";
 
@@ -52,7 +52,6 @@ export const doSignup = async ({
 
 export const getFastingStatus = async () => {
   const response = await axios.get(`${API_URL}/api/fasting/current-status`);
-  console.log(response.data);
 
   return response.data;
 };
@@ -109,10 +108,8 @@ export const setupBaseConfig = async ({
   fastingWindow,
   eatingWindow,
   fastingStartTime,
-  dailyCalorieLimit,
+  calorieLimit,
 }) => {
-  console.log(fastingStartTime);
-
   const { hour, minute } = fastingStartTime;
   // const ampm = hour >= 12 ? "PM" : "AM";
   // const h = hour % 12 || 12;
@@ -125,7 +122,12 @@ export const setupBaseConfig = async ({
     fastingWindow,
     eatingWindow,
     fastingStartTime: formattedTime,
-    calorieLimit: dailyCalorieLimit,
+    calorieLimit: calorieLimit,
   });
+  return response.data;
+};
+
+export const getBaseConfig = async () => {
+  const response = await axios.get(`${API_URL}/api/user/settings`);
   return response.data;
 };

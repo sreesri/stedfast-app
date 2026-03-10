@@ -63,7 +63,7 @@ const BaseConfigScreen = () => {
         hour: date.getHours(),
         minute: date.getMinutes(),
       },
-      dailyCalorieLimit: parseInt(calorieLimit),
+      calorieLimit: parseInt(calorieLimit),
     });
   };
 

@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
-import { setupBaseConfig } from "../utils/http";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { getBaseConfig, setupBaseConfig } from "../utils/http";
 
 export interface Time {
   hour: number;
@@ -10,7 +10,7 @@ interface BaseConfig {
   fastingWindow: number;
   eatingWindow: number;
   fastingStartTime: Time;
-  dailyCalorieLimit: number;
+  calorieLimit: number;
 }
 
 interface BaseContextData {
@@ -26,6 +26,15 @@ export const BaseProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [isBaseConfigDone, setIsBaseConfigDone] = useState(false);
   const [baseConfig, setBaseConfigState] = useState<BaseConfig | null>(null);
+
+  useEffect(() => {
+    const fetchBaseConfig = async () => {
+      const response = await getBaseConfig();
+      console.log(response);
+      setBaseConfig(response);
+    };
+    fetchBaseConfig();
+  }, []);
 
   const setBaseConfig = (config: BaseConfig) => {
     setupBaseConfig(config);

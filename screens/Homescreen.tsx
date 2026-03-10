@@ -4,10 +4,7 @@ import { COLORS } from "../utils/Constants";
 import FastingTracker from "../components/FastingTracker";
 import Divider from "../components/Divider";
 import DailySummary from "../components/DailySummary";
-import {
-  getUserSummary,
-  updateFastingStatus,
-} from "../utils/http";
+import { getUserSummary, updateFastingStatus } from "../utils/http";
 import Toast from "react-native-toast-message";
 import { useBaseContext } from "../context/BaseContext";
 import { useFocusEffect } from "@react-navigation/native";
@@ -47,7 +44,6 @@ const Homescreen = () => {
         trackingState: trackingState === "FASTING" ? "EATING" : "FASTING",
         startTime: new Date().toISOString(),
       });
-      console.log("Update success:", fastingStatus);
 
       setTrackingState(fastingStatus.status);
       setStartTime(new Date(fastingStatus.startTime));
@@ -71,7 +67,7 @@ const Homescreen = () => {
   useFocusEffect(
     useCallback(() => {
       fetchUserSummary();
-    }, [fetchUserSummary])
+    }, [fetchUserSummary]),
   );
 
   return (
@@ -91,7 +87,7 @@ const Homescreen = () => {
             <Divider />
             <DailySummary
               consumed={consumedCalories}
-              maxLimit={baseConfig?.dailyCalorieLimit}
+              maxLimit={baseConfig?.calorieLimit}
               mealLog={mealLogs}
             />
           </>
@@ -108,6 +104,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
     padding: 10,
+    paddingTop: 50,
     justifyContent: "center",
   },
 });
