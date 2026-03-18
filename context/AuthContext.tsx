@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import { doLogin, doSignup, setAuthToken } from "../utils/http";
 
 interface AuthContextData {
@@ -93,6 +94,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Failed to remove login status", e);
     }
   };
+
+  useEffect(() => {
+    const responseInterceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response && error.response.status === 403) {
+          logout();
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.response.eject(responseInterceptor);
+    };
+  }, []);
 
   return (
     <AuthContext.Provider

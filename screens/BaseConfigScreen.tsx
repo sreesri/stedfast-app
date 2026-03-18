@@ -7,9 +7,7 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
+import TimePickerModal from "../components/TimePickerModal";
 import { COLORS } from "../utils/Constants";
 import { useBaseContext } from "../context/BaseContext";
 import ActionButton from "../components/ActionButton";
@@ -44,8 +42,8 @@ const BaseConfigScreen = () => {
     }
   };
 
-  const onTimeChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    setShowPicker(Platform.OS === "ios");
+  const onTimeChange = (selectedDate: Date) => {
+    setShowPicker(false);
     if (selectedDate) {
       setDate(selectedDate);
     }
@@ -121,18 +119,12 @@ const BaseConfigScreen = () => {
           <Text style={styles.changeText}>Change</Text>
         </TouchableOpacity>
 
-        {showPicker && (
-          <DateTimePicker
-            value={date}
-            mode="time"
-            is24Hour={false}
-            design="material"
-            display="spinner"
-            accentColor={COLORS.primary}
-            textColor={COLORS.primary}
-            onChange={onTimeChange}
-          />
-        )}
+        <TimePickerModal
+          visible={showPicker}
+          onClose={() => setShowPicker(false)}
+          onConfirm={onTimeChange}
+          initialTime={date}
+        />
 
         <Text style={styles.label}>Daily Calorie Limit</Text>
         <View>

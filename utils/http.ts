@@ -129,5 +129,7 @@ export const setupBaseConfig = async ({
 
 export const getBaseConfig = async () => {
   const response = await axios.get(`${API_URL}/api/user/settings`);
+  console.log("getBaseConfig", response);
+
   return response.data;
 };

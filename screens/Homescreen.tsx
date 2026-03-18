@@ -4,6 +4,7 @@ import { COLORS } from "../utils/Constants";
 import FastingTracker from "../components/FastingTracker";
 import Divider from "../components/Divider";
 import DailySummary from "../components/DailySummary";
+import TimePickerModal from "../components/TimePickerModal";
 import { getUserSummary, updateFastingStatus } from "../utils/http";
 import Toast from "react-native-toast-message";
 import { useBaseContext } from "../context/BaseContext";
@@ -13,6 +14,7 @@ const Homescreen = () => {
   const [isLoading, setLoading] = useState(true);
   const [trackingState, setTrackingState] = useState("FASTING");
   const [startTime, setStartTime] = useState(new Date());
+  const [isTimePickerVisible, setTimePickerVisible] = useState(false);
   const [mealLogs, setMealLogs] = useState([]);
   const [consumedCalories, setConsumedCalories] = useState(0);
   const { baseConfig } = useBaseContext();
@@ -38,15 +40,16 @@ const Homescreen = () => {
     }
   }, []);
 
-  const handleTogglePhase = async () => {
+  const handleTogglePhase = async (selectedTime: Date) => {
     try {
       const fastingStatus = await updateFastingStatus({
         trackingState: trackingState === "FASTING" ? "EATING" : "FASTING",
-        startTime: new Date().toISOString(),
+        startTime: selectedTime.toISOString(),
       });
 
       setTrackingState(fastingStatus.status);
       setStartTime(new Date(fastingStatus.startTime));
+      setTimePickerVisible(false);
       Toast.show({
         type: "success",
         text1: "Status Updated",
@@ -80,7 +83,7 @@ const Homescreen = () => {
             <FastingTracker
               trackingState={trackingState}
               startTime={startTime}
-              onToggle={handleTogglePhase}
+              onToggle={() => setTimePickerVisible(true)}
               fastRatio={baseConfig?.fastingWindow}
               eatRatio={baseConfig?.eatingWindow}
             />
@@ -89,6 +92,12 @@ const Homescreen = () => {
               consumed={consumedCalories}
               maxLimit={baseConfig?.calorieLimit}
               mealLog={mealLogs}
+            />
+            <TimePickerModal
+              visible={isTimePickerVisible}
+              initialTime={new Date()}
+              onClose={() => setTimePickerVisible(false)}
+              onConfirm={handleTogglePhase}
             />
           </>
         )}
