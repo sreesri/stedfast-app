@@ -42,20 +42,25 @@ export const BaseProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     const fetchBaseConfig = async () => {
+      console.log("fetchBaseConfig: Starting...");
       setIsBaseConfigLoading(true);
       try {
         const response = await getBaseConfig();
+        console.log("fetchBaseConfig: Received response:", response);
         if (response && Object.keys(response).length > 0) {
           setBaseConfigState(response);
           setIsBaseConfigDone(true);
+          console.log("fetchBaseConfig: Config found, setIsBaseConfigDone(true)");
         } else {
+          console.log("fetchBaseConfig: No config found, setIsBaseConfigDone(false)");
           setIsBaseConfigDone(false);
         }
       } catch (e) {
-        console.log("No base config found or error fetching:", e);
+        console.log("fetchBaseConfig: No base config found or error fetching:", e);
         setIsBaseConfigDone(false);
       } finally {
         setIsBaseConfigLoading(false);
+        console.log("fetchBaseConfig: isBaseConfigLoading set to false");
       }
     };
 

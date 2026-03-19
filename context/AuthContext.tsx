@@ -53,17 +53,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     password: string;
   }) => {
     try {
+      console.log("Attempting login for:", email);
       const response = await doLogin({ email, password });
       // response.token and response.userId are assumed based on plan
       const { token } = response;
       if (token) {
+        console.log("Login successful, saving token...");
         await AsyncStorage.setItem("userToken", token);
         setUserToken(token);
         setAuthToken(token);
         setIsLoggedIn(true);
+        console.log("isLoggedIn set to true");
+      } else {
+        console.error("Login response did not contain a token");
+        throw new Error("No token received");
       }
     } catch (e) {
-      console.error("Failed to save login status", e);
+      console.error("Failed to login or save login status:", e);
+      throw e; // Re-throw so LoginScreen can catch and show error toast
     }
   };
 
