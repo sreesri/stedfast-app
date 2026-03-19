@@ -30,11 +30,10 @@ const CustomScrollPicker = ({ data, selectedValue, onValueChange }) => {
     const index = data.indexOf(selectedValue);
     if (index !== -1) {
       setSelectedIndex(index);
-      setTimeout(() => {
-        flatListRef.current?.scrollToIndex({ index, animated: false });
-      }, 100);
     }
   }, [selectedValue, data]);
+
+  const initialIndex = data.indexOf(selectedValue);
 
   const onMomentumScrollEnd = (event) => {
     const y = event.nativeEvent.contentOffset.y;
@@ -76,12 +75,22 @@ const CustomScrollPicker = ({ data, selectedValue, onValueChange }) => {
         snapToInterval={ITEM_HEIGHT}
         decelerationRate="fast"
         onMomentumScrollEnd={onMomentumScrollEnd}
+        initialScrollIndex={initialIndex !== -1 ? initialIndex : 0}
+        scrollEventThrottle={16}
         // getItemLayout makes scrollToIndex exact
         getItemLayout={(_, index) => ({
           length: ITEM_HEIGHT,
           offset: ITEM_HEIGHT * index,
           index,
         })}
+        onScrollToIndexFailed={(info) => {
+          setTimeout(() => {
+            flatListRef.current?.scrollToIndex({
+              index: info.index,
+              animated: false,
+            });
+          }, 100);
+        }}
         bounces={false}
       />
     </View>
@@ -127,17 +136,18 @@ const TimePickerModal = ({ visible, onClose, onConfirm, initialTime }) => {
 
   return (
     <Modal visible={visible} transparent animationType="slide">
-      <TouchableOpacity
-        style={styles.overlay}
-        activeOpacity={1}
-        onPress={onClose}
-      >
-        <TouchableOpacity activeOpacity={1} style={styles.modalContainer}>
+      <View style={styles.overlay}>
+        <TouchableOpacity
+          style={StyleSheet.absoluteFill}
+          onPress={onClose}
+          activeOpacity={1}
+        />
+        <View style={styles.modalContainer}>
           <Text style={styles.title}>Select Time</Text>
 
           {/* Custom Roller Picker */}
           <View style={styles.pickerContainer}>
-            <View style={styles.selectionOverlay} />
+            <View style={styles.selectionOverlay} pointerEvents="none" />
             <CustomScrollPicker
               data={hoursList}
               selectedValue={selectedHour}
@@ -168,8 +178,8 @@ const TimePickerModal = ({ visible, onClose, onConfirm, initialTime }) => {
               <Text style={styles.buttonTextConfirm}>Confirm</Text>
             </TouchableOpacity>
           </View>
-        </TouchableOpacity>
-      </TouchableOpacity>
+        </View>
+      </View>
     </Modal>
   );
 };
