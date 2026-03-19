@@ -104,6 +104,27 @@ export const createMealLog = async ({
   return response.data;
 };
 
+export const updateMealLog = async ({
+  id,
+  name,
+  time,
+  calories,
+  dish,
+}: any) => {
+  const response = await axios.put(`${API_URL}/api/meallog/${id}`, {
+    mealType: name,
+    mealTime: time,
+    calories,
+    dish,
+  });
+  return response.data;
+};
+
+export const deleteMealLog = async (id: string) => {
+  const response = await axios.delete(`${API_URL}/api/meallog/${id}`);
+  return response.data;
+};
+
 export const setupBaseConfig = async ({
   fastingWindow,
   eatingWindow,
@@ -129,7 +150,6 @@ export const setupBaseConfig = async ({
 
 export const getBaseConfig = async () => {
   const response = await axios.get(`${API_URL}/api/user/settings`);
-  console.log("getBaseConfig", response);
 
   return response.data;
 };

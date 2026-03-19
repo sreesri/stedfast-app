@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React from "react";
 import { COLORS } from "../utils/Constants";
 
-const MealLogItem = ({ meal }) => {
+const MealLogItem = ({ meal, onPress }) => {
   return (
-    <View style={styles.contianer}>
+    <TouchableOpacity style={styles.contianer} onPress={() => onPress?.(meal)} activeOpacity={0.8}>
       <View style={styles.mealLogItem}>
         <View style={styles.mealLogItemHeader}>
           <Text style={styles.mealLogItemTitle}>{meal.mealType}</Text>
@@ -17,7 +17,7 @@ const MealLogItem = ({ meal }) => {
       <View style={styles.calorieContainer}>
         <Text style={styles.mealLogItemCalories}>{meal.calories}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

@@ -3,13 +3,13 @@ import React from "react";
 import { COLORS } from "../utils/Constants";
 import MealLogItem from "./MealLogItem";
 
-const MealLogContainer = ({ meal }) => {
+const MealLogContainer = ({ meal, onPressItem }) => {
   return (
     <View style={styles.mealLogContainer}>
       <FlatList
         data={meal}
         keyExtractor={(item, index) => String(item?.id ?? item?._id ?? index)}
-        renderItem={({ item }) => <MealLogItem meal={item} />}
+        renderItem={({ item }) => <MealLogItem meal={item} onPress={onPressItem} />}
         showsVerticalScrollIndicator={false}
       />
     </View>

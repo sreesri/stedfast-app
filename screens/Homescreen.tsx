@@ -1,5 +1,5 @@
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { COLORS } from "../utils/Constants";
 import FastingTracker from "../components/FastingTracker";
 import Divider from "../components/Divider";
@@ -8,47 +8,27 @@ import TimePickerModal from "../components/TimePickerModal";
 import { getUserSummary, updateFastingStatus } from "../utils/http";
 import Toast from "react-native-toast-message";
 import { useBaseContext } from "../context/BaseContext";
-import { useFocusEffect } from "@react-navigation/native";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const Homescreen = () => {
-  const [isLoading, setLoading] = useState(true);
-  const [trackingState, setTrackingState] = useState("FASTING");
-  const [startTime, setStartTime] = useState(new Date());
   const [isTimePickerVisible, setTimePickerVisible] = useState(false);
-  const [mealLogs, setMealLogs] = useState([]);
-  const [consumedCalories, setConsumedCalories] = useState(0);
   const { baseConfig } = useBaseContext();
+  const queryClient = useQueryClient();
 
-  const fetchUserSummary = useCallback(async () => {
-    try {
-      setLoading(true);
-      const userSummary = await getUserSummary();
-      setTrackingState(userSummary.fasting.status);
-      setStartTime(new Date(userSummary.fasting.startTime));
-      setMealLogs(userSummary.mealLogs ?? []);
-      setConsumedCalories(userSummary.totalCalories ?? 0);
-    } catch (error) {
-      console.error("Failed to fetch user summary:", error);
-      Toast.show({
-        type: "error",
-        text1: "Load Failed",
-        text2: "Could not refresh your dashboard.",
-        position: "bottom",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const { data: userSummary, isLoading } = useQuery({
+    queryKey: ['userSummary'],
+    queryFn: getUserSummary,
+  });
 
-  const handleTogglePhase = async (selectedTime: Date) => {
-    try {
-      const fastingStatus = await updateFastingStatus({
-        trackingState: trackingState === "FASTING" ? "EATING" : "FASTING",
-        startTime: selectedTime.toISOString(),
-      });
+  const trackingState = userSummary?.fasting?.status ?? "FASTING";
+  const startTime = userSummary?.fasting?.startTime ? new Date(userSummary.fasting.startTime) : new Date();
+  const mealLogs = userSummary?.mealLogs ?? [];
+  const consumedCalories = userSummary?.totalCalories ?? 0;
 
-      setTrackingState(fastingStatus.status);
-      setStartTime(new Date(fastingStatus.startTime));
+  const updateFastingMutation = useMutation({
+    mutationFn: updateFastingStatus,
+    onSuccess: (fastingStatus) => {
+      queryClient.invalidateQueries({ queryKey: ['userSummary'] });
       setTimePickerVisible(false);
       Toast.show({
         type: "success",
@@ -56,7 +36,8 @@ const Homescreen = () => {
         text2: `You are now ${fastingStatus.status.toLowerCase()}.`,
         position: "bottom",
       });
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error("Failed to update fasting status:", error);
       Toast.show({
         type: "error",
@@ -65,13 +46,14 @@ const Homescreen = () => {
         position: "bottom",
       });
     }
-  };
+  });
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchUserSummary();
-    }, [fetchUserSummary]),
-  );
+  const handleTogglePhase = (selectedTime: Date) => {
+    updateFastingMutation.mutate({
+      trackingState: trackingState === "FASTING" ? "EATING" : "FASTING",
+      startTime: selectedTime.toISOString(),
+    });
+  };
 
   return (
     <>

@@ -11,57 +11,88 @@ import {
   TouchableWithoutFeedback,
   ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState, useMemo } from "react";
+import RadioGroup, { RadioButtonProps } from "react-native-radio-buttons-group";
 import { COLORS } from "../utils/Constants";
 import MealLogContainer from "../components/MealLogContainer";
-import { createMealLog, getMealLogs } from "../utils/http";
+import { createMealLog, updateMealLog, deleteMealLog, getMealLogs } from "../utils/http";
 import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const MealLogsScreen = () => {
-  const [mealLogs, setMealLogs] = useState([]);
-  const [isSaving, setIsSaving] = useState(false);
   const navigation = useNavigation<any>();
+  const queryClient = useQueryClient();
+
+  const { data: mealLogsData } = useQuery({
+    queryKey: ['mealLogs'],
+    queryFn: getMealLogs,
+  });
+  const mealLogs = mealLogsData?.mealLogs ?? mealLogsData ?? [];
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [name, setName] = useState("");
+  const [editingMeal, setEditingMeal] = useState<any>(null);
+  const [name, setName] = useState("BREAKFAST");
   const [time, setTime] = useState("");
+
+  const radioButtons: RadioButtonProps[] = useMemo(
+    () => [
+      {
+        id: "BREAKFAST",
+        label: "Breakfast",
+        value: "Breakfast",
+        color: COLORS.primary,
+        labelStyle: { color: COLORS.primary },
+      },
+      {
+        id: "LUNCH",
+        label: "Lunch",
+        value: "Lunch",
+        color: COLORS.primary,
+        labelStyle: { color: COLORS.primary },
+      },
+      {
+        id: "DINNER",
+        label: "Dinner",
+        value: "Dinner",
+        color: COLORS.primary,
+        labelStyle: { color: COLORS.primary },
+      },
+      {
+        id: "SNACK",
+        label: "Snacks",
+        value: "Snacks",
+        color: COLORS.primary,
+        labelStyle: { color: COLORS.primary },
+      },
+    ],
+    [],
+  );
   const [calories, setCalories] = useState("");
   const [dish, setDish] = useState("");
 
-  useEffect(() => {
-    const fetchMealLogs = async () => {
-      try {
-        const response = await getMealLogs();
-        setMealLogs(response?.mealLogs ?? response ?? []);
-      } catch (error) {
-        console.error("Failed to fetch meal logs:", error);
-      }
-    };
-    fetchMealLogs();
-  }, []);
+  const handleEditPress = (meal: any) => {
+    setEditingMeal(meal);
+    setName(meal.mealType?.toUpperCase() || "BREAKFAST");
+    setCalories(String(meal.calories || ""));
+    setDish(meal.dish || "");
+    setModalVisible(true);
+  };
 
-  const handleSave = async () => {
-    if (!name || !calories || !dish) return;
-
-    try {
-      setIsSaving(true);
-      await createMealLog({
-        name,
-        time: new Date().toISOString(),
-        calories: parseInt(calories) || 0,
-        dish,
-      });
-
+  const createMealMutation = useMutation({
+    mutationFn: createMealLog,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userSummary'] });
+      queryClient.invalidateQueries({ queryKey: ['mealLogs'] });
       Toast.show({
         type: "success",
         text1: "Meal saved",
         position: "bottom",
       });
-
       handleCloseModal();
       navigation.goBack();
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error("Failed to save meal:", error);
       Toast.show({
         type: "error",
@@ -69,22 +100,86 @@ const MealLogsScreen = () => {
         text2: "Could not save your meal. Please try again.",
         position: "bottom",
       });
-    } finally {
-      setIsSaving(false);
+    }
+  });
+
+  const updateMealMutation = useMutation({
+    mutationFn: updateMealLog,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userSummary'] });
+      queryClient.invalidateQueries({ queryKey: ['mealLogs'] });
+      Toast.show({ type: "success", text1: "Meal updated", position: "bottom" });
+      handleCloseModal();
+    },
+    onError: (error) => {
+      console.error("Failed to update meal:", error);
+      Toast.show({ type: "error", text1: "Update failed", text2: "Could not update your meal. Please try again.", position: "bottom" });
+    }
+  });
+
+  const deleteMealMutation = useMutation({
+    mutationFn: deleteMealLog,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userSummary'] });
+      queryClient.invalidateQueries({ queryKey: ['mealLogs'] });
+      Toast.show({ type: "success", text1: "Meal deleted", position: "bottom" });
+      handleCloseModal();
+    },
+    onError: (error) => {
+      console.error("Failed to delete meal:", error);
+      Toast.show({ type: "error", text1: "Delete failed", text2: "Could not delete your meal. Please try again.", position: "bottom" });
+    }
+  });
+
+  const handleSave = () => {
+    if (!name || !calories || !dish) {
+      Toast.show({
+        type: "error",
+        text1: "Validation Error",
+        text2: "Please enter both calories and the dish name.",
+        position: "bottom",
+      });
+      return;
+    }
+
+    if (editingMeal) {
+      updateMealMutation.mutate({
+        id: editingMeal.id || editingMeal._id,
+        name,
+        time: editingMeal.mealTime || new Date().toISOString(),
+        calories: parseInt(calories) || 0,
+        dish,
+      });
+    } else {
+      createMealMutation.mutate({
+        name,
+        time: new Date().toISOString(),
+        calories: parseInt(calories) || 0,
+        dish,
+      });
+    }
+  };
+
+  const handleDelete = () => {
+    if (editingMeal) {
+      deleteMealMutation.mutate(editingMeal.id || editingMeal._id);
     }
   };
 
   const handleCloseModal = () => {
     setModalVisible(false);
-    setName("");
+    setEditingMeal(null);
+    setName("BREAKFAST");
     setTime("");
     setCalories("");
     setDish("");
   };
 
+  const isPending = createMealMutation.isPending || updateMealMutation.isPending || deleteMealMutation.isPending;
+
   return (
     <View style={styles.container}>
-      <MealLogContainer meal={mealLogs} />
+      <MealLogContainer meal={mealLogs} onPressItem={handleEditPress} />
 
       <TouchableOpacity
         style={styles.fab}
@@ -106,14 +201,15 @@ const MealLogsScreen = () => {
               behavior={Platform.OS === "ios" ? "padding" : "height"}
               style={styles.modalContent}
             >
-              <Text style={styles.modalTitle}>Add New Meal</Text>
+              <Text style={styles.modalTitle}>{editingMeal ? "Edit Meal" : "Add New Meal"}</Text>
 
-              <TextInput
-                style={styles.input}
-                placeholder="Meal Name (e.g. Snack)"
-                placeholderTextColor="#888"
-                value={name}
-                onChangeText={setName}
+              <Text style={styles.label}>Meal Type</Text>
+              <RadioGroup
+                radioButtons={radioButtons}
+                onPress={setName}
+                selectedId={name}
+                layout="row"
+                containerStyle={styles.radioGroup}
               />
               <TextInput
                 style={styles.input}
@@ -132,6 +228,15 @@ const MealLogsScreen = () => {
               />
 
               <View style={styles.modalActions}>
+                {editingMeal && (
+                  <TouchableOpacity
+                    style={[styles.button, styles.deleteButton]}
+                    onPress={handleDelete}
+                    disabled={isPending}
+                  >
+                    <Text style={styles.deleteButtonText}>Delete</Text>
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
                   style={[styles.button, styles.cancelButton]}
                   onPress={handleCloseModal}
@@ -141,12 +246,12 @@ const MealLogsScreen = () => {
                 <TouchableOpacity
                   style={[styles.button, styles.saveButton]}
                   onPress={handleSave}
-                  disabled={isSaving}
+                  disabled={isPending}
                 >
-                  {isSaving ? (
+                  {isPending ? (
                     <ActivityIndicator color="#fff" />
                   ) : (
-                    <Text style={styles.saveButtonText}>Save</Text>
+                    <Text style={styles.saveButtonText}>{editingMeal ? "Update" : "Save"}</Text>
                   )}
                 </TouchableOpacity>
               </View>
@@ -192,7 +297,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.0)",
   },
   modalContent: {
     width: "85%",
@@ -211,6 +316,19 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     marginBottom: 15,
     textAlign: "center",
+  },
+  label: {
+    fontSize: 16,
+    color: COLORS.primary,
+    fontWeight: "600",
+    marginBottom: 8,
+    alignSelf: "flex-start",
+  },
+  radioGroup: {
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
+    marginBottom: 15,
+    width: "100%",
   },
   input: {
     width: "100%",
@@ -240,14 +358,23 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.secondary,
     borderWidth: 1,
     borderColor: COLORS.primary,
-    marginRight: 10,
+    marginHorizontal: 5,
   },
   saveButton: {
     backgroundColor: COLORS.primary,
-    marginLeft: 10,
+    marginLeft: 5,
+  },
+  deleteButton: {
+    backgroundColor: "#ff4d4d",
+    marginRight: 5,
   },
   cancelButtonText: {
     color: COLORS.primary,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  deleteButtonText: {
+    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },

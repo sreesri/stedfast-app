@@ -1,4 +1,5 @@
 import React from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { StatusBar } from "expo-status-bar";
@@ -89,7 +90,7 @@ function AuthenticatedStack() {
         options={{
           headerShown: true,
           headerStyle: {
-            backgroundColor: COLORS.secondary,
+            backgroundColor: COLORS.background,
           },
           headerTitleAlign: "center",
         }}
@@ -100,9 +101,9 @@ function AuthenticatedStack() {
 
 function Navigation() {
   const { isLoggedIn, isLoading } = useAuth();
-  const { isBaseConfigDone } = useBaseContext();
+  const { isBaseConfigDone, isBaseConfigLoading } = useBaseContext();
 
-  if (isLoading) {
+  if (isLoading || (isLoggedIn && isBaseConfigLoading)) {
     return (
       <View
         style={{
@@ -140,14 +141,18 @@ function Navigation() {
   );
 }
 
+const queryClient = new QueryClient();
+
 export default function App() {
   return (
-    <AuthProvider>
-      <BaseProvider>
-        <Navigation />
-        <Toast />
-      </BaseProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <BaseProvider>
+          <Navigation />
+          <Toast />
+        </BaseProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
