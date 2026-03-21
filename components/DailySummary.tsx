@@ -11,7 +11,7 @@ const DailySummary = ({ consumed, maxLimit, mealLog }) => {
       <Text style={styles.titleText}>DailySummary</Text>
       <CalorieTracker consumedCalories={consumed} maxCalories={maxLimit} />
       <Divider />
-      <MealLogContainer meal={mealLog} />
+      <MealLogContainer meal={mealLog} onPressItem={undefined} />
     </View>
   );
 };

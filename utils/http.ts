@@ -1,21 +1,38 @@
 import axios from "axios";
+import { CONFIG } from "./config";
+import {
+  AuthResponse,
+  BaseConfig,
+  FastingStatus,
+  MealLog,
+  UserSummary,
+} from "./types";
 
-// axios.interceptors.request.use((request) => {
-//   console.log("Starting Request", JSON.stringify(request, null, 2));
-//   return request;
-// });
-// axios.interceptors.response.use((response) => {
-//   console.log("Response:", JSON.stringify(response.data, null, 2));
-//   return response;
-// });
+// Create a dedicated axios instance to avoid global mutations
+const api = axios.create({
+  baseURL: CONFIG.API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-const API_URL = "https://stedfast-backend.onrender.com";
-
+// Response interceptor for central error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      // In a real app, we might trigger a logout event or clear storage here.
+      // For now, we'll let the context handle it if it still needs to, 
+      // but industry standard is to have a logout utility.
+    }
+    return Promise.reject(error);
+  }
+);
 export const setAuthToken = (token: string | null) => {
   if (token) {
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   } else {
-    delete axios.defaults.headers.common["Authorization"];
+    delete api.defaults.headers.common["Authorization"];
   }
 };
 
@@ -25,8 +42,8 @@ export const doLogin = async ({
 }: {
   email: string;
   password: string;
-}) => {
-  const response = await axios.post(`${API_URL}/api/auth/login`, {
+}): Promise<AuthResponse> => {
+  const response = await api.post("/api/auth/login", {
     email,
     password,
   });
@@ -41,8 +58,8 @@ export const doSignup = async ({
   name: string;
   email: string;
   password: string;
-}) => {
-  const response = await axios.post(`${API_URL}/api/auth/register`, {
+}): Promise<any> => {
+  const response = await api.post("/api/auth/register", {
     name,
     email,
     password,
@@ -50,9 +67,8 @@ export const doSignup = async ({
   return response.data;
 };
 
-export const getFastingStatus = async () => {
-  const response = await axios.get(`${API_URL}/api/fasting/current-status`);
-
+export const getFastingStatus = async (): Promise<FastingStatus> => {
+  const response = await api.get("/api/fasting/current-status");
   return response.data;
 };
 
@@ -62,23 +78,22 @@ export const updateFastingStatus = async ({
 }: {
   trackingState: string;
   startTime: string;
-}) => {
-  const response = await axios.post(`${API_URL}/api/fasting/change-status`, {
+}): Promise<any> => {
+  const response = await api.post("/api/fasting/change-status", {
     status: trackingState,
     startTime: startTime,
   });
-
   return response.data;
 };
 
-export const getUserSummary = async () => {
-  const response = await axios.get(`${API_URL}/api/user/summary`);
+export const getUserSummary = async (): Promise<UserSummary> => {
+  const response = await api.get("/api/user/summary");
   return response.data;
 };
 
-export const getMealLogs = async () => {
-  const url = `${API_URL}/api/meallog?date=${new Date().toISOString()}`;
-  const response = await axios.get(url);
+export const getMealLogs = async (): Promise<MealLog[]> => {
+  const url = `/api/meallog?date=${new Date().toISOString()}`;
+  const response = await api.get(url);
   return response.data;
 };
 
@@ -87,15 +102,13 @@ export const createMealLog = async ({
   time,
   calories,
   dish,
-  date,
 }: {
   name: string;
   time: string;
   calories: number;
   dish: string;
-  date?: string;
-}) => {
-  const response = await axios.post(`${API_URL}/api/meallog`, {
+}): Promise<MealLog> => {
+  const response = await api.post("/api/meallog", {
     mealType: name,
     mealTime: time,
     calories,
@@ -110,8 +123,14 @@ export const updateMealLog = async ({
   time,
   calories,
   dish,
-}: any) => {
-  const response = await axios.put(`${API_URL}/api/meallog/${id}`, {
+}: {
+  id: string;
+  name: string;
+  time: string;
+  calories: number;
+  dish: string;
+}): Promise<MealLog> => {
+  const response = await api.put(`/api/meallog/${id}`, {
     mealType: name,
     mealTime: time,
     calories,
@@ -120,8 +139,8 @@ export const updateMealLog = async ({
   return response.data;
 };
 
-export const deleteMealLog = async (id: string) => {
-  const response = await axios.delete(`${API_URL}/api/meallog/${id}`);
+export const deleteMealLog = async (id: string): Promise<any> => {
+  const response = await api.delete(`/api/meallog/${id}`);
   return response.data;
 };
 
@@ -130,16 +149,12 @@ export const setupBaseConfig = async ({
   eatingWindow,
   fastingStartTime,
   calorieLimit,
-}) => {
+}: BaseConfig): Promise<any> => {
   const { hour, minute } = fastingStartTime;
-  // const ampm = hour >= 12 ? "PM" : "AM";
-  // const h = hour % 12 || 12;
   const mm = minute < 10 ? `0${minute}` : minute;
-  // const formattedTime = `${h}:${mm} ${ampm}`;
-
   const formattedTime = `${hour}:${mm}:00`;
 
-  const response = await axios.post(`${API_URL}/api/user/settings`, {
+  const response = await api.post("/api/user/settings", {
     fastingWindow,
     eatingWindow,
     fastingStartTime: formattedTime,
@@ -148,8 +163,9 @@ export const setupBaseConfig = async ({
   return response.data;
 };
 
-export const getBaseConfig = async () => {
-  const response = await axios.get(`${API_URL}/api/user/settings`);
-
+export const getBaseConfig = async (): Promise<BaseConfig> => {
+  const response = await api.get("/api/user/settings");
   return response.data;
 };
+
+export default api;

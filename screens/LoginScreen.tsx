@@ -11,6 +11,8 @@ import { COLORS } from "../utils/Constants";
 import { useAuth } from "../context/AuthContext";
 import Toast from "react-native-toast-message";
 
+import SafeScreen from "../components/SafeScreen";
+
 const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -47,7 +49,7 @@ const LoginScreen = ({ navigation }: any) => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeScreen style={styles.container}>
       <Text style={styles.title}>Stedfast</Text>
       <Text style={styles.subtitle}>Welcome Back</Text>
 
@@ -85,7 +87,7 @@ const LoginScreen = ({ navigation }: any) => {
       <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
         <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
-    </View>
+    </SafeScreen>
   );
 };
 
@@ -93,8 +95,6 @@ export default LoginScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
     justifyContent: "center",
     padding: 20,
   },

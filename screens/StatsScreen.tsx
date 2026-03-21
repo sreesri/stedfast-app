@@ -1,17 +1,15 @@
-import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import WeightLogStats from "../components/WeightLogStats";
+import SafeScreen from "../components/SafeScreen";
 
 const StatsScreen = () => {
   const WEIGHT_DATA = [];
 
   return (
-    <View>
+    <SafeScreen>
       <WeightLogStats weightData={WEIGHT_DATA} />
-    </View>
+    </SafeScreen>
   );
 };
 
 export default StatsScreen;
-
-const styles = StyleSheet.create({});

@@ -1,7 +1,8 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-import { doLogin, doSignup, setAuthToken } from "../utils/http";
+import * as SecureStore from "expo-secure-store";
+import { doLogin, doSignup, setAuthToken, default as api } from "../utils/http";
+import { CONFIG } from "../utils/config";
 
 interface AuthContextData {
   isLoggedIn: boolean;
@@ -29,7 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     // Check if user is logged in on mount
     const checkLoginStatus = async () => {
       try {
-        const token = await AsyncStorage.getItem("userToken");
+        const token = await SecureStore.getItemAsync(CONFIG.STORAGE_KEYS.USER_TOKEN);
         if (token !== null) {
           setUserToken(token);
           setAuthToken(token);
@@ -59,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const { token } = response;
       if (token) {
         console.log("Login successful, saving token...");
-        await AsyncStorage.setItem("userToken", token);
+        await SecureStore.setItemAsync(CONFIG.STORAGE_KEYS.USER_TOKEN, token);
         setUserToken(token);
         setAuthToken(token);
         setIsLoggedIn(true);
@@ -92,8 +93,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = async () => {
     try {
-      await AsyncStorage.removeItem("userToken");
-      await AsyncStorage.removeItem("userId");
+      await SecureStore.deleteItemAsync(CONFIG.STORAGE_KEYS.USER_TOKEN);
+      await AsyncStorage.removeItem(CONFIG.STORAGE_KEYS.USER_ID);
       setUserToken(null);
       setAuthToken(null);
       setIsLoggedIn(false);
@@ -103,10 +104,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   useEffect(() => {
-    const responseInterceptor = axios.interceptors.response.use(
+    const responseInterceptor = api.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.response && error.response.status === 403) {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
           logout();
         }
         return Promise.reject(error);
@@ -114,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     );
 
     return () => {
-      axios.interceptors.response.eject(responseInterceptor);
+      api.interceptors.response.eject(responseInterceptor);
     };
   }, []);
 

@@ -12,6 +12,8 @@ import { COLORS } from "../utils/Constants";
 import { useBaseContext } from "../context/BaseContext";
 import ActionButton from "../components/ActionButton";
 
+import SafeScreen from "../components/SafeScreen";
+
 const BaseConfigScreen = () => {
   const { setBaseConfig } = useBaseContext();
   const [fastingWindow, setFastingWindow] = useState("18");
@@ -76,7 +78,7 @@ const BaseConfigScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeScreen style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Your Plan</Text>
         <Text style={styles.subtitle}>
@@ -145,7 +147,7 @@ const BaseConfigScreen = () => {
           />
         </View>
       </View>
-    </View>
+    </SafeScreen>
   );
 };
 
@@ -153,8 +155,6 @@ export default BaseConfigScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
     justifyContent: "center",
     padding: 20,
   },
