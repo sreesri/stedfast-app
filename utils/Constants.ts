@@ -13,4 +13,5 @@ export const SCREEN = {
   login: "Login",
   signup: "Signup",
   baseconfig: "Base Config",
+  mealedit: "Meal Edit",
 };

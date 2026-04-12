@@ -1,44 +1,32 @@
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React from "react";
-import { COLORS } from "../utils/Constants";
+import { COLORS, SCREEN } from "../utils/Constants";
 import MealLogContainer from "../components/MealLogContainer";
-import MealEditModal from "../components/MealEditModal";
 import { useMealLogs } from "../hooks/useMealLogs";
 import SafeScreen from "../components/SafeScreen";
+import { useNavigation } from "@react-navigation/native";
+import { MealLog } from "../utils/types";
 
 const MealLogsScreen = () => {
-  const {
-    mealLogs,
-    modalVisible,
-    editingMeal,
-    openModal,
-    closeModal,
-    handleSave,
-    handleDelete,
-    isPending,
-  } = useMealLogs();
+  const navigation = useNavigation<any>();
+  const { mealLogs } = useMealLogs();
+
+  const handleEditMeal = (meal?: MealLog) => {
+    navigation.navigate(SCREEN.mealedit, { editingMeal: meal });
+  };
 
   return (
     <SafeScreen style={styles.container}>
       <Text style={styles.title}>Meal Logs</Text>
-      <MealLogContainer meal={mealLogs} onPressItem={openModal} />
+      <MealLogContainer meal={mealLogs} onPressItem={handleEditMeal} />
 
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => openModal()}
+        onPress={() => handleEditMeal()}
         activeOpacity={0.8}
       >
         <Text style={styles.fabIcon}>+</Text>
       </TouchableOpacity>
-
-      <MealEditModal
-        visible={modalVisible}
-        editingMeal={editingMeal}
-        onClose={closeModal}
-        onSave={handleSave}
-        onDelete={handleDelete}
-        isPending={isPending}
-      />
     </SafeScreen>
   );
 };

@@ -3,12 +3,13 @@ import { CONFIG } from "./config";
 import {
   AuthResponse,
   BaseConfig,
-  FastingStatus,
   MealLog,
   UserSummary,
+  FastingSession,
+  FastingSchedule,
+  BodyStat,
 } from "./types";
 
-// Create a dedicated axios instance to avoid global mutations
 const api = axios.create({
   baseURL: CONFIG.API_URL,
   headers: {
@@ -16,18 +17,13 @@ const api = axios.create({
   },
 });
 
-// Response interceptor for central error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-      // In a real app, we might trigger a logout event or clear storage here.
-      // For now, we'll let the context handle it if it still needs to, 
-      // but industry standard is to have a logout utility.
-    }
     return Promise.reject(error);
   }
 );
+
 export const setAuthToken = (token: string | null) => {
   if (token) {
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -36,6 +32,7 @@ export const setAuthToken = (token: string | null) => {
   }
 };
 
+// --- AUTH ---
 export const doLogin = async ({
   email,
   password,
@@ -43,10 +40,7 @@ export const doLogin = async ({
   email: string;
   password: string;
 }): Promise<AuthResponse> => {
-  const response = await api.post("/api/auth/login", {
-    email,
-    password,
-  });
+  const response = await api.post("/api/auth/login", { email, password });
   return response.data;
 };
 
@@ -59,83 +53,80 @@ export const doSignup = async ({
   email: string;
   password: string;
 }): Promise<any> => {
-  const response = await api.post("/api/auth/register", {
-    name,
-    email,
-    password,
-  });
+  const response = await api.post("/api/auth/register", { name, email, password });
   return response.data;
 };
 
-export const getFastingStatus = async (): Promise<FastingStatus> => {
-  const response = await api.get("/api/fasting/current-status");
-  return response.data;
+// --- FASTING ---
+export const getActiveSession = async (): Promise<FastingSession | null> => {
+  try {
+    const response = await api.get("/api/fasting/session/active");
+    if (response.status === 204) return null;
+    return response.data;
+  } catch (error) {
+    return null;
+  }
 };
 
-export const updateFastingStatus = async ({
-  trackingState,
-  startTime,
+export const startSession = async ({
+  scheduleId,
+  sessionType,
 }: {
-  trackingState: string;
-  startTime: string;
-}): Promise<any> => {
-  const response = await api.post("/api/fasting/change-status", {
-    status: trackingState,
-    startTime: startTime,
+  scheduleId: string;
+  sessionType: "FAST" | "EAT";
+}): Promise<FastingSession> => {
+  const response = await api.post("/api/fasting/session/start", {
+    scheduleId,
+    sessionType,
   });
   return response.data;
 };
 
-export const getUserSummary = async (): Promise<UserSummary> => {
-  const response = await api.get("/api/user/summary");
+export const endActiveSession = async (): Promise<any> => {
+  const response = await api.post("/api/fasting/session/end");
   return response.data;
 };
 
+export const getFastingSchedules = async (): Promise<FastingSchedule[]> => {
+  const response = await api.get("/api/fasting/schedules");
+  return response.data;
+};
+
+export const createFastingSchedule = async (data: {
+  fastingHours: number;
+  eatingHours: number;
+  label: string;
+}): Promise<FastingSchedule> => {
+  const response = await api.post("/api/fasting/schedules", data);
+  return response.data;
+};
+
+// --- HEALTH & STATS ---
+export const getHealthStats = async (): Promise<BodyStat[]> => {
+  const response = await api.get("/api/health/stats");
+  return response.data;
+};
+
+export const saveHealthStats = async (data: Partial<BodyStat>): Promise<any> => {
+  const response = await api.post("/api/health/stats", data);
+  return response.data;
+};
+
+// --- MEALS (Legacy/Placeholder) ---
+// Note: user advised these are missing from documentation but we keep them if needed
 export const getMealLogs = async (): Promise<MealLog[]> => {
   const url = `/api/meallog?date=${new Date().toISOString()}`;
   const response = await api.get(url);
   return response.data;
 };
 
-export const createMealLog = async ({
-  name,
-  time,
-  calories,
-  dish,
-}: {
-  name: string;
-  time: string;
-  calories: number;
-  dish: string;
-}): Promise<MealLog> => {
-  const response = await api.post("/api/meallog", {
-    mealType: name,
-    mealTime: time,
-    calories,
-    dish,
-  });
+export const createMealLog = async (data: any): Promise<MealLog> => {
+  const response = await api.post("/api/meallog", data);
   return response.data;
 };
 
-export const updateMealLog = async ({
-  id,
-  name,
-  time,
-  calories,
-  dish,
-}: {
-  id: string;
-  name: string;
-  time: string;
-  calories: number;
-  dish: string;
-}): Promise<MealLog> => {
-  const response = await api.put(`/api/meallog/${id}`, {
-    mealType: name,
-    mealTime: time,
-    calories,
-    dish,
-  });
+export const updateMealLog = async (id: string, data: any): Promise<MealLog> => {
+  const response = await api.put(`/api/meallog/${id}`, data);
   return response.data;
 };
 
@@ -144,27 +135,14 @@ export const deleteMealLog = async (id: string): Promise<any> => {
   return response.data;
 };
 
-export const setupBaseConfig = async ({
-  fastingWindow,
-  eatingWindow,
-  fastingStartTime,
-  calorieLimit,
-}: BaseConfig): Promise<any> => {
-  const { hour, minute } = fastingStartTime;
-  const mm = minute < 10 ? `0${minute}` : minute;
-  const formattedTime = `${hour}:${mm}:00`;
-
-  const response = await api.post("/api/user/settings", {
-    fastingWindow,
-    eatingWindow,
-    fastingStartTime: formattedTime,
-    calorieLimit: calorieLimit,
-  });
+export const getDishTemplates = async (): Promise<any[]> => {
+  const response = await api.get("/api/meal/dishes");
   return response.data;
 };
 
-export const getBaseConfig = async (): Promise<BaseConfig> => {
-  const response = await api.get("/api/user/settings");
+// --- USER SUMMARY (Fallback) ---
+export const getUserSummary = async (): Promise<UserSummary> => {
+  const response = await api.get("/api/user/summary");
   return response.data;
 };
 

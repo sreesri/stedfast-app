@@ -49,7 +49,7 @@ const LoginScreen = ({ navigation }: any) => {
   };
 
   return (
-    <SafeScreen style={styles.container}>
+    <SafeScreen style={styles.container} scrollable={true}>
       <Text style={styles.title}>Stedfast</Text>
       <Text style={styles.subtitle}>Welcome Back</Text>
 

@@ -6,6 +6,7 @@ import { COLORS, SCREEN } from "../utils/Constants";
 import Homescreen from "../screens/Homescreen";
 import StatsScreen from "../screens/StatsScreen";
 import MealLogsScreen from "../screens/MealLogsScreen";
+import MealEditScreen from "../screens/MealEditScreen";
 import { useAuth } from "../context/AuthContext";
 
 const Stack = createStackNavigator();
@@ -66,6 +67,13 @@ export const MainNavigator = () => {
             backgroundColor: COLORS.background,
           },
           headerTitleAlign: "center",
+        }}
+      />
+      <Stack.Screen
+        name={SCREEN.mealedit}
+        component={MealEditScreen}
+        options={{
+          headerShown: false,
         }}
       />
     </Stack.Navigator>

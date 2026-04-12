@@ -1,33 +1,69 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Toast from "react-native-toast-message";
-import { getUserSummary, updateFastingStatus } from "../utils/http";
+import { 
+  getUserSummary, 
+  getActiveSession, 
+  startSession, 
+  endActiveSession,
+  getFastingSchedules 
+} from "../utils/http";
 
 export const useHomeLogic = () => {
   const queryClient = useQueryClient();
   const [isTimePickerVisible, setTimePickerVisible] = useState(false);
 
-  const { data: userSummary, isLoading } = useQuery({
+  // Still fetch userSummary as a fallback for calories/meals if supported
+  const { data: userSummary, isLoading: isSummaryLoading } = useQuery({
     queryKey: ["userSummary"],
     queryFn: getUserSummary,
+    retry: false,
   });
 
-  const trackingState = userSummary?.fasting?.status ?? "FASTING";
-  const startTime = userSummary?.fasting?.startTime
-    ? new Date(userSummary.fasting.startTime)
+  const { data: activeSession, isLoading: isActiveSessionLoading } = useQuery({
+    queryKey: ["activeSession"],
+    queryFn: getActiveSession,
+  });
+
+  const { data: schedules } = useQuery({
+    queryKey: ["fastingSchedules"],
+    queryFn: getFastingSchedules,
+  });
+
+  const isLoading = isSummaryLoading || isActiveSessionLoading;
+
+  const trackingState = activeSession?.sessionType || "FASTING"; // Default if no session
+  const startTime = activeSession?.startedAt
+    ? new Date(activeSession.startedAt)
     : new Date();
+  
   const mealLogs = userSummary?.mealLogs ?? [];
   const consumedCalories = userSummary?.totalCalories ?? 0;
 
-  const updateFastingMutation = useMutation({
-    mutationFn: updateFastingStatus,
-    onSuccess: (fastingStatus) => {
+  const togglePhaseMutation = useMutation({
+    mutationFn: async (selectedTime: Date) => {
+      // 1. End current session if active
+      if (activeSession) {
+        await endActiveSession();
+      }
+
+      // 2. Start new session
+      const nextType = trackingState === "FAST" ? "EAT" : "FAST";
+      const defaultScheduleId = schedules?.[0]?.id || "default";
+      
+      return await startSession({
+        scheduleId: defaultScheduleId,
+        sessionType: nextType,
+      });
+    },
+    onSuccess: (newSession) => {
       queryClient.invalidateQueries({ queryKey: ["userSummary"] });
+      queryClient.invalidateQueries({ queryKey: ["activeSession"] });
       setTimePickerVisible(false);
       Toast.show({
         type: "success",
         text1: "Status Updated",
-        text2: `You are now ${fastingStatus.status.toLowerCase()}.`,
+        text2: `You are now ${newSession.sessionType.toLowerCase()}ing.`,
         position: "bottom",
       });
     },
@@ -43,22 +79,19 @@ export const useHomeLogic = () => {
   });
 
   const handleTogglePhase = (selectedTime: Date) => {
-    updateFastingMutation.mutate({
-      trackingState: trackingState === "FASTING" ? "EATING" : "FASTING",
-      startTime: selectedTime.toISOString(),
-    });
+    togglePhaseMutation.mutate(selectedTime);
   };
 
   return {
     userSummary,
     isLoading,
-    trackingState,
+    trackingState: trackingState === "FAST" ? "FASTING" : "EATING",
     startTime,
     mealLogs,
     consumedCalories,
     isTimePickerVisible,
     setTimePickerVisible,
     handleTogglePhase,
-    isPending: updateFastingMutation.isPending,
+    isPending: togglePhaseMutation.isPending,
   };
 };

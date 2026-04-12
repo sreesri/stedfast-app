@@ -1,3 +1,31 @@
+export interface BodyStat {
+  id: string;
+  loggedDate: string;
+  weightKg: number;
+  heightCm: number;
+  bodyFatPct?: number;
+  waistCm?: number;
+  chestCm?: number;
+  hipsCm?: number;
+  createdAt: string;
+}
+
+export interface FastingSchedule {
+  id: string;
+  fastingHours: number;
+  eatingHours: number;
+  label: string;
+}
+
+export interface FastingSession {
+  id: string;
+  sessionType: "FAST" | "EAT";
+  status: "ACTIVE" | "COMPLETED";
+  startedAt: string;
+  endedAt?: string;
+  durationMinutes?: number;
+}
+
 export interface UserSummary {
   fasting?: {
     status: string;
@@ -16,13 +44,8 @@ export interface MealLog {
   dish: string;
 }
 
-export interface MealLogsResponse {
-  mealLogs: MealLog[];
-}
-
-export interface FastingStatus {
-  status: string;
-  startTime: string;
+export interface AuthResponse {
+  token: string;
 }
 
 export interface BaseConfig {
@@ -33,13 +56,4 @@ export interface BaseConfig {
     minute: number;
   };
   calorieLimit: number;
-}
-
-export interface AuthResponse {
-  token: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-  };
 }

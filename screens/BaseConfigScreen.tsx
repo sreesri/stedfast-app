@@ -7,19 +7,19 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-import TimePickerModal from "../components/TimePickerModal";
+import TimePicker from "../components/TimePicker";
 import { COLORS } from "../utils/Constants";
 import { useBaseContext } from "../context/BaseContext";
 import ActionButton from "../components/ActionButton";
 
 import SafeScreen from "../components/SafeScreen";
+import RatioRoller from "../components/RatioRoller";
 
 const BaseConfigScreen = () => {
   const { setBaseConfig } = useBaseContext();
   const [fastingWindow, setFastingWindow] = useState("18");
   const [eatingWindow, setEatingWindow] = useState("6");
   const [calorieLimit, setCalorieLimit] = useState("2000");
-  const [showPicker, setShowPicker] = useState(false);
 
   // Initialize with a Date object for the picker
   const [date, setDate] = useState(() => {
@@ -41,13 +41,6 @@ const BaseConfigScreen = () => {
     if (val <= 24) {
       setEatingWindow(text);
       setFastingWindow((24 - val).toString());
-    }
-  };
-
-  const onTimeChange = (selectedDate: Date) => {
-    setShowPicker(false);
-    if (selectedDate) {
-      setDate(selectedDate);
     }
   };
 
@@ -78,7 +71,7 @@ const BaseConfigScreen = () => {
   };
 
   return (
-    <SafeScreen style={styles.container}>
+    <SafeScreen style={styles.container} scrollable={false}>
       <View style={styles.header}>
         <Text style={styles.title}>Your Plan</Text>
         <Text style={styles.subtitle}>
@@ -89,44 +82,17 @@ const BaseConfigScreen = () => {
       <View style={styles.card}>
         <Text style={styles.label}>Daily Schedule</Text>
         <View style={styles.windowRow}>
-          <View style={styles.windowInputContainer}>
-            <TextInput
-              style={styles.windowInput}
-              value={fastingWindow}
-              onChangeText={handleFastingChange}
-              keyboardType="numeric"
-              maxLength={2}
-            />
-            <Text style={styles.windowLabel}>Fast</Text>
-          </View>
-          <Text style={styles.separator}>:</Text>
-          <View style={styles.windowInputContainer}>
-            <TextInput
-              style={styles.windowInput}
-              value={eatingWindow}
-              onChangeText={handleEatingChange}
-              keyboardType="numeric"
-              maxLength={2}
-            />
-            <Text style={styles.windowLabel}>Eat</Text>
-          </View>
+          <RatioRoller
+            onValueChange={(value) => {
+              const [fast, eat] = value.split(" : ").map((v) => v.trim());
+              setFastingWindow(fast);
+              setEatingWindow(eat);
+            }}
+          />
         </View>
 
         <Text style={styles.label}>Fasting Start Time</Text>
-        <TouchableOpacity
-          style={styles.timePickerButton}
-          onPress={() => setShowPicker(true)}
-        >
-          <Text style={styles.displayTime}>{formatDisplayTime(date)}</Text>
-          <Text style={styles.changeText}>Change</Text>
-        </TouchableOpacity>
-
-        <TimePickerModal
-          visible={showPicker}
-          onClose={() => setShowPicker(false)}
-          onConfirm={onTimeChange}
-          initialTime={date}
-        />
+        <TimePicker initialTime={date} onTimeChange={(d) => setDate(d)} />
 
         <Text style={styles.label}>Daily Calorie Limit</Text>
         <View>
@@ -160,14 +126,13 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    marginBottom: 40,
+    marginBottom: 20,
     alignItems: "center",
   },
   title: {
     fontSize: 40,
     fontWeight: "bold",
     color: COLORS.primary,
-    marginBottom: 8,
   },
   subtitle: {
     fontSize: 18,
@@ -177,7 +142,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: COLORS.ascent,
-    padding: 30,
+    padding: 20,
     borderRadius: 30,
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 10 },
@@ -191,7 +156,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
     color: COLORS.primary,
-    marginBottom: 16,
     textTransform: "uppercase",
     letterSpacing: 1.5,
     textAlign: "center",
@@ -204,6 +168,7 @@ const styles = StyleSheet.create({
   },
   windowInputContainer: {
     alignItems: "center",
+    marginTop: 10,
   },
   windowInput: {
     fontSize: 48,
@@ -265,5 +230,11 @@ const styles = StyleSheet.create({
   },
   footer: {
     marginTop: 40,
+  },
+  inlinePickerContainer: {
+    marginVertical: 15,
+    backgroundColor: COLORS.background,
+    borderRadius: 20,
+    overflow: "hidden",
   },
 });

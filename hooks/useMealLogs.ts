@@ -14,9 +14,6 @@ export const useMealLogs = () => {
   const navigation = useNavigation<any>();
   const queryClient = useQueryClient();
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [editingMeal, setEditingMeal] = useState<MealLog | null>(null);
-
   const { data: mealLogsData, isLoading } = useQuery({
     queryKey: ["mealLogs"],
     queryFn: getMealLogs,
@@ -32,7 +29,6 @@ export const useMealLogs = () => {
       queryClient.invalidateQueries({ queryKey: ["userSummary"] });
       queryClient.invalidateQueries({ queryKey: ["mealLogs"] });
       Toast.show({ type: "success", text1: "Meal saved", position: "bottom" });
-      closeModal();
       navigation.goBack();
     },
     onError: (error) => {
@@ -56,7 +52,7 @@ export const useMealLogs = () => {
         text1: "Meal updated",
         position: "bottom",
       });
-      closeModal();
+      navigation.goBack();
     },
     onError: (error) => {
       console.error("Failed to update meal:", error);
@@ -79,7 +75,6 @@ export const useMealLogs = () => {
         text1: "Meal deleted",
         position: "bottom",
       });
-      closeModal();
     },
     onError: (error) => {
       console.error("Failed to delete meal:", error);
@@ -92,32 +87,21 @@ export const useMealLogs = () => {
     },
   });
 
-  const openModal = (meal?: MealLog) => {
-    if (meal) {
-      setEditingMeal(meal);
-    } else {
-      setEditingMeal(null);
-    }
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-    setEditingMeal(null);
-  };
-
-  const handleSave = (mealData: {
-    name: string;
-    calories: string;
-    dish: string;
-  }) => {
+  const handleSave = (
+    mealData: {
+      name: string;
+      calories: string;
+      dish: string;
+    },
+    editingMeal?: MealLog | null,
+  ) => {
     const { name, calories, dish } = mealData;
 
     if (!name || !calories || !dish) {
       Toast.show({
         type: "error",
         text1: "Validation Error",
-        text2: "Please enter both calories and the dish name.",
+        text2: "Please fill in all fields.",
         position: "bottom",
       });
       return;
@@ -140,19 +124,13 @@ export const useMealLogs = () => {
     }
   };
 
-  const handleDelete = () => {
-    if (editingMeal) {
-      deleteMealMutation.mutate(editingMeal.id || editingMeal._id!);
-    }
+  const handleDelete = (editingMeal: MealLog) => {
+    deleteMealMutation.mutate(editingMeal.id || editingMeal._id!);
   };
 
   return {
     mealLogs,
     isLoading,
-    modalVisible,
-    editingMeal,
-    openModal,
-    closeModal,
     handleSave,
     handleDelete,
     isPending:
