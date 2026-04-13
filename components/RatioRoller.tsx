@@ -1,5 +1,5 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useRef, useState } from "react";
 import { COLORS } from "../utils/Constants";
 
 const RATIO_DATA = [
@@ -29,7 +29,7 @@ const RATIO_DATA = [
 ];
 
 const ITEM_HEIGHT = 50;
-const CONTAINER_HEIGHT = 150;
+const CONTAINER_HEIGHT = 200;
 const VERTICAL_PADDING = (CONTAINER_HEIGHT - ITEM_HEIGHT) / 2;
 
 interface RatioRollerProps {
@@ -37,7 +37,7 @@ interface RatioRollerProps {
 }
 
 const RatioRoller: React.FC<RatioRollerProps> = ({ onValueChange }) => {
-  const flatListRef = useRef<FlatList>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
   const [selectedItem, setSelectedItem] = useState(RATIO_DATA[17]);
 
   const handleScroll = (event: any) => {
@@ -46,21 +46,33 @@ const RatioRoller: React.FC<RatioRollerProps> = ({ onValueChange }) => {
 
     if (index >= 0 && index < RATIO_DATA.length) {
       const item = RATIO_DATA[index];
-      setSelectedItem(item);
-      onValueChange?.(item.value);
+      if (item.id !== selectedItem.id) {
+        setSelectedItem(item);
+        onValueChange?.(item.value);
+      }
     }
   };
+
+  const initialIndex = 17;
 
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Fasting : Eating</Text>
       <View style={styles.rollerContainer}>
         <View style={styles.selectedItemOverlay} pointerEvents="none" />
-        <FlatList
-          ref={flatListRef}
-          data={RATIO_DATA}
-          renderItem={({ item, index }) => (
-            <View style={styles.itemContainer}>
+        <ScrollView
+          ref={scrollViewRef}
+          showsVerticalScrollIndicator={false}
+          snapToInterval={ITEM_HEIGHT}
+          decelerationRate="fast"
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          nestedScrollEnabled={true}
+          contentContainerStyle={{ paddingVertical: VERTICAL_PADDING }}
+          contentOffset={{ x: 0, y: initialIndex * ITEM_HEIGHT }}
+        >
+          {RATIO_DATA.map((item, index) => (
+            <View key={item.id} style={styles.itemContainer}>
               <Text
                 style={[
                   styles.rollItem,
@@ -70,20 +82,8 @@ const RatioRoller: React.FC<RatioRollerProps> = ({ onValueChange }) => {
                 {item.value}
               </Text>
             </View>
-          )}
-          getItemLayout={(data, index) => ({
-            length: ITEM_HEIGHT,
-            offset: index * ITEM_HEIGHT,
-            index,
-          })}
-          initialScrollIndex={17}
-          keyExtractor={(item) => item.id}
-          snapToInterval={ITEM_HEIGHT}
-          decelerationRate="fast"
-          contentContainerStyle={{ paddingVertical: VERTICAL_PADDING }}
-          showsVerticalScrollIndicator={false}
-          onScroll={handleScroll}
-        />
+          ))}
+        </ScrollView>
       </View>
     </View>
   );
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   rollItem: {
     fontSize: 20,
     fontWeight: "bold",
-    color: COLORS.background,
+    color: COLORS.secondary,
     textAlign: "center",
   },
   selectedRollItem: {

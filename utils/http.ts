@@ -2,13 +2,14 @@ import axios from "axios";
 import { CONFIG } from "./config";
 import {
   AuthResponse,
-  BaseConfig,
   MealLog,
   UserSummary,
   FastingSession,
   FastingSchedule,
   BodyStat,
 } from "./types";
+import { LimitConfig } from "../context/LimitContext";
+import { FastingConfig } from "../context/FastingContext";
 
 const api = axios.create({
   baseURL: CONFIG.API_URL,
@@ -17,11 +18,45 @@ const api = axios.create({
   },
 });
 
-api.interceptors.response.use(
-  (response) => response,
+api.interceptors.request.use(
+  (config) => {
+    console.log(
+      `🚀 [API Request] ${config.method?.toUpperCase()} ${config.url}`,
+      {
+        data: config.data,
+        headers: config.headers,
+      },
+    );
+    return config;
+  },
   (error) => {
+    console.error(`❌ [API Request Error] ${error.message}`);
     return Promise.reject(error);
-  }
+  },
+);
+
+api.interceptors.response.use(
+  (response) => {
+    console.log(
+      `✅ [API Response] ${response.config.method?.toUpperCase()} ${response.config.url} | Status: ${response.status}`,
+      { data: response.data },
+    );
+    return response;
+  },
+  (error) => {
+    const status = error.response?.status;
+    const method = error.config?.method?.toUpperCase();
+    const url = error.config?.url;
+
+    console.error(
+      `❌ [API Response Error] ${method} ${url} | Status: ${status}`,
+      {
+        message: error.message,
+        data: error.response?.data,
+      },
+    );
+    return Promise.reject(error);
+  },
 );
 
 export const setAuthToken = (token: string | null) => {
@@ -53,7 +88,11 @@ export const doSignup = async ({
   email: string;
   password: string;
 }): Promise<any> => {
-  const response = await api.post("/api/auth/register", { name, email, password });
+  const response = await api.post("/api/auth/register", {
+    name,
+    email,
+    password,
+  });
   return response.data;
 };
 
@@ -107,7 +146,9 @@ export const getHealthStats = async (): Promise<BodyStat[]> => {
   return response.data;
 };
 
-export const saveHealthStats = async (data: Partial<BodyStat>): Promise<any> => {
+export const saveHealthStats = async (
+  data: Partial<BodyStat>,
+): Promise<any> => {
   const response = await api.post("/api/health/stats", data);
   return response.data;
 };
@@ -125,7 +166,10 @@ export const createMealLog = async (data: any): Promise<MealLog> => {
   return response.data;
 };
 
-export const updateMealLog = async (id: string, data: any): Promise<MealLog> => {
+export const updateMealLog = async (
+  id: string,
+  data: any,
+): Promise<MealLog> => {
   const response = await api.put(`/api/meallog/${id}`, data);
   return response.data;
 };
@@ -140,9 +184,36 @@ export const getDishTemplates = async (): Promise<any[]> => {
   return response.data;
 };
 
-// --- USER SUMMARY (Fallback) ---
-export const getUserSummary = async (): Promise<UserSummary> => {
-  const response = await api.get("/api/user/summary");
+export const getFastingConfig = async (): Promise<FastingConfig> => {
+  const response = await api.get("/api/fasting/schedules");
+  return response.data;
+};
+
+export const setupFastingConfig = async (
+  config: FastingConfig,
+): Promise<FastingSchedule> => {
+  const { year, month, day, hour, minute } = config.fastingStartTime;
+  // Create a proper date string that backends can parse reliably
+  const startTime = new Date(year, month, day, hour, minute).toISOString();
+
+  const response = await api.post("/api/fasting/schedules", {
+    fastingHours: config.fastingWindow,
+    eatingHours: config.eatingWindow,
+    label: `${config.fastingWindow}:${config.eatingWindow} Schedule`,
+    fastingStartTime: startTime,
+  });
+  return response.data;
+};
+
+export const getLimitConfig = async (): Promise<LimitConfig> => {
+  const response = await api.get("/api/health/stats/limits");
+  return response.data;
+};
+
+export const setupLimitConfig = async (
+  config: LimitConfig,
+): Promise<LimitConfig> => {
+  const response = await api.post("/api/health/stats/limits", config);
   return response.data;
 };
 

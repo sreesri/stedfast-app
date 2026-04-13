@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
 import { COLORS } from "../utils/Constants";
 
 const ITEM_HEIGHT = 50;
-const CONTAINER_HEIGHT = 150;
+const CONTAINER_HEIGHT = 200;
 const VERTICAL_PADDING = (CONTAINER_HEIGHT - ITEM_HEIGHT) / 2;
 
 const monthList = [
@@ -48,7 +48,7 @@ const CustomScrollPicker: React.FC<CustomScrollPickerProps> = ({
   onValueChange,
   width = 60,
 }) => {
-  const flatListRef = useRef<FlatList>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const handleScroll = (event: any) => {
     const yOffset = event.nativeEvent.contentOffset.y;
@@ -65,12 +65,19 @@ const CustomScrollPicker: React.FC<CustomScrollPickerProps> = ({
 
   return (
     <View style={[styles.pickerColumn, { width }]}>
-      <FlatList
-        ref={flatListRef}
-        data={data}
-        keyExtractor={(item, index) => `${item}-${index}`}
-        renderItem={({ item }) => (
-          <View style={styles.itemContainer}>
+      <ScrollView
+        ref={scrollViewRef}
+        showsVerticalScrollIndicator={false}
+        snapToInterval={ITEM_HEIGHT}
+        decelerationRate="fast"
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        nestedScrollEnabled={true}
+        contentContainerStyle={{ paddingVertical: VERTICAL_PADDING }}
+        contentOffset={{ x: 0, y: Math.max(0, initialIndex) * ITEM_HEIGHT }}
+      >
+        {data.map((item, index) => (
+          <View key={`${item}-${index}`} style={styles.itemContainer}>
             <Text
               style={[
                 styles.pickerItemText,
@@ -80,28 +87,8 @@ const CustomScrollPicker: React.FC<CustomScrollPickerProps> = ({
               {item}
             </Text>
           </View>
-        )}
-        showsVerticalScrollIndicator={false}
-        snapToInterval={ITEM_HEIGHT}
-        decelerationRate="fast"
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-        contentContainerStyle={{ paddingVertical: VERTICAL_PADDING }}
-        initialScrollIndex={initialIndex !== -1 ? initialIndex : 0}
-        getItemLayout={(_, index) => ({
-          length: ITEM_HEIGHT,
-          offset: ITEM_HEIGHT * index,
-          index,
-        })}
-        onScrollToIndexFailed={(info) => {
-          setTimeout(() => {
-            flatListRef.current?.scrollToIndex({
-              index: info.index,
-              animated: false,
-            });
-          }, 100);
-        }}
-      />
+        ))}
+      </ScrollView>
     </View>
   );
 };
@@ -303,7 +290,7 @@ const styles = StyleSheet.create({
   },
   pickerItemText: {
     fontSize: 14,
-    color: COLORS.background,
+    color: COLORS.secondary,
   },
   pickerItemTextSelected: {
     fontSize: 18,

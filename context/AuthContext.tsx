@@ -30,7 +30,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     // Check if user is logged in on mount
     const checkLoginStatus = async () => {
       try {
-        const token = await SecureStore.getItemAsync(CONFIG.STORAGE_KEYS.USER_TOKEN);
+        const token = await SecureStore.getItemAsync(
+          CONFIG.STORAGE_KEYS.USER_TOKEN,
+        );
         if (token !== null) {
           setUserToken(token);
           setAuthToken(token);
@@ -56,6 +58,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       console.log("Attempting login for:", email);
       const response = await doLogin({ email, password });
+      console.log(response);
+
       // response.token and response.userId are assumed based on plan
       const { token } = response;
       if (token) {
@@ -107,11 +111,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const responseInterceptor = api.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+        if (
+          error.response &&
+          (error.response.status === 401 || error.response.status === 403)
+        ) {
           logout();
         }
         return Promise.reject(error);
-      }
+      },
     );
 
     return () => {

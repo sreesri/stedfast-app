@@ -12,6 +12,7 @@ export const SCREEN = {
   meallogs: "Meal Logs",
   login: "Login",
   signup: "Signup",
-  baseconfig: "Base Config",
+  fastingconfig: "Fasting Config",
+  limitConfig: "Limit Config",
   mealedit: "Meal Edit",
 };

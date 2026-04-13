@@ -1,16 +1,24 @@
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React from "react";
 import { COLORS } from "../utils/Constants";
 import FastingTracker from "../components/FastingTracker";
 import Divider from "../components/Divider";
 import DailySummary from "../components/DailySummary";
 import TimePicker from "../components/TimePicker";
-import { useBaseContext } from "../context/BaseContext";
+import { useFastingContext } from "../context/FastingContext";
 import { useHomeLogic } from "../hooks/useHomeLogic";
 import SafeScreen from "../components/SafeScreen";
+import { useLimitContext } from "../context/LimitContext";
 
 const Homescreen = () => {
-  const { baseConfig } = useBaseContext();
+  const { fastingConfig } = useFastingContext();
+  const { limitConfig } = useLimitContext();
   const {
     isLoading,
     trackingState,
@@ -32,21 +40,22 @@ const Homescreen = () => {
             trackingState={trackingState}
             startTime={startTime}
             onToggle={() => setTimePickerVisible(!isTimePickerVisible)}
-            fastRatio={baseConfig?.fastingWindow}
-            eatRatio={baseConfig?.eatingWindow}
+            fastRatio={fastingConfig?.fastingWindow}
+            eatRatio={fastingConfig?.eatingWindow}
           />
-          
+
           {isTimePickerVisible && (
             <View style={styles.inlinePickerContainer}>
               <Text style={styles.pickerLabel}>
-                Select {trackingState === "FASTING" ? "Eating" : "Fasting"} Start Time
+                Select {trackingState === "FASTING" ? "Eating" : "Fasting"}{" "}
+                Start Time
               </Text>
               <TimePicker
                 initialTime={new Date()}
                 onTimeChange={handleTogglePhase}
               />
-              <TouchableOpacity 
-                style={styles.closePickerButton} 
+              <TouchableOpacity
+                style={styles.closePickerButton}
                 onPress={() => setTimePickerVisible(false)}
               >
                 <Text style={styles.closePickerText}>Cancel</Text>
@@ -57,7 +66,7 @@ const Homescreen = () => {
           <Divider />
           <DailySummary
             consumed={consumedCalories}
-            maxLimit={baseConfig?.calorieLimit}
+            maxLimit={limitConfig?.calorieLimit}
             mealLog={mealLogs}
           />
         </>

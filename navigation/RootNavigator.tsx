@@ -2,20 +2,25 @@ import React from "react";
 import { View, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { COLORS, SCREEN } from "../utils/Constants";
+import { COLORS } from "../utils/Constants";
 import { useAuth } from "../context/AuthContext";
-import { useBaseContext } from "../context/BaseContext";
+import { useFastingContext } from "../context/FastingContext";
 import { AuthNavigator } from "./AuthNavigator";
 import { MainNavigator } from "./MainNavigator";
-import BaseNavigator from "./BaseNavigator";
+import FastingNavigator from "./FastingNavigator";
+import { useLimitContext } from "../context/LimitContext";
 
 const Stack = createStackNavigator();
 
 export const RootNavigator = () => {
   const { isLoggedIn, isLoading } = useAuth();
-  const { isBaseConfigDone, isBaseConfigLoading } = useBaseContext();
+  const { isFastingConfigDone, isFastingConfigLoading } = useFastingContext();
+  const { isLimitConfigDone, isLimitConfigLoading } = useLimitContext();
 
-  if (isLoading || (isLoggedIn && isBaseConfigLoading)) {
+  if (
+    isLoading ||
+    (isLoggedIn && (isFastingConfigLoading || isLimitConfigLoading))
+  ) {
     return (
       <View
         style={{
@@ -30,13 +35,18 @@ export const RootNavigator = () => {
     );
   }
 
+  console.log(isLoading);
+  console.log(isLoggedIn);
+  console.log(isFastingConfigDone);
+  console.log(isLimitConfigDone);
+
   return (
     <NavigationContainer>
       {isLoggedIn ? (
-        isBaseConfigDone ? (
+        isFastingConfigDone && isLimitConfigDone ? (
           <MainNavigator />
         ) : (
-          <BaseNavigator />
+          <FastingNavigator />
         )
       ) : (
         <AuthNavigator />
