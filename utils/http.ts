@@ -7,6 +7,7 @@ import {
   FastingSession,
   FastingSchedule,
   BodyStat,
+  UserIntakeSummary,
 } from "./types";
 import { LimitConfig } from "../context/LimitContext";
 import { FastingConfig } from "../context/FastingContext";
@@ -126,8 +127,8 @@ export const endActiveSession = async (): Promise<any> => {
   return response.data;
 };
 
-export const getFastingSchedules = async (): Promise<FastingSchedule[]> => {
-  const response = await api.get("/api/fasting/schedules");
+export const getActiveFastingSchedule = async (): Promise<FastingSchedule> => {
+  const response = await api.get("/api/fasting/schedules/active");
   return response.data;
 };
 
@@ -153,39 +154,20 @@ export const saveHealthStats = async (
   return response.data;
 };
 
-// --- MEALS (Legacy/Placeholder) ---
-// Note: user advised these are missing from documentation but we keep them if needed
-export const getMealLogs = async (): Promise<MealLog[]> => {
-  const url = `/api/meallog?date=${new Date().toISOString()}`;
-  const response = await api.get(url);
-  return response.data;
-};
-
-export const createMealLog = async (data: any): Promise<MealLog> => {
-  const response = await api.post("/api/meallog", data);
-  return response.data;
-};
-
-export const updateMealLog = async (
-  id: string,
-  data: any,
-): Promise<MealLog> => {
-  const response = await api.put(`/api/meallog/${id}`, data);
-  return response.data;
-};
-
-export const deleteMealLog = async (id: string): Promise<any> => {
-  const response = await api.delete(`/api/meallog/${id}`);
-  return response.data;
-};
-
 export const getDishTemplates = async (): Promise<any[]> => {
   const response = await api.get("/api/meal/dishes");
   return response.data;
 };
 
-export const getFastingConfig = async (): Promise<FastingConfig> => {
-  const response = await api.get("/api/fasting/schedules");
+export const getUserSummary = async (): Promise<UserSummary> => {
+  const response = await api.get("/api/meal/summary");
+  return response.data;
+};
+
+export const getIntakeSummary = async (
+  date: string,
+): Promise<UserIntakeSummary[]> => {
+  const response = await api.get(`/api/meal/intake-summary?date=${date}`);
   return response.data;
 };
 

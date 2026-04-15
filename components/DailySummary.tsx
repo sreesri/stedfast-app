@@ -1,31 +1,92 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React from "react";
-import { COLORS } from "../utils/Constants";
-import CalorieTracker from "./CalorieTracker";
-import Divider from "./Divider";
-import MealLogContainer from "./MealLogContainer";
+import { COLORS, SCREEN } from "../utils/Constants";
+import MacroTracker from "./MacroTracker";
+import { useNavigation } from "@react-navigation/native";
 
-const DailySummary = ({ consumed, maxLimit, mealLog }) => {
+const DailySummary = ({ macros }: any) => {
+  const navigation = useNavigation<any>();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.titleText}>DailySummary</Text>
-      <CalorieTracker consumedCalories={consumed} maxCalories={maxLimit} />
-      <Divider />
-      <MealLogContainer meal={mealLog} onPressItem={undefined} />
-    </View>
+    <TouchableOpacity
+      style={styles.cardContainer}
+      activeOpacity={0.9}
+      onPress={() => navigation.navigate(SCREEN.meallogs)}
+    >
+      <View style={styles.header}>
+        <Text style={styles.titleText}>Daily Overview</Text>
+        <Text style={styles.tapText}>Tap for details</Text>
+      </View>
+
+      <MacroTracker
+        label="Calories"
+        consumed={macros.calories.consumed}
+        limit={macros.calories.limit}
+        unit="kcal"
+        color={COLORS.secondary}
+      />
+
+      <View style={styles.macroGrid}>
+        <MacroTracker
+          label="Protein"
+          consumed={macros.protein.consumed}
+          limit={macros.protein.limit}
+          unit="g"
+          color="#FF595E"
+        />
+        <MacroTracker
+          label="Carbs"
+          consumed={macros.carbs.consumed}
+          limit={macros.carbs.limit}
+          unit="g"
+          color="#FFCA3A"
+        />
+        <MacroTracker
+          label="Fat"
+          consumed={macros.fat.consumed}
+          limit={macros.fat.limit}
+          unit="g"
+          color="#1982C4"
+        />
+      </View>
+    </TouchableOpacity>
   );
 };
 
 export default DailySummary;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginBottom: 57,
+  cardContainer: {
+    backgroundColor: COLORS.ascent,
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
   },
   titleText: {
     fontSize: 20,
     fontWeight: "bold",
-    color: COLORS.primary, // Using COLORS constant
+    color: COLORS.primary,
+  },
+  tapText: {
+    fontSize: 12,
+    color: COLORS.primary,
+    opacity: 0.5,
+  },
+  macroGrid: {
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.primary + "10",
   },
 });

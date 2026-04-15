@@ -15,20 +15,30 @@ import { useFastingContext } from "../context/FastingContext";
 import { useHomeLogic } from "../hooks/useHomeLogic";
 import SafeScreen from "../components/SafeScreen";
 import { useLimitContext } from "../context/LimitContext";
+import { useNavigation } from "@react-navigation/native";
 
 const Homescreen = () => {
   const { fastingConfig } = useFastingContext();
   const { limitConfig } = useLimitContext();
+
   const {
     isLoading,
     trackingState,
     startTime,
-    mealLogs,
-    consumedCalories,
-    isTimePickerVisible,
-    setTimePickerVisible,
-    handleTogglePhase,
+    macros,
+    rawTrackingState,
+    activeScheduleId,
   } = useHomeLogic();
+
+  const navigation = useNavigation<any>();
+
+  const onToggleFast = () => {
+    navigation.navigate(SCREEN.mealedit, {
+      isFastingToggle: true,
+      trackingState: rawTrackingState,
+      activeScheduleId,
+    });
+  };
 
   return (
     <SafeScreen style={styles.container} scrollable={true}>
@@ -39,36 +49,13 @@ const Homescreen = () => {
           <FastingTracker
             trackingState={trackingState}
             startTime={startTime}
-            onToggle={() => setTimePickerVisible(!isTimePickerVisible)}
+            onToggle={onToggleFast}
             fastRatio={fastingConfig?.fastingWindow}
             eatRatio={fastingConfig?.eatingWindow}
           />
 
-          {isTimePickerVisible && (
-            <View style={styles.inlinePickerContainer}>
-              <Text style={styles.pickerLabel}>
-                Select {trackingState === "FASTING" ? "Eating" : "Fasting"}{" "}
-                Start Time
-              </Text>
-              <TimePicker
-                initialTime={new Date()}
-                onTimeChange={handleTogglePhase}
-              />
-              <TouchableOpacity
-                style={styles.closePickerButton}
-                onPress={() => setTimePickerVisible(false)}
-              >
-                <Text style={styles.closePickerText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-
           <Divider />
-          <DailySummary
-            consumed={consumedCalories}
-            maxLimit={limitConfig?.calorieLimit}
-            mealLog={mealLogs}
-          />
+          <DailySummary macros={macros} />
         </>
       )}
     </SafeScreen>
@@ -81,28 +68,4 @@ const styles = StyleSheet.create({
   container: {
     padding: 10,
     justifyContent: "center",
-  },
-  inlinePickerContainer: {
-    marginVertical: 15,
-    backgroundColor: COLORS.ascent,
-    borderRadius: 20,
-    padding: 15,
-    borderWidth: 1,
-    borderColor: COLORS.primary,
-  },
-  pickerLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: COLORS.primary,
-    textAlign: "center",
-    marginBottom: 10,
-  },
-  closePickerButton: {
-    marginTop: 10,
-    alignItems: "center",
-  },
-  closePickerText: {
-    color: COLORS.primary,
-    fontWeight: "600",
-  },
 });

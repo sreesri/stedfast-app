@@ -35,11 +35,6 @@ export const RootNavigator = () => {
     );
   }
 
-  console.log(isLoading);
-  console.log(isLoggedIn);
-  console.log(isFastingConfigDone);
-  console.log(isLimitConfigDone);
-
   return (
     <NavigationContainer>
       {isLoggedIn ? (

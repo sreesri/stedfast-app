@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
-import { getFastingConfig, setupFastingConfig } from "../utils/http";
+import { getActiveFastingSchedule, setupFastingConfig } from "../utils/http";
 
 export interface FastingDate {
   year: number;
@@ -49,10 +49,21 @@ export const FastingProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log("fetchFastingConfig: Starting...");
       setIsFastingConfigLoading(true);
       try {
-        const response = await getFastingConfig();
+        const response = await getActiveFastingSchedule();
         console.log("fetchFastingConfig: Received response:", response);
-        if (response && Object.keys(response).length > 0) {
-          setFastingConfigState(response);
+        if (response) {
+          const mappedConfig: FastingConfig = {
+            fastingWindow: response.fastingHours,
+            eatingWindow: response.eatingHours,
+            fastingStartTime: {
+              year: new Date(response.fastingStartTime).getFullYear(),
+              month: new Date(response.fastingStartTime).getMonth(),
+              day: new Date(response.fastingStartTime).getDate(),
+              hour: new Date(response.fastingStartTime).getHours(),
+              minute: new Date(response.fastingStartTime).getMinutes(),
+            },
+          };
+          setFastingConfigState(mappedConfig);
           setIsFastingConfigDone(true);
           console.log(
             "fetchFastingConfig: Config found, setIsFastingConfigDone(true)",

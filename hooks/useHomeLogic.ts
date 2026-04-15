@@ -1,23 +1,20 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Toast from "react-native-toast-message";
-import { 
-  getUserSummary, 
-  getActiveSession, 
-  startSession, 
+import {
+  getActiveSession,
+  startSession,
   endActiveSession,
-  getFastingSchedules 
+  getActiveFastingSchedule,
+  getIntakeSummary,
 } from "../utils/http";
 
 export const useHomeLogic = () => {
-  const queryClient = useQueryClient();
-  const [isTimePickerVisible, setTimePickerVisible] = useState(false);
+  const today = new Date().toISOString().split("T")[0];
 
-  // Still fetch userSummary as a fallback for calories/meals if supported
-  const { data: userSummary, isLoading: isSummaryLoading } = useQuery({
-    queryKey: ["userSummary"],
-    queryFn: getUserSummary,
-    retry: false,
+  const { data: intakeSummaries, isLoading: isIntakeLoading } = useQuery({
+    queryKey: ["intakeSummary", today],
+    queryFn: () => getIntakeSummary(today),
   });
 
   const { data: activeSession, isLoading: isActiveSessionLoading } = useQuery({
@@ -25,73 +22,47 @@ export const useHomeLogic = () => {
     queryFn: getActiveSession,
   });
 
-  const { data: schedules } = useQuery({
-    queryKey: ["fastingSchedules"],
-    queryFn: getFastingSchedules,
+  const { data: activeSchedule } = useQuery({
+    queryKey: ["activeSchedule"],
+    queryFn: getActiveFastingSchedule,
   });
 
-  const isLoading = isSummaryLoading || isActiveSessionLoading;
+  const isLoading = isIntakeLoading || isActiveSessionLoading;
 
-  const trackingState = activeSession?.sessionType || "FASTING"; // Default if no session
+  const trackingState = activeSession?.sessionType || "FAST";
   const startTime = activeSession?.startedAt
     ? new Date(activeSession.startedAt)
     : new Date();
-  
-  const mealLogs = userSummary?.mealLogs ?? [];
-  const consumedCalories = userSummary?.totalCalories ?? 0;
 
-  const togglePhaseMutation = useMutation({
-    mutationFn: async (selectedTime: Date) => {
-      // 1. End current session if active
-      if (activeSession) {
-        await endActiveSession();
-      }
+  const intake = intakeSummaries?.[0] || null;
 
-      // 2. Start new session
-      const nextType = trackingState === "FAST" ? "EAT" : "FAST";
-      const defaultScheduleId = schedules?.[0]?.id || "default";
-      
-      return await startSession({
-        scheduleId: defaultScheduleId,
-        sessionType: nextType,
-      });
+  const macros = {
+    calories: {
+      consumed: intake?.consumedCalories ?? 0,
+      limit: intake?.calorieLimit ?? 2000,
     },
-    onSuccess: (newSession) => {
-      queryClient.invalidateQueries({ queryKey: ["userSummary"] });
-      queryClient.invalidateQueries({ queryKey: ["activeSession"] });
-      setTimePickerVisible(false);
-      Toast.show({
-        type: "success",
-        text1: "Status Updated",
-        text2: `You are now ${newSession.sessionType.toLowerCase()}ing.`,
-        position: "bottom",
-      });
+    protein: {
+      consumed: intake?.consumedProtein ?? 0,
+      limit: intake?.proteinLimit ?? 150,
     },
-    onError: (error) => {
-      console.error("Failed to update fasting status:", error);
-      Toast.show({
-        type: "error",
-        text1: "Update Failed",
-        text2: "Something went wrong while updating your status.",
-        position: "bottom",
-      });
+    carbs: {
+      consumed: intake?.consumedCarbs ?? 0,
+      limit: intake?.carbsLimit ?? 250,
     },
-  });
-
-  const handleTogglePhase = (selectedTime: Date) => {
-    togglePhaseMutation.mutate(selectedTime);
+    fat: {
+      consumed: intake?.consumedFat ?? 0,
+      limit: intake?.fatLimit ?? 70,
+    },
   };
 
+  const activeScheduleId = activeSchedule?.id || "default";
+
   return {
-    userSummary,
     isLoading,
     trackingState: trackingState === "FAST" ? "FASTING" : "EATING",
     startTime,
-    mealLogs,
-    consumedCalories,
-    isTimePickerVisible,
-    setTimePickerVisible,
-    handleTogglePhase,
-    isPending: togglePhaseMutation.isPending,
+    macros,
+    rawTrackingState: trackingState,
+    activeScheduleId,
   };
 };

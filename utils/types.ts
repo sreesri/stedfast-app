@@ -15,6 +15,7 @@ export interface FastingSchedule {
   fastingHours: number;
   eatingHours: number;
   label: string;
+  fastingStartTime?: string;
 }
 
 export interface FastingSession {
@@ -56,4 +57,18 @@ export interface BaseConfig {
     minute: number;
   };
   calorieLimit: number;
+}
+
+export interface UserIntakeSummary {
+  id: string;
+  userId: string;
+  calorieLimit: number;
+  proteinLimit: number;
+  carbsLimit: number;
+  fatLimit: number;
+  loggedDate: string;
+  consumedCalories: number;
+  consumedProtein: number;
+  consumedCarbs: number;
+  consumedFat: number;
 }
