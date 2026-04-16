@@ -6,7 +6,7 @@ import {
   View,
 } from "react-native";
 import React from "react";
-import { COLORS } from "../utils/Constants";
+import { COLORS, SCREEN } from "../utils/Constants";
 import FastingTracker from "../components/FastingTracker";
 import Divider from "../components/Divider";
 import DailySummary from "../components/DailySummary";
@@ -68,4 +68,5 @@ const styles = StyleSheet.create({
   container: {
     padding: 10,
     justifyContent: "center",
+  },
 });

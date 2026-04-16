@@ -67,21 +67,15 @@ const MealEditScreen = ({ route, navigation }: any) => {
 
   const onSave = () => {
     handleSave({ name, calories, dish }, editingMeal);
-    // navigation.goBack() is handled inside handleSave's onSuccess in useMealLogs usually, 
-    // but I'll make sure handleSave returns something or handles it.
-    // In useMealLogs, it currently calls closeModal() and navigation.goBack().
   };
 
   return (
     <SafeScreen style={styles.container} scrollable={true}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>← Back</Text>
-        </TouchableOpacity>
         <Text style={styles.title}>
           {editingMeal ? "Edit Meal" : "Add New Meal"}
         </Text>
-        <View style={{ width: 50 }} /> 
+        <View style={{ width: 50 }} />
       </View>
 
       <Text style={styles.label}>Meal Type</Text>
@@ -153,7 +147,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     marginBottom: 30,
   },
   backButton: {
@@ -193,6 +187,7 @@ const styles = StyleSheet.create({
   },
   actions: {
     marginTop: 20,
+    alignItems: "center",
   },
   button: {
     height: 50,
@@ -203,6 +198,8 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     backgroundColor: COLORS.primary,
+    width: "100%",
+    borderRadius: 16,
   },
   deleteButton: {
     backgroundColor: "transparent",
