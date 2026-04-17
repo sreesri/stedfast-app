@@ -14,7 +14,7 @@ export const SCREEN = {
   foodeditor: "Food Editor",
   login: "Login",
   signup: "Signup",
-  fastingconfig: "Fasting Config",
   limitConfig: "Limit Config",
   mealedit: "Meal Edit",
+  settings: "Settings",
 };

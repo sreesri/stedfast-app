@@ -7,16 +7,19 @@ import {
   createMealLog,
   updateMealLog,
   deleteMealLog,
+  startSession,
 } from "../utils/http";
 import { MealLog } from "../utils/types";
 
-export const useMealLogs = () => {
+export const useMealLogs = (date?: string) => {
   const navigation = useNavigation<any>();
   const queryClient = useQueryClient();
+  
+  const resolvedDate = date ?? new Date().toISOString().split("T")[0];
 
   const { data: mealLogsData, isLoading } = useQuery({
-    queryKey: ["mealLogs"],
-    queryFn: getMealLogs,
+    queryKey: ["mealLogs", resolvedDate],
+    queryFn: () => getMealLogs(resolvedDate),
   });
 
   const mealLogs = Array.isArray(mealLogsData)
@@ -84,10 +87,13 @@ export const useMealLogs = () => {
     },
   });
 
-  const handleSave = (
+  const handleSave = async (
     notes: string,
     stagedItems: any[], // StagedMealItem
     editingMeal?: MealLog | null,
+    isFastingToggle?: boolean,
+    trackingState?: string,
+    activeScheduleId?: string,
   ) => {
     if (!stagedItems.length) {
       Toast.show({
@@ -112,13 +118,25 @@ export const useMealLogs = () => {
       dishes,
     };
 
-    if (editingMeal) {
-      updateMealMutation.mutate({
-        ...payload,
-        id: editingMeal.id || editingMeal._id!,
-      });
-    } else {
-      createMealMutation.mutate(payload);
+    try {
+      if (editingMeal) {
+        await updateMealMutation.mutateAsync({
+          ...payload,
+          id: editingMeal.id || editingMeal._id!,
+        });
+      } else {
+        await createMealMutation.mutateAsync(payload);
+      }
+
+      if (isFastingToggle && activeScheduleId) {
+        // trackingState here is rawTrackingState: 'FAST' or 'EAT'
+        // If they were FASTING, they are now EATING. If they were EATING, they are now FASTING.
+        const nextState = trackingState === "FAST" ? "EAT" : "FAST";
+        await startSession({ scheduleId: activeScheduleId, sessionType: nextState });
+        queryClient.invalidateQueries({ queryKey: ["activeSession"] });
+      }
+    } catch (error) {
+      console.error("Failed to process meal/fasting log", error);
     }
   };
 

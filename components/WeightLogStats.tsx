@@ -43,9 +43,9 @@ export default WeightLogStats;
 
 const styles = StyleSheet.create({
   container: {
-    width: "80%",
-    height: 200,
-    backgroundColor: COLORS.secondary,
+    width: "100%",
+    minHeight: 200,
+    backgroundColor: "transparent",
     borderRadius: 20,
     padding: 10,
     justifyContent: "center",

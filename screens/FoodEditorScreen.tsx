@@ -11,16 +11,16 @@ import Toast from "react-native-toast-message";
 import SafeScreen from "../components/SafeScreen";
 import { useSavedFoodCatalog } from "../hooks/useSavedFoodCatalog";
 import { COLORS } from "../utils/Constants";
-import { SavedDish, SavedMeal } from "../utils/types";
+import { Dish, Meal } from "../utils/types";
 
-type SelectedDish = SavedDish & { quantity: number };
+type SelectedDish = Dish & { quantity: number };
 
 const FoodEditorScreen = ({ route, navigation }: any) => {
   const entityType = route.params?.entityType as "dish" | "meal";
-  const editingDish = route.params?.editingDish as SavedDish | undefined;
-  const editingMeal = route.params?.editingMeal as SavedMeal | undefined;
-
-  const { dishes, saveDish, saveMeal, isSaving } = useSavedFoodCatalog();
+  const editingDish = route.params?.editingDish as Dish | undefined;
+  const editingMeal = route.params?.editingMeal as Meal | undefined;
+  
+  const { dishes, saveDish, saveMeal, isSaving, removeDish, removeMeal, isDeleting } = useSavedFoodCatalog();
 
   const [dishName, setDishName] = useState(editingDish?.name ?? "");
   const [calories, setCalories] = useState(
@@ -71,7 +71,7 @@ const FoodEditorScreen = ({ route, navigation }: any) => {
     [selectedDishes],
   );
 
-  const toggleDishSelection = (dish: SavedDish) => {
+  const toggleDishSelection = (dish: Dish) => {
     setSelectedDishes((current) => {
       const existing = current.find((item) => item.id === dish.id);
       if (existing) {
@@ -153,6 +153,15 @@ const FoodEditorScreen = ({ route, navigation }: any) => {
       })),
     });
 
+    navigation.goBack();
+  };
+
+  const handleDelete = async () => {
+    if (entityType === "dish" && editingDish) {
+      await removeDish(editingDish.id);
+    } else if (entityType === "meal" && editingMeal) {
+      await removeMeal(editingMeal.id);
+    }
     navigation.goBack();
   };
 
@@ -317,25 +326,41 @@ const FoodEditorScreen = ({ route, navigation }: any) => {
         </>
       )}
 
-      <TouchableOpacity
-        style={styles.saveButton}
-        onPress={entityType === "dish" ? handleSaveDish : handleSaveMeal}
-        disabled={isSaving}
-      >
-        {isSaving ? (
-          <ActivityIndicator color={COLORS.background} />
-        ) : (
-          <Text style={styles.saveButtonText}>
-            {entityType === "dish"
-              ? editingDish
-                ? "Update Dish"
-                : "Save Dish"
-              : editingMeal
-                ? "Update Meal"
-                : "Save Meal"}
-          </Text>
+      <View style={styles.actionRow}>
+        {(editingDish || editingMeal) && (
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={handleDelete}
+            disabled={isSaving || isDeleting}
+          >
+            {isDeleting ? (
+              <ActivityIndicator color="#ff4d4d" />
+            ) : (
+              <Text style={styles.deleteButtonText}>Delete {entityType === "dish" ? "Dish" : "Meal"}</Text>
+            )}
+          </TouchableOpacity>
         )}
-      </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[styles.saveButton, (editingDish || editingMeal) && styles.saveButtonHalf]}
+          onPress={entityType === "dish" ? handleSaveDish : handleSaveMeal}
+          disabled={isSaving || isDeleting}
+        >
+          {isSaving ? (
+            <ActivityIndicator color={COLORS.background} />
+          ) : (
+            <Text style={styles.saveButtonText}>
+              {entityType === "dish"
+                ? editingDish
+                  ? "Update"
+                  : "Save Dish"
+                : editingMeal
+                  ? "Update"
+                  : "Save Meal"}
+            </Text>
+          )}
+        </TouchableOpacity>
+      </View>
     </SafeScreen>
   );
 };
@@ -507,6 +532,32 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: COLORS.background,
+    fontSize: 17,
+    fontWeight: "700",
+  },
+  actionRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 24,
+  },
+  saveButtonHalf: {
+    flex: 1,
+    marginLeft: 8,
+    marginTop: 0,
+  },
+  deleteButton: {
+    flex: 1,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "#ff4d4d",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8,
+  },
+  deleteButtonText: {
+    color: "#ff4d4d",
     fontSize: 17,
     fontWeight: "700",
   },

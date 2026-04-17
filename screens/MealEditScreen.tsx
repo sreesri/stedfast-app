@@ -16,7 +16,11 @@ import { MealLog, MealSelectionItem, StagedMealItem } from "../utils/types";
 type CatalogTab = "dishes" | "meals";
 
 const MealEditScreen = ({ route, navigation }: any) => {
+  const entityType = route.params?.entityType as "dish" | "meal";
   const editingMeal = route.params?.editingMeal as MealLog | null;
+  const isFastingToggle = route.params?.isFastingToggle as boolean | undefined;
+  const trackingState = route.params?.trackingState as string | undefined;
+  const activeScheduleId = route.params?.activeScheduleId as string | undefined;
   const { handleSave, handleDelete, isPending } = useMealLogs();
   const { dishes, meals, isLoading } = useMealSelectionCatalog();
 
@@ -124,6 +128,9 @@ const MealEditScreen = ({ route, navigation }: any) => {
       name,
       stagedItems,
       editingMeal,
+      isFastingToggle,
+      trackingState,
+      activeScheduleId
     );
   };
 

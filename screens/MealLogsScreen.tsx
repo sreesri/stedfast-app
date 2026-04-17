@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { COLORS, SCREEN } from "../utils/Constants";
 import MealLogContainer from "../components/MealLogContainer";
 import { useMealLogs } from "../hooks/useMealLogs";
@@ -9,7 +9,16 @@ import { MealLog } from "../utils/types";
 
 const MealLogsScreen = () => {
   const navigation = useNavigation<any>();
-  const { mealLogs } = useMealLogs();
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const { mealLogs } = useMealLogs(selectedDate);
+
+  const changeDate = (days: number) => {
+    setSelectedDate((prev) => {
+      const d = new Date(prev);
+      d.setDate(d.getDate() + days);
+      return d.toISOString().split("T")[0];
+    });
+  };
 
   const handleEditMeal = (meal?: MealLog) => {
     navigation.navigate(SCREEN.mealedit, { editingMeal: meal });
@@ -17,7 +26,21 @@ const MealLogsScreen = () => {
 
   return (
     <SafeScreen style={styles.container}>
-      <Text style={styles.title}>Meal Logs</Text>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => changeDate(-1)} style={styles.dateBtn}>
+          <Text style={styles.dateBtnText}>{"<"}</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>
+          {new Date(selectedDate).toLocaleDateString([], {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+          })}
+        </Text>
+        <TouchableOpacity onPress={() => changeDate(1)} style={styles.dateBtn}>
+          <Text style={styles.dateBtnText}>{">"}</Text>
+        </TouchableOpacity>
+      </View>
       <MealLogContainer meal={mealLogs} onPressItem={handleEditMeal} />
 
       <TouchableOpacity
@@ -38,12 +61,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 10,
   },
-  title: {
-    textAlign: "center",
-    fontSize: 24,
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+    marginTop: 10,
+    paddingHorizontal: 20,
+  },
+  dateBtn: {
+    padding: 10,
+    backgroundColor: COLORS.ascent,
+    borderRadius: 8,
+  },
+  dateBtnText: {
+    fontSize: 18,
     fontWeight: "bold",
     color: COLORS.primary,
-    marginBottom: 10,
+  },
+  title: {
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "bold",
+    color: COLORS.primary,
   },
   fab: {
     position: "absolute",

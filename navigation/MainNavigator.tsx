@@ -6,10 +6,12 @@ import { COLORS, SCREEN } from "../utils/Constants";
 import Homescreen from "../screens/Homescreen";
 import StatsScreen from "../screens/StatsScreen";
 import MealLogsScreen from "../screens/MealLogsScreen";
-import MealEditScreen from "../screens/MealEditScreen";
 import FoodLibraryScreen from "../screens/FoodLibraryScreen";
 import FoodEditorScreen from "../screens/FoodEditorScreen";
-import { useAuth } from "../context/AuthContext";
+import SettingsScreen from "../screens/SettingsScreen";
+import FastingConfigScreen from "../screens/FastingConfigScreen";
+import LimitConfigScreen from "../screens/LimitConfigScreen";
+import MealEditScreen from "../screens/MealEditScreen";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -37,16 +39,6 @@ const HomeTabs = () => {
         component={Homescreen}
         options={{
           title: "Home",
-          // headerRight: () => {
-          //   const { logout } = useAuth();
-          //   return (
-          //     <TouchableOpacity onPress={logout} style={{ marginRight: 15 }}>
-          //       <Text style={{ color: COLORS.primary, fontWeight: "bold" }}>
-          //         Logout
-          //       </Text>
-          //     </TouchableOpacity>
-          //   );
-          // },
         }}
       />
       <Tabs.Screen name={SCREEN.statsscreen} component={StatsScreen} />
@@ -55,6 +47,13 @@ const HomeTabs = () => {
         component={FoodLibraryScreen}
         options={{
           title: "Library",
+        }}
+      />
+      <Tabs.Screen
+        name={SCREEN.settings}
+        component={SettingsScreen}
+        options={{
+          title: "Settings",
         }}
       />
     </Tabs.Navigator>
@@ -88,6 +87,20 @@ export const MainNavigator = () => {
       <Stack.Screen
         name={SCREEN.foodeditor}
         component={FoodEditorScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={SCREEN.fastingconfig}
+        component={FastingConfigScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={SCREEN.limitConfig}
+        component={LimitConfigScreen}
         options={{
           headerShown: false,
         }}

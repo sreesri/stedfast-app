@@ -1,26 +1,28 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Toast from "react-native-toast-message";
 import {
-  createSavedDish,
-  createSavedMeal,
-  getSavedDishes,
-  getSavedMeals,
-  updateSavedDish,
-  updateSavedMeal,
+  createDish,
+  createMeal,
+  getDishes,
+  getMeals,
+  updateDish,
+  updateMeal,
+  deleteDish,
+  deleteMeal,
 } from "../utils/http";
-import { SavedDish, SavedMeal } from "../utils/types";
+import { Dish, Meal } from "../utils/types";
 
 export const useSavedFoodCatalog = () => {
   const queryClient = useQueryClient();
 
   const dishesQuery = useQuery({
     queryKey: ["savedFood", "dishes"],
-    queryFn: getSavedDishes,
+    queryFn: getDishes,
   });
 
   const mealsQuery = useQuery({
     queryKey: ["savedFood", "meals"],
-    queryFn: getSavedMeals,
+    queryFn: getMeals,
   });
 
   const invalidateCatalog = async () => {
@@ -33,7 +35,7 @@ export const useSavedFoodCatalog = () => {
   };
 
   const createDishMutation = useMutation({
-    mutationFn: createSavedDish,
+    mutationFn: createDish,
     onSuccess: async () => {
       await invalidateCatalog();
       Toast.show({ type: "success", text1: "Dish saved", position: "bottom" });
@@ -41,7 +43,7 @@ export const useSavedFoodCatalog = () => {
   });
 
   const updateDishMutation = useMutation({
-    mutationFn: updateSavedDish,
+    mutationFn: updateDish,
     onSuccess: async () => {
       await invalidateCatalog();
       Toast.show({ type: "success", text1: "Dish updated", position: "bottom" });
@@ -49,7 +51,7 @@ export const useSavedFoodCatalog = () => {
   });
 
   const createMealMutation = useMutation({
-    mutationFn: createSavedMeal,
+    mutationFn: createMeal,
     onSuccess: async () => {
       await invalidateCatalog();
       Toast.show({ type: "success", text1: "Meal saved", position: "bottom" });
@@ -57,14 +59,30 @@ export const useSavedFoodCatalog = () => {
   });
 
   const updateMealMutation = useMutation({
-    mutationFn: updateSavedMeal,
+    mutationFn: updateMeal,
     onSuccess: async () => {
       await invalidateCatalog();
       Toast.show({ type: "success", text1: "Meal updated", position: "bottom" });
     },
   });
 
-  const saveDish = async (dish: SavedDish | Omit<SavedDish, "id">) => {
+  const deleteDishMutation = useMutation({
+    mutationFn: deleteDish,
+    onSuccess: async () => {
+      await invalidateCatalog();
+      Toast.show({ type: "success", text1: "Dish deleted", position: "bottom" });
+    },
+  });
+
+  const deleteMealMutation = useMutation({
+    mutationFn: deleteMeal,
+    onSuccess: async () => {
+      await invalidateCatalog();
+      Toast.show({ type: "success", text1: "Meal deleted", position: "bottom" });
+    },
+  });
+
+  const saveDish = async (dish: Dish | Omit<Dish, "id">) => {
     if ("id" in dish) {
       return updateDishMutation.mutateAsync(dish);
     }
@@ -72,7 +90,7 @@ export const useSavedFoodCatalog = () => {
     return createDishMutation.mutateAsync(dish);
   };
 
-  const saveMeal = async (meal: SavedMeal | Omit<SavedMeal, "id">) => {
+  const saveMeal = async (meal: Meal | Omit<Meal, "id">) => {
     if ("id" in meal) {
       return updateMealMutation.mutateAsync(meal);
     }
@@ -89,7 +107,12 @@ export const useSavedFoodCatalog = () => {
       updateDishMutation.isPending ||
       createMealMutation.isPending ||
       updateMealMutation.isPending,
+    isDeleting:
+      deleteDishMutation.isPending ||
+      deleteMealMutation.isPending,
     saveDish,
     saveMeal,
+    removeDish: async (id: string) => deleteDishMutation.mutateAsync(id),
+    removeMeal: async (id: string) => deleteMealMutation.mutateAsync(id),
   };
 };

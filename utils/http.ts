@@ -424,6 +424,10 @@ export const updateDish = async (data: Dish): Promise<Dish> => {
   }
 };
 
+export const deleteDish = async (id: string): Promise<void> => {
+  await api.delete(`/api/meal/dishes/${id}`);
+};
+
 export const createMeal = async (
   data: Omit<Meal, "id">,
 ): Promise<Meal> => {
@@ -458,9 +462,13 @@ export const updateMeal = async (data: Meal): Promise<Meal> => {
   }
 };
 
-export const getMealLogs = async (): Promise<MealLog[]> => {
+export const deleteMeal = async (id: string): Promise<void> => {
+  await api.delete(`/api/meal/meals/${id}`);
+};
+
+export const getMealLogs = async (date: string): Promise<MealLog[]> => {
   try {
-    const response = await api.get("/api/meal/logs");
+    const response = await api.get(`/api/meal/logs?date=${date}`);
     const data = response.data;
     if (Array.isArray(data)) {
       return data;
@@ -513,9 +521,11 @@ export const deleteMealLog = async (id: string): Promise<void> => {
 };
 
 export const getIntakeSummary = async (
-  date: string,
+  startDate: string,
+  endDate?: string,
 ): Promise<UserIntakeSummary[]> => {
-  const response = await api.get(`/api/meal/intake-summary?date=${date}`);
+  const url = endDate ? `/api/meal/intake-summary?startDate=${startDate}&endDate=${endDate}` : `/api/meal/intake-summary?date=${startDate}`;
+  const response = await api.get(url);
   return response.data;
 };
 

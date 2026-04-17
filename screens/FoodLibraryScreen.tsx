@@ -11,7 +11,7 @@ import { useNavigation } from "@react-navigation/native";
 import SafeScreen from "../components/SafeScreen";
 import { useSavedFoodCatalog } from "../hooks/useSavedFoodCatalog";
 import { SCREEN, COLORS } from "../utils/Constants";
-import { SavedDish, SavedMeal } from "../utils/types";
+import { Dish, Meal } from "../utils/types";
 
 type CatalogTab = "dishes" | "meals";
 
@@ -34,14 +34,14 @@ const FoodLibraryScreen = () => {
     ]);
   };
 
-  const openDish = (dish: SavedDish) => {
+  const openDish = (dish: Dish) => {
     navigation.navigate(SCREEN.foodeditor, {
       entityType: "dish",
       editingDish: dish,
     });
   };
 
-  const openMeal = (meal: SavedMeal) => {
+  const openMeal = (meal: Meal) => {
     navigation.navigate(SCREEN.foodeditor, {
       entityType: "meal",
       editingMeal: meal,
