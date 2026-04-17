@@ -7,6 +7,8 @@ import Homescreen from "../screens/Homescreen";
 import StatsScreen from "../screens/StatsScreen";
 import MealLogsScreen from "../screens/MealLogsScreen";
 import MealEditScreen from "../screens/MealEditScreen";
+import FoodLibraryScreen from "../screens/FoodLibraryScreen";
+import FoodEditorScreen from "../screens/FoodEditorScreen";
 import { useAuth } from "../context/AuthContext";
 
 const Stack = createStackNavigator();
@@ -48,6 +50,13 @@ const HomeTabs = () => {
         }}
       />
       <Tabs.Screen name={SCREEN.statsscreen} component={StatsScreen} />
+      <Tabs.Screen
+        name={SCREEN.foodlibrary}
+        component={FoodLibraryScreen}
+        options={{
+          title: "Library",
+        }}
+      />
     </Tabs.Navigator>
   );
 };
@@ -72,6 +81,13 @@ export const MainNavigator = () => {
       <Stack.Screen
         name={SCREEN.mealedit}
         component={MealEditScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={SCREEN.foodeditor}
+        component={FoodEditorScreen}
         options={{
           headerShown: false,
         }}

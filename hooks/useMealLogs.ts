@@ -26,7 +26,6 @@ export const useMealLogs = () => {
   const createMealMutation = useMutation({
     mutationFn: createMealLog,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userSummary"] });
       queryClient.invalidateQueries({ queryKey: ["mealLogs"] });
       Toast.show({ type: "success", text1: "Meal saved", position: "bottom" });
       navigation.goBack();
@@ -45,7 +44,6 @@ export const useMealLogs = () => {
   const updateMealMutation = useMutation({
     mutationFn: updateMealLog,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userSummary"] });
       queryClient.invalidateQueries({ queryKey: ["mealLogs"] });
       Toast.show({
         type: "success",
@@ -68,7 +66,6 @@ export const useMealLogs = () => {
   const deleteMealMutation = useMutation({
     mutationFn: deleteMealLog,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userSummary"] });
       queryClient.invalidateQueries({ queryKey: ["mealLogs"] });
       Toast.show({
         type: "success",
@@ -88,30 +85,31 @@ export const useMealLogs = () => {
   });
 
   const handleSave = (
-    mealData: {
-      name: string;
-      calories: string;
-      dish: string;
-    },
+    notes: string,
+    stagedItems: any[], // StagedMealItem
     editingMeal?: MealLog | null,
   ) => {
-    const { name, calories, dish } = mealData;
-
-    if (!name || !calories || !dish) {
+    if (!stagedItems.length) {
       Toast.show({
         type: "error",
         text1: "Validation Error",
-        text2: "Please fill in all fields.",
+        text2: "Please select at least one dish or meal.",
         position: "bottom",
       });
       return;
     }
 
+    const dishes = stagedItems.map((item) => ({
+      dishId: item.kind === "dish" ? item.id : undefined,
+      name: item.name,
+      calories: item.calories,
+      quantity: item.quantity,
+    }));
+
     const payload = {
-      name,
-      time: editingMeal?.mealTime || new Date().toISOString(),
-      calories: parseInt(calories) || 0,
-      dish,
+      notes,
+      mealTime: editingMeal?.mealTime ?? new Date().toISOString(),
+      dishes,
     };
 
     if (editingMeal) {

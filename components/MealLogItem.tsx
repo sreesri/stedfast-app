@@ -7,11 +7,18 @@ const MealLogItem = ({ meal, onPress }) => {
     <TouchableOpacity style={styles.contianer} onPress={() => onPress?.(meal)} activeOpacity={0.8}>
       <View style={styles.mealLogItem}>
         <View style={styles.mealLogItemHeader}>
-          <Text style={styles.mealLogItemTitle}>{meal.mealType}</Text>
+          <Text style={styles.mealLogItemTitle}>{meal.notes || "MEAL"}</Text>
         </View>
         <View style={styles.mealLogItemBody}>
-          <Text style={styles.mealLogItemTime}>{meal.mealTime}</Text>
-          <Text style={styles.mealLogItemDish}>{meal.dish}</Text>
+          <Text style={styles.mealLogItemTime}>
+            {new Date(meal.mealTime).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </Text>
+          <Text style={styles.mealLogItemDish}>
+            {meal.dishes?.map((d: any) => `${d.name} x${d.quantity}`).join(", ") || ""}
+          </Text>
         </View>
       </View>
       <View style={styles.calorieContainer}>

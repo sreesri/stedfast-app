@@ -27,22 +27,72 @@ export interface FastingSession {
   durationMinutes?: number;
 }
 
-export interface UserSummary {
-  fasting?: {
-    status: string;
-    startTime: string;
-  };
-  mealLogs: MealLog[];
-  totalCalories: number;
+
+
+export interface MealLogDish {
+  id?: string;
+  dishId?: string;
+  dish?: Dish;
+  name?: string;
+  calories?: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
+  quantity: number;
 }
 
 export interface MealLog {
-  id?: string;
-  _id?: string;
-  mealType: string;
+  id: string;
   mealTime: string;
   calories: number;
-  dish: string;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
+  notes?: string;
+  dishes?: MealLogDish[];
+}
+
+export interface MealSelectionItem {
+  id: string;
+  name: string;
+  calories: number;
+  subtitle?: string;
+  kind: "dish" | "meal";
+}
+
+export interface StagedMealItem extends MealSelectionItem {
+  quantity: number;
+}
+
+export interface Dish {
+  id: string;
+  name: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+export interface MealDish {
+  dishId?: string;
+  dish?: Dish;
+  name?: string;
+  calories?: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
+  quantity: number;
+}
+
+export interface Meal {
+  id: string;
+  name: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  notes?: string;
+  dishes: MealDish[];
 }
 
 export interface AuthResponse {

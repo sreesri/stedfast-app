@@ -10,6 +10,8 @@ export const SCREEN = {
   homescreen: "Home Screen",
   statsscreen: "Stats",
   meallogs: "Meal Logs",
+  foodlibrary: "Food Library",
+  foodeditor: "Food Editor",
   login: "Login",
   signup: "Signup",
   fastingconfig: "Fasting Config",
