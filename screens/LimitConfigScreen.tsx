@@ -25,6 +25,7 @@ const LimitConfigScreen = () => {
         carbsLimit: parseInt(carbsLimit) || 0,
         fatLimit: parseInt(fatLimit) || 0,
       });
+      console.log("limit config set and saved to backend");
     } catch (error) {
       console.error("Save failed in component:", error);
     }

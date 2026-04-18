@@ -15,11 +15,11 @@ const FastingNavigator = () => {
       id="FastingConfigNavigator"
       screenOptions={{ headerShown: false }}
       initialRouteName={
-        !isFastingConfigDone ? SCREEN.fastingconfig : SCREEN.limitConfig
+        !isFastingConfigDone ? SCREEN.fastingConfig : SCREEN.limitConfig
       }
     >
       <Stack.Screen
-        name={SCREEN.fastingconfig}
+        name={SCREEN.fastingConfig}
         component={FastingConfigScreen}
       />
       <Stack.Screen name={SCREEN.limitConfig} component={LimitConfigScreen} />

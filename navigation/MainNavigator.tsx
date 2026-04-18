@@ -12,6 +12,9 @@ import SettingsScreen from "../screens/SettingsScreen";
 import FastingConfigScreen from "../screens/FastingConfigScreen";
 import LimitConfigScreen from "../screens/LimitConfigScreen";
 import MealEditScreen from "../screens/MealEditScreen";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -27,10 +30,17 @@ const HomeTabs = () => {
         headerShown: false,
         headerTintColor: COLORS.primary,
         headerTitleAlign: "center",
-        tabBarActiveBackgroundColor: COLORS.secondary,
-        tabBarInactiveBackgroundColor: COLORS.ascent,
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.secondary,
+        tabBarActiveBackgroundColor: COLORS.background,
+        tabBarInactiveBackgroundColor: COLORS.background,
         tabBarStyle: {
           position: "absolute",
+          backgroundColor: COLORS.background,
+        },
+        tabBarLabelStyle: {
+          fontSize: 16,
+          fontWeight: 300,
         },
       }}
     >
@@ -39,14 +49,29 @@ const HomeTabs = () => {
         component={Homescreen}
         options={{
           title: "Home",
+          tabBarIcon: ({ color }) => {
+            return <FontAwesome name="home" size={24} color={color} />;
+          },
         }}
       />
-      <Tabs.Screen name={SCREEN.statsscreen} component={StatsScreen} />
+      <Tabs.Screen
+        name={SCREEN.statsscreen}
+        component={StatsScreen}
+        options={{
+          title: "Stats",
+          tabBarIcon: ({ color }) => {
+            return <Ionicons name="stats-chart" size={24} color={color} />;
+          },
+        }}
+      />
       <Tabs.Screen
         name={SCREEN.foodlibrary}
         component={FoodLibraryScreen}
         options={{
-          title: "Library",
+          title: "My Foods",
+          tabBarIcon: ({ color }) => {
+            return <FontAwesome6 name="bowl-food" size={24} color={color} />;
+          },
         }}
       />
       <Tabs.Screen
@@ -54,6 +79,9 @@ const HomeTabs = () => {
         component={SettingsScreen}
         options={{
           title: "Settings",
+          tabBarIcon: ({ color }) => {
+            return <Ionicons name="settings" size={24} color={color} />;
+          },
         }}
       />
     </Tabs.Navigator>
@@ -92,7 +120,7 @@ export const MainNavigator = () => {
         }}
       />
       <Stack.Screen
-        name={SCREEN.fastingconfig}
+        name={SCREEN.fastingConfig}
         component={FastingConfigScreen}
         options={{
           headerShown: false,

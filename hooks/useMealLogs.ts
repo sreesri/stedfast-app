@@ -30,6 +30,7 @@ export const useMealLogs = (date?: string) => {
     mutationFn: createMealLog,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["mealLogs"] });
+      queryClient.invalidateQueries({ queryKey: ["intakeSummary"] });
       Toast.show({ type: "success", text1: "Meal saved", position: "bottom" });
       navigation.goBack();
     },
@@ -48,6 +49,7 @@ export const useMealLogs = (date?: string) => {
     mutationFn: updateMealLog,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["mealLogs"] });
+      queryClient.invalidateQueries({ queryKey: ["intakeSummary"] });
       Toast.show({
         type: "success",
         text1: "Meal updated",
@@ -70,6 +72,7 @@ export const useMealLogs = (date?: string) => {
     mutationFn: deleteMealLog,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["mealLogs"] });
+      queryClient.invalidateQueries({ queryKey: ["intakeSummary"] });
       Toast.show({
         type: "success",
         text1: "Meal deleted",

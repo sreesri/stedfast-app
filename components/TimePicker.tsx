@@ -102,16 +102,9 @@ const TimePicker: React.FC<TimePickerProps> = ({
   onTimeChange,
   initialTime,
 }) => {
-  const [selectedMonth, setSelectedMonth] = useState(monthList[0]);
-  const [selectedDay, setSelectedDay] = useState(dayList[0]);
-  const [selectedYear, setSelectedYear] = useState(yearList[0]);
-  const [selectedHour, setSelectedHour] = useState("12");
-  const [selectedMinute, setSelectedMinute] = useState("00");
-  const [selectedAmpm, setSelectedAmpm] = useState("AM");
-
-  useEffect(() => {
-    if (initialTime) {
-      const date = new Date(initialTime);
+  const getInitialTimeParts = (timeToParse?: Date) => {
+    if (timeToParse) {
+      const date = new Date(timeToParse);
       const monthIndex = date.getMonth();
       const day = date.getDate().toString().padStart(2, "0");
       const year = date.getFullYear().toString();
@@ -123,12 +116,43 @@ const TimePicker: React.FC<TimePickerProps> = ({
       h = h ? h : 12;
       const hourStr = h.toString().padStart(2, "0");
 
-      setSelectedMonth(monthList[monthIndex]);
-      setSelectedDay(day);
-      setSelectedYear(year);
-      setSelectedHour(hourStr);
-      setSelectedMinute(m);
-      setSelectedAmpm(ampmString);
+      return {
+        month: monthList[monthIndex],
+        day,
+        year,
+        hour: hourStr,
+        minute: m,
+        ampm: ampmString,
+      };
+    }
+    return {
+      month: monthList[0],
+      day: dayList[0],
+      year: yearList[0],
+      hour: "12",
+      minute: "00",
+      ampm: "AM",
+    };
+  };
+
+  const initialParts = getInitialTimeParts(initialTime);
+
+  const [selectedMonth, setSelectedMonth] = useState(initialParts.month);
+  const [selectedDay, setSelectedDay] = useState(initialParts.day);
+  const [selectedYear, setSelectedYear] = useState(initialParts.year);
+  const [selectedHour, setSelectedHour] = useState(initialParts.hour);
+  const [selectedMinute, setSelectedMinute] = useState(initialParts.minute);
+  const [selectedAmpm, setSelectedAmpm] = useState(initialParts.ampm);
+
+  useEffect(() => {
+    if (initialTime) {
+      const parts = getInitialTimeParts(initialTime);
+      setSelectedMonth(parts.month);
+      setSelectedDay(parts.day);
+      setSelectedYear(parts.year);
+      setSelectedHour(parts.hour);
+      setSelectedMinute(parts.minute);
+      setSelectedAmpm(parts.ampm);
     }
   }, [initialTime]);
 

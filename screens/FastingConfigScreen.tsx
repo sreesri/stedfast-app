@@ -67,7 +67,9 @@ const FastingConfigScreen = () => {
           }}
         />
 
-        <Text style={styles.label}>Fasting Start Time</Text>
+        <Text style={styles.label}>
+          Fasting Start Time {date.toISOString()}
+        </Text>
         <TimePicker initialTime={date} onTimeChange={(d) => setDate(d)} />
 
         <TouchableOpacity style={styles.saveButton} onPress={onSave}>

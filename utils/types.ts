@@ -43,6 +43,7 @@ export interface MealLogDish {
 
 export interface MealLog {
   id: string;
+  _id?: string; // MongoDB documents may return _id instead of id
   mealTime: string;
   calories: number;
   protein?: number;

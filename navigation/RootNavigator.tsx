@@ -17,6 +17,8 @@ export const RootNavigator = () => {
   const { isFastingConfigDone, isFastingConfigLoading } = useFastingContext();
   const { isLimitConfigDone, isLimitConfigLoading } = useLimitContext();
 
+  console.log(isFastingConfigDone, isLimitConfigDone);
+
   if (
     isLoading ||
     (isLoggedIn && (isFastingConfigLoading || isLimitConfigLoading))
