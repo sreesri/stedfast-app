@@ -14,8 +14,8 @@ import Toast from "react-native-toast-message";
 import SafeScreen from "../components/SafeScreen";
 
 const LoginScreen = ({ navigation }: any) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("temp.sree011@gmail.com");
+  const [password, setPassword] = useState("Aspirine");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 

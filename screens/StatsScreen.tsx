@@ -4,28 +4,37 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Toast from "react-native-toast-message";
 import WeightLogStats from "../components/WeightLogStats";
 import DailyIntakeStats from "../components/DailyIntakeStats";
+import MacroStats from "../components/MacroStats";
+import PeriodToggle, { Period } from "../components/PeriodToggle";
 import SafeScreen from "../components/SafeScreen";
 import { getHealthStats, saveHealthStats, getIntakeSummary } from "../utils/http";
 import { COLORS } from "../utils/Constants";
 
+function getDateRange(period: Period) {
+  const today = new Date();
+  const start = new Date(today);
+  if (period === "daily") start.setDate(today.getDate() - 6);
+  if (period === "weekly") start.setDate(today.getDate() - 55);
+  if (period === "monthly") start.setDate(today.getDate() - 179);
+  const fmt = (d: Date) => d.toISOString().split("T")[0];
+  return { startDate: fmt(start), endDate: fmt(today) };
+}
+
 const StatsScreen = () => {
   const queryClient = useQueryClient();
   const [weightInput, setWeightInput] = useState("");
+  const [period, setPeriod] = useState<Period>("daily");
 
-  const today = new Date();
-  const pastWeek = new Date();
-  pastWeek.setDate(today.getDate() - 6);
-  const formattedToday = today.toISOString().split("T")[0];
-  const formattedPastWeek = pastWeek.toISOString().split("T")[0];
+  const { startDate, endDate } = getDateRange(period);
 
-  const { data: healthStats, isLoading: isHealthLoading } = useQuery({
+  const { data: healthStats = [], isLoading: isHealthLoading } = useQuery({
     queryKey: ["healthStats"],
     queryFn: getHealthStats,
   });
 
-  const { data: intakeStats, isLoading: isIntakeLoading } = useQuery({
-    queryKey: ["intakeStats", formattedPastWeek, formattedToday],
-    queryFn: () => getIntakeSummary(formattedPastWeek, formattedToday),
+  const { data: intakeStats = [], isLoading: isIntakeLoading } = useQuery({
+    queryKey: ["intakeStats", startDate, endDate],
+    queryFn: () => getIntakeSummary(startDate, endDate),
   });
 
   const saveWeightMutation = useMutation({
@@ -37,7 +46,7 @@ const StatsScreen = () => {
     },
     onError: () => {
       Toast.show({ type: "error", text1: "Failed to log weight", position: "bottom" });
-    }
+    },
   });
 
   const handleSaveWeight = () => {
@@ -59,23 +68,21 @@ const StatsScreen = () => {
     );
   }
 
-  // Map the new BodyStat objects to the format expected by WeightLogStats
-  const weightData = (healthStats || []).map(stat => ({
-    date: stat.loggedDate,
-    weight: stat.weightKg
-  }));
-
   return (
     <SafeScreen style={styles.container} scrollable={true}>
-      <DailyIntakeStats intakeData={intakeStats || []} />
-      
+      <PeriodToggle period={period} onChangePeriod={setPeriod} />
+
+      <DailyIntakeStats intakeData={intakeStats} period={period} />
+
+      <MacroStats intakeData={intakeStats} period={period} />
+
       <View style={styles.weightCard}>
         <Text style={styles.title}>Weight Tracking</Text>
-        <WeightLogStats weightData={weightData} />
+        <WeightLogStats healthStats={healthStats} period={period} />
       </View>
-      
+
       <View style={styles.inputCard}>
-        <Text style={styles.label}>Log Today's Weight</Text>
+        <Text style={styles.inputLabel}>Log Today's Weight</Text>
         <View style={styles.inputRow}>
           <TextInput
             style={styles.input}
@@ -86,8 +93,8 @@ const StatsScreen = () => {
             placeholderTextColor="#7a7a7a"
           />
           <Text style={styles.unitText}>kg</Text>
-          <TouchableOpacity 
-            style={styles.saveButton} 
+          <TouchableOpacity
+            style={styles.saveButton}
             onPress={handleSaveWeight}
             disabled={saveWeightMutation.isPending}
           >
@@ -134,9 +141,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.ascent,
     borderRadius: 16,
     padding: 16,
-    marginTop: 20,
+    marginBottom: 20,
   },
-  label: {
+  inputLabel: {
     fontSize: 16,
     fontWeight: "700",
     color: COLORS.primary,

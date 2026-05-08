@@ -1,41 +1,98 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { COLORS } from "../utils/Constants";
 import { BarChart } from "react-native-gifted-charts";
 import { UserIntakeSummary } from "../utils/types";
+import { Period } from "./PeriodToggle";
 
 interface DailyIntakeStatsProps {
   intakeData: UserIntakeSummary[];
+  period: Period;
 }
 
-const DailyIntakeStats: React.FC<DailyIntakeStatsProps> = ({ intakeData }) => {
-  // Sort data by date just in case
-  const sortedData = [...intakeData].sort((a, b) => 
-    new Date(a.loggedDate).getTime() - new Date(b.loggedDate).getTime()
+interface AggregatedBar {
+  label: string;
+  consumedCalories: number;
+  calorieLimit: number;
+}
+
+function aggregateIntake(data: UserIntakeSummary[], period: Period): AggregatedBar[] {
+  const sorted = [...data].sort((a, b) => a.loggedDate.localeCompare(b.loggedDate));
+
+  if (period === "daily") {
+    return sorted.map((item) => {
+      const d = new Date(item.loggedDate + "T00:00:00");
+      return {
+        label: `${d.toLocaleDateString("en-US", { weekday: "short" })} ${d.getDate()}`,
+        consumedCalories: item.consumedCalories,
+        calorieLimit: item.calorieLimit,
+      };
+    });
+  }
+
+  if (period === "weekly") {
+    const buckets = new Map<string, UserIntakeSummary[]>();
+    sorted.forEach((item) => {
+      const d = new Date(item.loggedDate + "T00:00:00");
+      const dow = (d.getDay() + 6) % 7;
+      const mon = new Date(d);
+      mon.setDate(d.getDate() - dow);
+      const key = mon.toISOString().split("T")[0];
+      if (!buckets.has(key)) buckets.set(key, []);
+      buckets.get(key)!.push(item);
+    });
+    return Array.from(buckets.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-8)
+      .map(([key, items]) => {
+        const d = new Date(key + "T00:00:00");
+        const avgLimit = items.reduce((s, i) => s + i.calorieLimit, 0) / items.length;
+        return {
+          label: `${d.getMonth() + 1}/${d.getDate()}`,
+          consumedCalories: items.reduce((s, i) => s + i.consumedCalories, 0),
+          calorieLimit: Math.round(avgLimit * 7),
+        };
+      });
+  }
+
+  // Monthly
+  const buckets = new Map<string, UserIntakeSummary[]>();
+  sorted.forEach((item) => {
+    const key = item.loggedDate.substring(0, 7);
+    if (!buckets.has(key)) buckets.set(key, []);
+    buckets.get(key)!.push(item);
+  });
+  return Array.from(buckets.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-6)
+    .map(([key, items]) => {
+      const d = new Date(key + "-01T00:00:00");
+      const label =
+        d.toLocaleDateString("en-US", { month: "short" }) +
+        " " +
+        String(d.getFullYear()).slice(2);
+      const avgLimit = items.reduce((s, i) => s + i.calorieLimit, 0) / items.length;
+      return {
+        label,
+        consumedCalories: items.reduce((s, i) => s + i.consumedCalories, 0),
+        calorieLimit: Math.round(avgLimit * items.length),
+      };
+    });
+}
+
+const PERIOD_TITLES: Record<Period, string> = {
+  daily: "Caloric Intake — Last 7 Days",
+  weekly: "Caloric Intake — Last 8 Weeks",
+  monthly: "Caloric Intake — Last 6 Months",
+};
+
+const DailyIntakeStats: React.FC<DailyIntakeStatsProps> = ({ intakeData, period }) => {
+  const aggregated = useMemo(
+    () => aggregateIntake(intakeData, period),
+    [intakeData, period]
   );
 
-  // Map to BarChart format
-  const barData = sortedData.map((item) => {
-    // Format date like 'Mon 12'
-    const dateObj = new Date(item.loggedDate);
-    const label = `${dateObj.toLocaleDateString('en-US', { weekday: 'short' })} ${dateObj.getDate()}`;
-    
-    // Check if exceeded limit
-    const exceeded = item.consumedCalories > item.calorieLimit;
-
-    return {
-      value: item.consumedCalories || 0,
-      label,
-      frontColor: exceeded ? "#ff4d4d" : COLORS.primary,
-      topLabelComponent: () => (
-        <Text style={{ fontSize: 10, color: COLORS.primary, marginBottom: 4 }}>
-          {Math.round(item.consumedCalories)}
-        </Text>
-      ),
-    };
-  });
-
-  if (barData.length === 0) {
+  if (aggregated.length === 0) {
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.emptyText}>No intake data available.</Text>
@@ -43,17 +100,34 @@ const DailyIntakeStats: React.FC<DailyIntakeStatsProps> = ({ intakeData }) => {
     );
   }
 
-  // Get max limit to potentially show a limit line
-  const referenceLine = sortedData.length > 0 ? sortedData[0].calorieLimit : 2000;
+  const referenceLine = aggregated[aggregated.length - 1].calorieLimit;
+
+  const barData = aggregated.map((item) => {
+    const exceeded = item.consumedCalories > item.calorieLimit;
+    return {
+      value: item.consumedCalories || 0,
+      label: item.label,
+      frontColor: exceeded ? "#ff4d4d" : COLORS.primary,
+      topLabelComponent: () => (
+        <Text style={{ fontSize: 9, color: COLORS.primary, marginBottom: 2 }}>
+          {Math.round(item.consumedCalories)}
+        </Text>
+      ),
+    };
+  });
+
+  const pointCount = barData.length;
+  const barWidth = pointCount <= 7 ? 28 : pointCount <= 8 ? 22 : 30;
+  const spacing = pointCount <= 7 ? 24 : pointCount <= 8 ? 16 : 24;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Caloric Intake (Last 7 Days)</Text>
+      <Text style={styles.title}>{PERIOD_TITLES[period]}</Text>
       <BarChart
         data={barData}
         height={180}
-        barWidth={28}
-        spacing={24}
+        barWidth={barWidth}
+        spacing={spacing}
         roundedTop
         roundedBottom
         hideRules={true}
@@ -61,14 +135,11 @@ const DailyIntakeStats: React.FC<DailyIntakeStatsProps> = ({ intakeData }) => {
         yAxisThickness={0}
         yAxisTextStyle={{ color: COLORS.primary, fontSize: 10 }}
         noOfSections={4}
-        maxValue={Math.max(
-          referenceLine * 1.2, 
-          ...barData.map(d => d.value)
-        )}
+        maxValue={Math.max(referenceLine * 1.2, ...barData.map((d) => d.value))}
         showReferenceLine1
         referenceLine1Position={referenceLine}
         referenceLine1Config={{
-          color: 'rgba(255, 77, 77, 0.5)',
+          color: "rgba(255, 77, 77, 0.5)",
           dashWidth: 4,
           dashGap: 4,
         }}
@@ -83,8 +154,8 @@ const DailyIntakeStats: React.FC<DailyIntakeStatsProps> = ({ intakeData }) => {
           <Text style={styles.legendText}>Over Limit</Text>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendLine, { backgroundColor: 'rgba(255, 77, 77, 0.5)' }]} />
-          <Text style={styles.legendText}>Daily Goal ({referenceLine})</Text>
+          <View style={[styles.legendLine, { backgroundColor: "rgba(255, 77, 77, 0.5)" }]} />
+          <Text style={styles.legendText}>Goal ({referenceLine})</Text>
         </View>
       </View>
     </View>
@@ -116,7 +187,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
     color: COLORS.primary,
     marginBottom: 20,

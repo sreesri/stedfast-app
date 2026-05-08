@@ -18,35 +18,34 @@ const DailySummary = ({ macros }: any) => {
         <Text style={styles.tapText}>Tap for details</Text>
       </View>
 
-      <MacroTracker
-        label="Calories"
-        consumed={macros.calories.consumed}
-        limit={macros.calories.limit}
-        unit="kcal"
-        color={COLORS.secondary}
-      />
-
       <View style={styles.macroGrid}>
+        <MacroTracker
+          label="Calories"
+          consumed={macros.calories.consumed}
+          limit={macros.calories.limit}
+          unit="kcal"
+          color={COLORS.secondary}
+        />
         <MacroTracker
           label="Protein"
           consumed={macros.protein.consumed}
           limit={macros.protein.limit}
           unit="g"
-          color="#FF595E"
+          color={COLORS.secondary}
         />
         <MacroTracker
           label="Carbs"
           consumed={macros.carbs.consumed}
           limit={macros.carbs.limit}
           unit="g"
-          color="#FFCA3A"
+          color={COLORS.secondary}
         />
         <MacroTracker
           label="Fat"
           consumed={macros.fat.consumed}
           limit={macros.fat.limit}
           unit="g"
-          color="#1982C4"
+          color={COLORS.secondary}
         />
       </View>
     </TouchableOpacity>
@@ -71,7 +70,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 5,
   },
   titleText: {
     fontSize: 20,
@@ -84,9 +83,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   macroGrid: {
-    marginTop: 10,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.primary + "10",
+    marginTop: 5,
+    paddingTop: 5,
   },
 });

@@ -87,12 +87,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   label: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "600",
     color: COLORS.primary,
   },
   percentageText: {
-    fontSize: 24,
+    fontSize: 15,
     fontWeight: "bold",
   },
   progressContainer: {

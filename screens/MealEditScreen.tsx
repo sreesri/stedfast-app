@@ -74,7 +74,7 @@ const MealEditScreen = ({ route, navigation }: any) => {
             subtitle: "Previously saved selection",
             kind: "dish",
             quantity: d.quantity || 1,
-          }))
+          })),
         );
       } else {
         setStagedItems([]);
@@ -130,7 +130,7 @@ const MealEditScreen = ({ route, navigation }: any) => {
       editingMeal,
       isFastingToggle,
       trackingState,
-      activeScheduleId
+      activeScheduleId,
     );
   };
 
@@ -140,7 +140,6 @@ const MealEditScreen = ({ route, navigation }: any) => {
         <Text style={styles.title}>
           {editingMeal ? "Edit Meal" : "Add New Meal"}
         </Text>
-        <View style={styles.headerSpacer} />
       </View>
 
       <Text style={styles.label}>Meal Type</Text>
@@ -154,7 +153,7 @@ const MealEditScreen = ({ route, navigation }: any) => {
 
       <View style={styles.stagingCard}>
         <View style={styles.stagingHeader}>
-          <Text style={styles.sectionTitle}>Staging Area</Text>
+          <Text style={styles.sectionTitle}>Selected Items</Text>
           <Text style={styles.totalCalories}>{totalCalories} kcal</Text>
         </View>
 
@@ -171,7 +170,8 @@ const MealEditScreen = ({ route, navigation }: any) => {
               <View style={styles.stagedItemDetails}>
                 <Text style={styles.stagedItemName}>{item.name}</Text>
                 <Text style={styles.stagedItemMeta}>
-                  {item.kind === "dish" ? "Dish" : "Meal"} • {item.calories} kcal
+                  {item.kind === "dish" ? "Dish" : "Meal"} • {item.calories}{" "}
+                  kcal
                 </Text>
               </View>
 
@@ -246,8 +246,8 @@ const MealEditScreen = ({ route, navigation }: any) => {
           <View style={styles.emptyState}>
             <Text style={styles.emptyTitle}>No items available</Text>
             <Text style={styles.emptySubtitle}>
-              Your saved {activeTab === "dishes" ? "dishes" : "meals"} will
-              show up here.
+              Your saved {activeTab === "dishes" ? "dishes" : "meals"} will show
+              up here.
             </Text>
           </View>
         ) : (
@@ -327,9 +327,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 30,
   },
-  headerSpacer: {
-    width: 50,
-  },
+
   title: {
     fontSize: 22,
     fontWeight: "bold",

@@ -20,18 +20,10 @@ const FoodLibraryScreen = () => {
   const { dishes, meals, isLoading } = useSavedFoodCatalog();
   const [activeTab, setActiveTab] = useState<CatalogTab>("dishes");
 
-  const openCreatePicker = () => {
-    Alert.alert("Add new", "What do you want to create?", [
-      {
-        text: "Dish",
-        onPress: () => navigation.navigate(SCREEN.foodeditor, { entityType: "dish" }),
-      },
-      {
-        text: "Meal",
-        onPress: () => navigation.navigate(SCREEN.foodeditor, { entityType: "meal" }),
-      },
-      { text: "Cancel", style: "cancel" },
-    ]);
+  const navigateToCreatePage = () => {
+    navigation.navigate(SCREEN.foodeditor, {
+      entityType: activeTab === "dishes" ? "dish" : "meal",
+    });
   };
 
   const openDish = (dish: Dish) => {
@@ -54,7 +46,7 @@ const FoodLibraryScreen = () => {
         <Text style={styles.title}>Saved Food</Text>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={openCreatePicker}
+          onPress={navigateToCreatePage}
           activeOpacity={0.85}
         >
           <Text style={styles.addButtonText}>+</Text>
@@ -112,7 +104,8 @@ const FoodLibraryScreen = () => {
             >
               <Text style={styles.cardTitle}>{dish.name}</Text>
               <Text style={styles.cardMeta}>
-                {dish.calories} kcal • {dish.protein}P • {dish.carbs}C • {dish.fat}F
+                {dish.calories} kcal • {dish.protein}P • {dish.carbs}C •{" "}
+                {dish.fat}F
               </Text>
             </TouchableOpacity>
           ))
@@ -134,10 +127,12 @@ const FoodLibraryScreen = () => {
           >
             <Text style={styles.cardTitle}>{meal.name}</Text>
             <Text style={styles.cardMeta}>
-              {meal.calories} kcal • {meal.protein}P • {meal.carbs}C • {meal.fat}F
+              {meal.calories} kcal • {meal.protein}P • {meal.carbs}C •{" "}
+              {meal.fat}F
             </Text>
             <Text style={styles.cardHint}>
-              {meal.dishes.length} saved {meal.dishes.length === 1 ? "dish" : "dishes"}
+              {meal.dishes.length} saved{" "}
+              {meal.dishes.length === 1 ? "dish" : "dishes"}
             </Text>
           </TouchableOpacity>
         ))
