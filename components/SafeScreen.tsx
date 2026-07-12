@@ -9,6 +9,7 @@ import {
   Keyboard,
   View,
   ScrollViewProps,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView, Edge } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -23,6 +24,8 @@ interface SafeScreenProps {
   scrollable?: boolean;
   keyboardOffset?: number;
   scrollViewProps?: ScrollViewProps;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }
 
 const SafeScreen: React.FC<SafeScreenProps> = ({
@@ -34,6 +37,8 @@ const SafeScreen: React.FC<SafeScreenProps> = ({
   scrollable = false,
   keyboardOffset = 0,
   scrollViewProps = {},
+  onRefresh,
+  refreshing = false,
 }) => {
   const ContentWrapper = scrollable ? ScrollView : View;
 
@@ -55,6 +60,18 @@ const SafeScreen: React.FC<SafeScreenProps> = ({
             contentContainerStyle={
               scrollable ? [styles.scrollContent, style] : undefined
             }
+            {...(scrollable && onRefresh
+              ? {
+                  refreshControl: (
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      tintColor={COLORS.primary}
+                      colors={[COLORS.primary]}
+                    />
+                  ),
+                }
+              : {})}
           >
             {scrollable ? (
               children

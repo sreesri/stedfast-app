@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, RefreshControl } from "react-native";
 import React, { useState } from "react";
 import { COLORS, SCREEN } from "../utils/Constants";
 import MealLogContainer from "../components/MealLogContainer";
@@ -10,7 +10,7 @@ import { MealLog } from "../utils/types";
 const MealLogsScreen = () => {
   const navigation = useNavigation<any>();
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
-  const { mealLogs } = useMealLogs(selectedDate);
+  const { mealLogs, refetch, isRefreshing } = useMealLogs(selectedDate);
 
   const changeDate = (days: number) => {
     setSelectedDate((prev) => {
@@ -41,7 +41,19 @@ const MealLogsScreen = () => {
           <Text style={styles.dateBtnText}>{">"}</Text>
         </TouchableOpacity>
       </View>
-      <MealLogContainer meal={mealLogs} onPressItem={handleEditMeal} />
+      <ScrollView
+        style={styles.scrollArea}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={refetch}
+            tintColor={COLORS.primary}
+            colors={[COLORS.primary]}
+          />
+        }
+      >
+        <MealLogContainer meal={mealLogs} onPressItem={handleEditMeal} />
+      </ScrollView>
 
       <TouchableOpacity
         style={styles.fab}
@@ -60,6 +72,9 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 10,
     paddingTop: 10,
+  },
+  scrollArea: {
+    flex: 1,
   },
   header: {
     flexDirection: "row",

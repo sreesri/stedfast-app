@@ -98,10 +98,14 @@ export const useSavedFoodCatalog = () => {
     return createMealMutation.mutateAsync(meal);
   };
 
+  const refetch = () => Promise.all([dishesQuery.refetch(), mealsQuery.refetch()]);
+
   return {
     dishes: dishesQuery.data ?? [],
     meals: mealsQuery.data ?? [],
     isLoading: dishesQuery.isLoading || mealsQuery.isLoading,
+    isRefreshing: dishesQuery.isRefetching || mealsQuery.isRefetching,
+    refetch,
     isSaving:
       createDishMutation.isPending ||
       updateDishMutation.isPending ||

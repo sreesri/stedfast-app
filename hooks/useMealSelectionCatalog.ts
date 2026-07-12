@@ -15,10 +15,13 @@ export const useMealSelectionCatalog = () => {
     queryFn: getMealSelectionMeals,
   });
 
+  const refetch = () => Promise.all([dishesQuery.refetch(), mealsQuery.refetch()]);
+
   return {
     dishes: dishesQuery.data ?? [],
     meals: mealsQuery.data ?? [],
     isLoading: dishesQuery.isLoading || mealsQuery.isLoading,
     isRefreshing: dishesQuery.isFetching || mealsQuery.isFetching,
+    refetch,
   };
 };

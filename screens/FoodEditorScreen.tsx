@@ -20,7 +20,7 @@ const FoodEditorScreen = ({ route, navigation }: any) => {
   const editingDish = route.params?.editingDish as Dish | undefined;
   const editingMeal = route.params?.editingMeal as Meal | undefined;
   
-  const { dishes, saveDish, saveMeal, isSaving, removeDish, removeMeal, isDeleting } = useSavedFoodCatalog();
+  const { dishes, saveDish, saveMeal, isSaving, removeDish, removeMeal, isDeleting, refetch, isRefreshing } = useSavedFoodCatalog();
 
   const [dishName, setDishName] = useState(editingDish?.name ?? "");
   const [calories, setCalories] = useState(
@@ -166,7 +166,7 @@ const FoodEditorScreen = ({ route, navigation }: any) => {
   };
 
   return (
-    <SafeScreen style={styles.container} scrollable={true}>
+    <SafeScreen style={styles.container} scrollable={true} onRefresh={refetch} refreshing={isRefreshing}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backText}>Back</Text>

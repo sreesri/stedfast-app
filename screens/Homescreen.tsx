@@ -28,6 +28,8 @@ const Homescreen = () => {
     macros,
     rawTrackingState,
     activeScheduleId,
+    refetch,
+    isRefreshing,
   } = useHomeLogic();
 
   const navigation = useNavigation<any>();
@@ -41,7 +43,7 @@ const Homescreen = () => {
   };
 
   return (
-    <SafeScreen style={styles.container} scrollable={true}>
+    <SafeScreen style={styles.container} scrollable={true} onRefresh={refetch} refreshing={isRefreshing}>
       {isLoading ? (
         <ActivityIndicator />
       ) : (

@@ -27,15 +27,18 @@ const StatsScreen = () => {
 
   const { startDate, endDate } = getDateRange(period);
 
-  const { data: healthStats = [], isLoading: isHealthLoading } = useQuery({
+  const { data: healthStats = [], isLoading: isHealthLoading, refetch: refetchHealth, isRefetching: isHealthRefetching } = useQuery({
     queryKey: ["healthStats"],
     queryFn: getHealthStats,
   });
 
-  const { data: intakeStats = [], isLoading: isIntakeLoading } = useQuery({
+  const { data: intakeStats = [], isLoading: isIntakeLoading, refetch: refetchIntake, isRefetching: isIntakeRefetching } = useQuery({
     queryKey: ["intakeStats", startDate, endDate],
     queryFn: () => getIntakeSummary(startDate, endDate),
   });
+
+  const onRefresh = () => Promise.all([refetchHealth(), refetchIntake()]);
+  const isRefreshing = isHealthRefetching || isIntakeRefetching;
 
   const saveWeightMutation = useMutation({
     mutationFn: (weight: number) => saveHealthStats({ weightKg: weight }),
@@ -69,7 +72,7 @@ const StatsScreen = () => {
   }
 
   return (
-    <SafeScreen style={styles.container} scrollable={true}>
+    <SafeScreen style={styles.container} scrollable={true} onRefresh={onRefresh} refreshing={isRefreshing}>
       <PeriodToggle period={period} onChangePeriod={setPeriod} />
 
       <DailyIntakeStats intakeData={intakeStats} period={period} />

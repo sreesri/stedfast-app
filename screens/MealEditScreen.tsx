@@ -10,7 +10,7 @@ import RadioGroup, { RadioButtonProps } from "react-native-radio-buttons-group";
 import SafeScreen from "../components/SafeScreen";
 import { useMealLogs } from "../hooks/useMealLogs";
 import { useMealSelectionCatalog } from "../hooks/useMealSelectionCatalog";
-import { COLORS } from "../utils/Constants";
+import { COLORS, SCREEN } from "../utils/Constants";
 import { MealLog, MealSelectionItem, StagedMealItem } from "../utils/types";
 
 type CatalogTab = "dishes" | "meals";
@@ -22,7 +22,7 @@ const MealEditScreen = ({ route, navigation }: any) => {
   const trackingState = route.params?.trackingState as string | undefined;
   const activeScheduleId = route.params?.activeScheduleId as string | undefined;
   const { handleSave, handleDelete, isPending } = useMealLogs();
-  const { dishes, meals, isLoading } = useMealSelectionCatalog();
+  const { dishes, meals, isLoading, isRefreshing, refetch } = useMealSelectionCatalog();
 
   const [name, setName] = useState("BREAKFAST");
   const [activeTab, setActiveTab] = useState<CatalogTab>("dishes");
@@ -135,7 +135,7 @@ const MealEditScreen = ({ route, navigation }: any) => {
   };
 
   return (
-    <SafeScreen style={styles.container} scrollable={true}>
+    <SafeScreen style={styles.container} scrollable={true} onRefresh={refetch} refreshing={isRefreshing}>
       <View style={styles.header}>
         <Text style={styles.title}>
           {editingMeal ? "Edit Meal" : "Add New Meal"}
@@ -234,9 +234,23 @@ const MealEditScreen = ({ route, navigation }: any) => {
       </View>
 
       <View style={styles.catalogCard}>
-        <Text style={styles.sectionTitle}>
-          {activeTab === "dishes" ? "Choose dishes" : "Choose meals"}
-        </Text>
+        <View style={styles.catalogHeader}>
+          <Text style={styles.sectionTitle}>
+            {activeTab === "dishes" ? "Choose dishes" : "Choose meals"}
+          </Text>
+          <TouchableOpacity
+            style={styles.newButton}
+            onPress={() =>
+              navigation.navigate(SCREEN.foodeditor, {
+                entityType: activeTab === "dishes" ? "dish" : "meal",
+              })
+            }
+          >
+            <Text style={styles.newButtonText}>
+              + New {activeTab === "dishes" ? "dish" : "meal"}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         {isLoading ? (
           <View style={styles.loadingState}>
@@ -464,6 +478,23 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.ascent,
     borderRadius: 20,
     padding: 16,
+  },
+  catalogHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  newButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  newButtonText: {
+    color: COLORS.background,
+    fontSize: 13,
+    fontWeight: "700",
   },
   loadingState: {
     paddingVertical: 24,

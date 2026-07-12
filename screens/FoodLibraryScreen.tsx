@@ -17,7 +17,7 @@ type CatalogTab = "dishes" | "meals";
 
 const FoodLibraryScreen = () => {
   const navigation = useNavigation<any>();
-  const { dishes, meals, isLoading } = useSavedFoodCatalog();
+  const { dishes, meals, isLoading, refetch, isRefreshing } = useSavedFoodCatalog();
   const [activeTab, setActiveTab] = useState<CatalogTab>("dishes");
 
   const navigateToCreatePage = () => {
@@ -41,7 +41,7 @@ const FoodLibraryScreen = () => {
   };
 
   return (
-    <SafeScreen style={styles.container} scrollable={true}>
+    <SafeScreen style={styles.container} scrollable={true} onRefresh={refetch} refreshing={isRefreshing}>
       <View style={styles.header}>
         <Text style={styles.title}>Saved Food</Text>
         <TouchableOpacity

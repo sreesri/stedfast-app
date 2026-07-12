@@ -12,20 +12,22 @@ import {
 export const useHomeLogic = () => {
   const today = new Date().toISOString().split("T")[0];
 
-  const { data: intakeSummaries, isLoading: isIntakeLoading } = useQuery({
+  const { data: intakeSummaries, isLoading: isIntakeLoading, refetch: refetchIntake, isRefetching: isIntakeRefetching } = useQuery({
     queryKey: ["intakeSummary", today],
     queryFn: () => getIntakeSummary(today),
   });
 
-  const { data: activeSession, isLoading: isActiveSessionLoading } = useQuery({
+  const { data: activeSession, isLoading: isActiveSessionLoading, refetch: refetchSession, isRefetching: isSessionRefetching } = useQuery({
     queryKey: ["activeSession"],
     queryFn: getActiveSession,
   });
 
-  const { data: activeSchedule } = useQuery({
+  const { data: activeSchedule, refetch: refetchSchedule, isRefetching: isScheduleRefetching } = useQuery({
     queryKey: ["activeSchedule"],
     queryFn: getActiveFastingSchedule,
   });
+
+  const refetch = () => Promise.all([refetchIntake(), refetchSession(), refetchSchedule()]);
 
   const isLoading = isIntakeLoading || isActiveSessionLoading;
 
@@ -64,5 +66,7 @@ export const useHomeLogic = () => {
     macros,
     rawTrackingState: trackingState,
     activeScheduleId,
+    refetch,
+    isRefreshing: isIntakeRefetching || isSessionRefetching || isScheduleRefetching,
   };
 };
