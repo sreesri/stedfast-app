@@ -5,7 +5,7 @@ import { COLORS } from "../utils/Constants";
 const ChartPointer = ({ label }) => {
   return (
     <View style={styles.container}>
-      <Text>{label}</Text>
+      <Text style={styles.label}>{label}</Text>
     </View>
   );
 };
@@ -16,9 +16,16 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: "center",
     alignItems: "center",
-    padding: 5,
-    backgroundColor: COLORS.background,
-    width: 50,
-    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 6,
+  },
+  label: {
+    fontSize: 11,
+    color: COLORS.text,
+    fontVariant: ["tabular-nums"],
   },
 });

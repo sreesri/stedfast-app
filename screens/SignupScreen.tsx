@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
-  View,
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
@@ -10,7 +9,6 @@ import {
 import { COLORS, SCREEN } from "../utils/Constants";
 import { useAuth } from "../context/AuthContext";
 import Toast from "react-native-toast-message";
-
 import SafeScreen from "../components/SafeScreen";
 
 const SignupScreen = ({ navigation }: any) => {
@@ -22,29 +20,15 @@ const SignupScreen = ({ navigation }: any) => {
 
   const handleSignup = async () => {
     if (!name || !email || !password) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Please fill in all fields",
-      });
+      Toast.show({ type: "error", text1: "Please fill in all fields" });
       return;
     }
-
     setLoading(true);
     try {
       await signup({ name, email, password });
-      Toast.show({
-        type: "success",
-        text1: "Signup Success",
-        text2: "Account created successfully!",
-      });
       navigation.navigate(SCREEN.login);
-    } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "Signup Failed",
-        text2: "Something went wrong",
-      });
+    } catch {
+      Toast.show({ type: "error", text1: "Signup failed", text2: "Something went wrong" });
     } finally {
       setLoading(false);
     }
@@ -53,21 +37,21 @@ const SignupScreen = ({ navigation }: any) => {
   return (
     <SafeScreen style={styles.container} scrollable={true}>
       <Text style={styles.title}>Stedfast</Text>
-      <Text style={styles.subtitle}>Create Account</Text>
+      <Text style={styles.subtitle}>Create your account</Text>
 
       <TextInput
         style={styles.input}
         placeholder="Name"
-        placeholderTextColor="#888"
+        placeholderTextColor={COLORS.inactive}
         value={name}
         onChangeText={setName}
-        autoCapitalize="none"
+        autoCapitalize="words"
       />
 
       <TextInput
         style={styles.input}
         placeholder="Email"
-        placeholderTextColor="#888"
+        placeholderTextColor={COLORS.inactive}
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -77,7 +61,7 @@ const SignupScreen = ({ navigation }: any) => {
       <TextInput
         style={styles.input}
         placeholder="Password"
-        placeholderTextColor="#888"
+        placeholderTextColor={COLORS.inactive}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -87,16 +71,17 @@ const SignupScreen = ({ navigation }: any) => {
         style={styles.button}
         onPress={handleSignup}
         disabled={loading}
+        activeOpacity={0.8}
       >
         {loading ? (
-          <ActivityIndicator color="#FFF" />
+          <ActivityIndicator color={COLORS.text} />
         ) : (
-          <Text style={styles.buttonText}>Sign Up</Text>
+          <Text style={styles.buttonText}>Sign up</Text>
         )}
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-        <Text style={styles.linkText}>Already have an account? Login</Text>
+      <TouchableOpacity onPress={() => navigation.navigate("Login")} activeOpacity={0.7}>
+        <Text style={styles.linkText}>Already have an account? Log in</Text>
       </TouchableOpacity>
     </SafeScreen>
   );
@@ -107,45 +92,49 @@ export default SignupScreen;
 const styles = StyleSheet.create({
   container: {
     justifyContent: "center",
-    padding: 20,
+    paddingHorizontal: 24,
   },
   title: {
-    fontSize: 40,
-    fontWeight: "bold",
-    color: COLORS.primary,
+    fontSize: 34,
+    fontWeight: "500",
+    letterSpacing: -0.5,
+    color: COLORS.text,
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 20,
-    color: COLORS.primary,
+    fontSize: 14,
+    color: "rgba(233,233,237,0.55)",
     textAlign: "center",
     marginBottom: 40,
   },
   input: {
-    backgroundColor: COLORS.ascent,
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 15,
+    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: COLORS.ascent,
+    borderColor: COLORS.border,
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: COLORS.text,
+    marginBottom: 12,
   },
   button: {
     backgroundColor: COLORS.primary,
-    padding: 15,
-    borderRadius: 10,
+    paddingVertical: 13,
+    borderRadius: 8,
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 4,
+    marginBottom: 16,
   },
   buttonText: {
-    color: "#FFF",
-    fontSize: 18,
-    fontWeight: "bold",
+    color: COLORS.text,
+    fontSize: 15,
+    fontWeight: "500",
   },
   linkText: {
     color: COLORS.primary,
     textAlign: "center",
-    marginTop: 20,
-    fontSize: 16,
+    fontSize: 14,
   },
 });

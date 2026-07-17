@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { View, ActivityIndicator, StyleSheet, TextInput, TouchableOpacity, Text } from "react-native";
+import {
+  View,
+  ActivityIndicator,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Text,
+} from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Toast from "react-native-toast-message";
 import WeightLogStats from "../components/WeightLogStats";
@@ -9,6 +16,7 @@ import PeriodToggle, { Period } from "../components/PeriodToggle";
 import SafeScreen from "../components/SafeScreen";
 import { getHealthStats, saveHealthStats, getIntakeSummary } from "../utils/http";
 import { COLORS } from "../utils/Constants";
+import Divider from "../components/Divider";
 
 function getDateRange(period: Period) {
   const today = new Date();
@@ -71,43 +79,64 @@ const StatsScreen = () => {
     );
   }
 
+  const today = new Date();
+  const dateRange = `${new Date(startDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })} – ${today.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+
   return (
-    <SafeScreen style={styles.container} scrollable={true} onRefresh={onRefresh} refreshing={isRefreshing}>
-      <PeriodToggle period={period} onChangePeriod={setPeriod} />
+    <SafeScreen
+      style={styles.container}
+      scrollable={true}
+      onRefresh={onRefresh}
+      refreshing={isRefreshing}
+    >
+      {/* Header */}
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.title}>Trends</Text>
+          <Text style={styles.dateRange}>{dateRange}</Text>
+        </View>
+        <PeriodToggle period={period} onChangePeriod={setPeriod} />
+      </View>
 
       <DailyIntakeStats intakeData={intakeStats} period={period} />
 
+      <Divider />
+
       <MacroStats intakeData={intakeStats} period={period} />
 
-      <View style={styles.weightCard}>
-        <Text style={styles.title}>Weight Tracking</Text>
-        <WeightLogStats healthStats={healthStats} period={period} />
-      </View>
+      <Divider />
 
-      <View style={styles.inputCard}>
-        <Text style={styles.inputLabel}>Log Today's Weight</Text>
-        <View style={styles.inputRow}>
+      {/* Weight section */}
+      <View style={styles.weightHeader}>
+        <Text style={styles.weightKicker}>WEIGHT</Text>
+      </View>
+      <WeightLogStats healthStats={healthStats} period={period} />
+
+      {/* Log weight */}
+      <View style={styles.logWeightRow}>
+        <View style={styles.weightInput}>
           <TextInput
-            style={styles.input}
+            style={styles.weightInputText}
             value={weightInput}
             onChangeText={setWeightInput}
             keyboardType="decimal-pad"
-            placeholder="0.0"
-            placeholderTextColor="#7a7a7a"
+            placeholder="Log today's weight"
+            placeholderTextColor={COLORS.inactive}
           />
-          <Text style={styles.unitText}>kg</Text>
-          <TouchableOpacity
-            style={styles.saveButton}
-            onPress={handleSaveWeight}
-            disabled={saveWeightMutation.isPending}
-          >
-            {saveWeightMutation.isPending ? (
-              <ActivityIndicator color={COLORS.background} />
-            ) : (
-              <Text style={styles.saveButtonText}>Add</Text>
-            )}
-          </TouchableOpacity>
+          <Text style={styles.weightUnit}>kg</Text>
         </View>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={handleSaveWeight}
+          disabled={saveWeightMutation.isPending}
+          activeOpacity={0.8}
+        >
+          {saveWeightMutation.isPending ? (
+            <ActivityIndicator color={COLORS.primary} size="small" />
+          ) : (
+            <Text style={styles.addButtonText}>Add</Text>
+          )}
+        </TouchableOpacity>
       </View>
     </SafeScreen>
   );
@@ -122,66 +151,75 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   container: {
-    paddingHorizontal: 15,
+    paddingHorizontal: 24,
+    paddingTop: 8,
     paddingBottom: 40,
-    paddingTop: 10,
   },
-  weightCard: {
-    backgroundColor: COLORS.ascent,
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 20,
-    alignItems: "center",
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    marginBottom: 28,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: COLORS.primary,
-    marginBottom: 16,
-    textAlign: "center",
+    fontSize: 22,
+    fontWeight: "500",
+    letterSpacing: -0.3,
+    color: COLORS.text,
   },
-  inputCard: {
-    backgroundColor: COLORS.ascent,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 20,
+  dateRange: {
+    fontSize: 12.5,
+    color: "rgba(233,233,237,0.5)",
+    marginTop: 2,
   },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.primary,
-    marginBottom: 10,
+  weightHeader: {
+    marginBottom: 12,
   },
-  inputRow: {
+  weightKicker: {
+    fontSize: 12,
+    letterSpacing: 1,
+    color: COLORS.accent300,
+  },
+  logWeightRow: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 10,
+    marginTop: 18,
   },
-  input: {
+  weightInput: {
     flex: 1,
-    height: 50,
-    backgroundColor: COLORS.background,
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    fontSize: 18,
-    color: COLORS.primary,
-  },
-  unitText: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: COLORS.primary,
-    marginHorizontal: 10,
-  },
-  saveButton: {
-    backgroundColor: COLORS.primary,
-    height: 50,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    justifyContent: "center",
+    height: 42,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
   },
-  saveButtonText: {
-    color: COLORS.background,
-    fontSize: 16,
-    fontWeight: "bold",
+  weightInputText: {
+    flex: 1,
+    fontSize: 14,
+    color: COLORS.text,
+  },
+  weightUnit: {
+    fontSize: 12,
+    color: "rgba(233,233,237,0.45)",
+  },
+  addButton: {
+    height: 42,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 60,
+  },
+  addButtonText: {
+    color: COLORS.primary,
+    fontSize: 14,
+    fontWeight: "500",
   },
 });

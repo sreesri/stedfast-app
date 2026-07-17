@@ -414,14 +414,9 @@ export const createDish = async (
 };
 
 export const updateDish = async (data: Dish): Promise<Dish> => {
-  try {
-    const response = await api.put(`/api/meal/dishes/${data.id}`, data);
-    const normalized = normalizeDishes(response.data);
-    const updatedDish = normalized[0] ?? data;
-    return updatedDish;
-  } catch (error) {
-    return data;
-  }
+  const response = await api.put(`/api/meal/dishes/${data.id}`, data);
+  const normalized = normalizeDishes(response.data);
+  return normalized[0] ?? data;
 };
 
 export const deleteDish = async (id: string): Promise<void> => {
@@ -452,14 +447,9 @@ export const createMeal = async (
 };
 
 export const updateMeal = async (data: Meal): Promise<Meal> => {
-  try {
-    const response = await api.put(`/api/meal/meals/${data.id}`, data);
-    const normalized = normalizeMeals(response.data);
-    const updatedMeal = normalized[0] ?? data;
-    return updatedMeal;
-  } catch (error) {
-    return data;
-  }
+  const response = await api.put(`/api/meal/meals/${data.id}`, data);
+  const normalized = normalizeMeals(response.data);
+  return normalized[0] ?? data;
 };
 
 export const deleteMeal = async (id: string): Promise<void> => {

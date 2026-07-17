@@ -32,7 +32,7 @@ const SafeScreen: React.FC<SafeScreenProps> = ({
   children,
   style,
   edges = ["top", "left", "right", "bottom"],
-  statusBarStyle = "auto",
+  statusBarStyle = "light",
   backgroundColor = COLORS.background,
   scrollable = false,
   keyboardOffset = 0,

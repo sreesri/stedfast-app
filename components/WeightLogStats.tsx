@@ -33,7 +33,7 @@ const WeightLogStats: React.FC<WeightLogStatsProps> = ({ healthStats, period }) 
         const d = new Date(s.loggedDate + "T00:00:00");
         return {
           value: s.weightKg,
-          label: `${d.toLocaleDateString("en-US", { weekday: "short" })} ${d.getDate()}`,
+          label: d.toLocaleDateString("en-US", { weekday: "short" }),
         };
       });
     }
@@ -61,7 +61,6 @@ const WeightLogStats: React.FC<WeightLogStatsProps> = ({ healthStats, period }) 
         });
     }
 
-    // Monthly
     const buckets = new Map<string, number[]>();
     filtered.forEach((s) => {
       const key = s.loggedDate.substring(0, 7);
@@ -103,22 +102,29 @@ const WeightLogStats: React.FC<WeightLogStatsProps> = ({ healthStats, period }) 
     <View style={styles.container}>
       <LineChart
         areaChart
-        height={150}
+        height={110}
         focusEnabled
         showStripOnFocus
         showDataPointOnFocus
         color={COLORS.primary}
         startFillColor={COLORS.primary}
         endFillColor={COLORS.primary}
-        startOpacity={1}
-        endOpacity={0.3}
+        startOpacity={0.35}
+        endOpacity={0}
         yAxisOffset={yAxisOffset}
-        yAxisLabelWidth={50}
-        hideRules={true}
+        yAxisLabelWidth={40}
+        hideRules
         stepValue={0.5}
         noOfSections={3}
         pointerConfig={{ pointerLabelComponent: renderPointer }}
         data={chartPoints}
+        xAxisLabelTextStyle={{ color: "rgba(233,233,237,0.45)", fontSize: 9 }}
+        yAxisTextStyle={{ color: "rgba(233,233,237,0.45)", fontSize: 9 }}
+        backgroundColor="transparent"
+        dataPointsColor={COLORS.accent300}
+        dataPointsRadius={4}
+        xAxisThickness={0}
+        yAxisThickness={0}
       />
     </View>
   );
@@ -129,22 +135,19 @@ export default WeightLogStats;
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    minHeight: 200,
+    minHeight: 130,
     backgroundColor: "transparent",
-    borderRadius: 20,
-    padding: 10,
     justifyContent: "center",
     alignItems: "center",
   },
   emptyContainer: {
     width: "100%",
-    minHeight: 100,
+    minHeight: 60,
     justifyContent: "center",
     alignItems: "center",
   },
   emptyText: {
-    color: COLORS.primary,
+    color: "rgba(233,233,237,0.45)",
     fontSize: 14,
-    fontWeight: "600",
   },
 });

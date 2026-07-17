@@ -300,8 +300,8 @@ const styles = StyleSheet.create({
     top: VERTICAL_PADDING,
     height: ITEM_HEIGHT,
     width: "100%",
-    backgroundColor: COLORS.background,
-    borderRadius: 10,
+    backgroundColor: "rgba(145,132,217,0.12)",
+    borderRadius: 8,
     zIndex: -1,
   },
   pickerColumn: {
@@ -314,23 +314,23 @@ const styles = StyleSheet.create({
   },
   pickerItemText: {
     fontSize: 14,
-    color: COLORS.secondary,
+    color: COLORS.inactive,
   },
   pickerItemTextSelected: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: COLORS.primary,
+    fontWeight: "500",
+    color: COLORS.text,
   },
   colon: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: COLORS.primary,
+    fontWeight: "500",
+    color: COLORS.text,
     marginHorizontal: 2,
   },
   divider: {
     width: 1,
     height: "60%",
-    backgroundColor: COLORS.primary + "20",
+    backgroundColor: "rgba(233,233,237,0.1)",
     marginHorizontal: 10,
   },
 });

@@ -2,27 +2,47 @@ import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React from "react";
 import { COLORS } from "../utils/Constants";
 
-const MealLogItem = ({ meal, onPress }) => {
+interface MealLogItemProps {
+  meal: any;
+  onPress?: (meal: any) => void;
+  isLast?: boolean;
+}
+
+const MealLogItem: React.FC<MealLogItemProps> = ({ meal, onPress, isLast }) => {
+  const timeStr = new Date(meal.mealTime).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  const dishesStr =
+    meal.dishes?.map((d: any) => `${d.name} ×${d.quantity}`).join(" · ") || "";
+
   return (
-    <TouchableOpacity style={styles.contianer} onPress={() => onPress?.(meal)} activeOpacity={0.8}>
-      <View style={styles.mealLogItem}>
-        <View style={styles.mealLogItemHeader}>
-          <Text style={styles.mealLogItemTitle}>{meal.notes || "MEAL"}</Text>
-        </View>
-        <View style={styles.mealLogItemBody}>
-          <Text style={styles.mealLogItemTime}>
-            {new Date(meal.mealTime).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </Text>
-          <Text style={styles.mealLogItemDish}>
-            {meal.dishes?.map((d: any) => `${d.name} x${d.quantity}`).join(", ") || ""}
-          </Text>
-        </View>
+    <TouchableOpacity
+      onPress={() => onPress?.(meal)}
+      activeOpacity={0.7}
+      style={styles.row}
+    >
+      {/* Time column */}
+      <View style={styles.timeCol}>
+        <Text style={styles.time}>{timeStr}</Text>
       </View>
-      <View style={styles.calorieContainer}>
-        <Text style={styles.mealLogItemCalories}>{meal.calories}</Text>
+
+      {/* Rail column */}
+      <View style={styles.rail}>
+        <View style={styles.dot} />
+        {!isLast && <View style={styles.line} />}
+      </View>
+
+      {/* Content column */}
+      <View style={[styles.content, !isLast && styles.contentPadded]}>
+        <View style={styles.contentHeader}>
+          <Text style={styles.mealName}>{meal.notes || "Meal"}</Text>
+          <Text style={styles.calories}>
+            {meal.calories}
+            <Text style={styles.caloriesUnit}> kcal</Text>
+          </Text>
+        </View>
+        {dishesStr ? <Text style={styles.dishes}>{dishesStr}</Text> : null}
       </View>
     </TouchableOpacity>
   );
@@ -31,57 +51,72 @@ const MealLogItem = ({ meal, onPress }) => {
 export default MealLogItem;
 
 const styles = StyleSheet.create({
-  contianer: {
+  row: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    gap: 16,
+  },
+  timeCol: {
+    width: 58,
+    alignItems: "flex-end",
+    paddingTop: 2,
+  },
+  time: {
+    fontSize: 11,
+    color: "rgba(233,233,237,0.5)",
+    fontVariant: ["tabular-nums"],
+  },
+  rail: {
     alignItems: "center",
-    backgroundColor: COLORS.ascent,
-    borderRadius: 15,
-    marginBottom: 5,
-    width: "100%",
+    width: 8,
   },
-  mealLogItem: {
-    flexDirection: "column",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 5,
-    flex: 0.8,
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.primary,
+    marginTop: 4,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  mealLogItemHeader: {
-    alignItems: "flex-start",
-    width: "100%",
-  },
-  mealLogItemBody: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-  },
-  mealLogItemTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    textAlign: "left",
-    color: COLORS.primary,
-  },
-  mealLogItemTime: {
-    fontSize: 10,
-    color: COLORS.primary,
-    marginLeft: 5,
-  },
-  mealLogItemCalories: {
-    fontSize: 14,
-    color: COLORS.primary,
-  },
-  mealLogItemDish: {
-    fontSize: 14,
-    color: COLORS.primary,
+  line: {
+    width: 1,
     flex: 1,
-    textAlign: "center",
+    backgroundColor: "rgba(233,233,237,0.12)",
+    marginTop: 4,
   },
-  calorieContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 10,
-    flex: 0.2,
+  content: {
+    flex: 1,
+    minWidth: 0,
+  },
+  contentPadded: {
+    paddingBottom: 26,
+  },
+  contentHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+  },
+  mealName: {
+    fontSize: 14.5,
+    fontWeight: "500",
+    color: COLORS.text,
+  },
+  calories: {
+    fontSize: 13.5,
+    fontWeight: "500",
+    color: COLORS.text,
+    fontVariant: ["tabular-nums"],
+  },
+  caloriesUnit: {
+    fontSize: 10.5,
+    color: "rgba(233,233,237,0.45)",
+  },
+  dishes: {
+    fontSize: 12,
+    color: "rgba(233,233,237,0.5)",
+    marginTop: 3,
   },
 });

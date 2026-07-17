@@ -27,7 +27,7 @@ function aggregateMacros(data: UserIntakeSummary[], period: Period): AggregatedM
     return sorted.map((item) => {
       const d = new Date(item.loggedDate + "T00:00:00");
       return {
-        label: `${d.toLocaleDateString("en-US", { weekday: "short" })} ${d.getDate()}`,
+        label: d.toLocaleDateString("en-US", { weekday: "short" }),
         protein: item.consumedProtein,
         carbs: item.consumedCarbs,
         fat: item.consumedFat,
@@ -54,22 +54,18 @@ function aggregateMacros(data: UserIntakeSummary[], period: Period): AggregatedM
       .slice(-8)
       .map(([key, items]) => {
         const d = new Date(key + "T00:00:00");
-        const avgProteinLimit = items.reduce((s, i) => s + i.proteinLimit, 0) / items.length;
-        const avgCarbsLimit = items.reduce((s, i) => s + i.carbsLimit, 0) / items.length;
-        const avgFatLimit = items.reduce((s, i) => s + i.fatLimit, 0) / items.length;
         return {
           label: `${d.getMonth() + 1}/${d.getDate()}`,
           protein: items.reduce((s, i) => s + i.consumedProtein, 0),
           carbs: items.reduce((s, i) => s + i.consumedCarbs, 0),
           fat: items.reduce((s, i) => s + i.consumedFat, 0),
-          proteinLimit: Math.round(avgProteinLimit * 7),
-          carbsLimit: Math.round(avgCarbsLimit * 7),
-          fatLimit: Math.round(avgFatLimit * 7),
+          proteinLimit: Math.round(items.reduce((s, i) => s + i.proteinLimit, 0) / items.length * 7),
+          carbsLimit: Math.round(items.reduce((s, i) => s + i.carbsLimit, 0) / items.length * 7),
+          fatLimit: Math.round(items.reduce((s, i) => s + i.fatLimit, 0) / items.length * 7),
         };
       });
   }
 
-  // Monthly
   const buckets = new Map<string, UserIntakeSummary[]>();
   sorted.forEach((item) => {
     const key = item.loggedDate.substring(0, 7);
@@ -85,76 +81,80 @@ function aggregateMacros(data: UserIntakeSummary[], period: Period): AggregatedM
         d.toLocaleDateString("en-US", { month: "short" }) +
         " " +
         String(d.getFullYear()).slice(2);
-      const avgProteinLimit = items.reduce((s, i) => s + i.proteinLimit, 0) / items.length;
-      const avgCarbsLimit = items.reduce((s, i) => s + i.carbsLimit, 0) / items.length;
-      const avgFatLimit = items.reduce((s, i) => s + i.fatLimit, 0) / items.length;
       return {
         label,
         protein: items.reduce((s, i) => s + i.consumedProtein, 0),
         carbs: items.reduce((s, i) => s + i.consumedCarbs, 0),
         fat: items.reduce((s, i) => s + i.consumedFat, 0),
-        proteinLimit: Math.round(avgProteinLimit * items.length),
-        carbsLimit: Math.round(avgCarbsLimit * items.length),
-        fatLimit: Math.round(avgFatLimit * items.length),
+        proteinLimit: Math.round(items.reduce((s, i) => s + i.proteinLimit, 0) / items.length * items.length),
+        carbsLimit: Math.round(items.reduce((s, i) => s + i.carbsLimit, 0) / items.length * items.length),
+        fatLimit: Math.round(items.reduce((s, i) => s + i.fatLimit, 0) / items.length * items.length),
       };
     });
 }
 
 interface MacroChartProps {
   title: string;
-  barColor: string;
+  lastValue: string;
   data: { label: string; value: number; limit: number }[];
   pointCount: number;
 }
 
-const MacroChart: React.FC<MacroChartProps> = ({ title, barColor, data, pointCount }) => {
+const MacroChart: React.FC<MacroChartProps> = ({ title, lastValue, data, pointCount }) => {
   const refLine = data.length > 0 ? data[data.length - 1].limit : 0;
-  const barWidth = pointCount <= 7 ? 26 : pointCount <= 8 ? 20 : 28;
-  const spacing = pointCount <= 7 ? 22 : pointCount <= 8 ? 14 : 22;
+  const barWidth = pointCount <= 7 ? 18 : pointCount <= 8 ? 14 : 20;
+  const spacing = pointCount <= 7 ? 18 : pointCount <= 8 ? 12 : 18;
 
   const barData = data.map((item) => ({
     value: item.value || 0,
     label: item.label,
-    frontColor: item.value > item.limit ? "#ff4d4d" : barColor,
+    frontColor: item.value > item.limit ? COLORS.accent300 : "#796cbf",
   }));
 
   return (
-    <View style={macroStyles.macroSection}>
-      <Text style={macroStyles.macroTitle}>{title}</Text>
+    <View style={macroStyles.section}>
+      <View style={macroStyles.header}>
+        <View>
+          <Text style={macroStyles.title}>{title}</Text>
+          <Text style={macroStyles.last}>{lastValue}</Text>
+        </View>
+      </View>
       <BarChart
         data={barData}
-        height={110}
+        height={56}
         barWidth={barWidth}
         spacing={spacing}
-        roundedTop
-        roundedBottom
-        hideRules={true}
+        hideRules
         xAxisThickness={0}
         yAxisThickness={0}
-        yAxisTextStyle={{ color: COLORS.primary, fontSize: 9 }}
-        noOfSections={3}
+        hideYAxisText
+        noOfSections={2}
         maxValue={Math.max((refLine || 1) * 1.2, ...barData.map((d) => d.value), 1)}
-        showReferenceLine1={refLine > 0}
-        referenceLine1Position={refLine}
-        referenceLine1Config={{
-          color: "rgba(255, 77, 77, 0.5)",
-          dashWidth: 4,
-          dashGap: 4,
-        }}
+        backgroundColor="transparent"
       />
     </View>
   );
 };
 
 const macroStyles = StyleSheet.create({
-  macroSection: {
+  section: {
     marginBottom: 16,
   },
-  macroTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: COLORS.primary,
-    marginBottom: 8,
+  header: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    marginBottom: 6,
+  },
+  title: {
+    fontSize: 13.5,
+    fontWeight: "500",
+    color: COLORS.text,
+  },
+  last: {
+    fontSize: 11,
+    color: "rgba(233,233,237,0.45)",
+    marginTop: 2,
+    fontVariant: ["tabular-nums"],
   },
 });
 
@@ -172,16 +172,32 @@ const MacroStats: React.FC<MacroStatsProps> = ({ intakeData, period }) => {
     );
   }
 
+  const last = aggregated[aggregated.length - 1];
   const proteinData = aggregated.map((i) => ({ label: i.label, value: i.protein, limit: i.proteinLimit }));
   const carbsData = aggregated.map((i) => ({ label: i.label, value: i.carbs, limit: i.carbsLimit }));
   const fatData = aggregated.map((i) => ({ label: i.label, value: i.fat, limit: i.fatLimit }));
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Macronutrient Trends</Text>
-      <MacroChart title="Protein (g)" barColor="#5B8DB8" data={proteinData} pointCount={aggregated.length} />
-      <MacroChart title="Carbs (g)" barColor={COLORS.secondary} data={carbsData} pointCount={aggregated.length} />
-      <MacroChart title="Fat (g)" barColor="#E0913A" data={fatData} pointCount={aggregated.length} />
+      <Text style={styles.kicker}>MACROS</Text>
+      <MacroChart
+        title="Protein"
+        lastValue={`${Math.round(last.protein)} g · goal ${last.proteinLimit}`}
+        data={proteinData}
+        pointCount={aggregated.length}
+      />
+      <MacroChart
+        title="Carbs"
+        lastValue={`${Math.round(last.carbs)} g · goal ${last.carbsLimit}`}
+        data={carbsData}
+        pointCount={aggregated.length}
+      />
+      <MacroChart
+        title="Fat"
+        lastValue={`${Math.round(last.fat)} g · goal ${last.fatLimit}`}
+        data={fatData}
+        pointCount={aggregated.length}
+      />
     </View>
   );
 };
@@ -190,31 +206,21 @@ export default MacroStats;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.ascent,
-    borderRadius: 20,
-    padding: 16,
     marginBottom: 20,
-    width: "100%",
   },
   emptyContainer: {
-    backgroundColor: COLORS.ascent,
-    borderRadius: 20,
     padding: 30,
     marginBottom: 20,
-    width: "100%",
     alignItems: "center",
-    justifyContent: "center",
   },
   emptyText: {
-    color: COLORS.primary,
-    fontSize: 16,
-    fontWeight: "bold",
+    color: "rgba(233,233,237,0.45)",
+    fontSize: 14,
   },
-  title: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.primary,
-    marginBottom: 16,
-    textAlign: "center",
+  kicker: {
+    fontSize: 12,
+    letterSpacing: 1,
+    color: COLORS.accent300,
+    marginBottom: 14,
   },
 });

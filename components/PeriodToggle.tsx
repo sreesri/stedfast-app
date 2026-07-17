@@ -23,11 +23,11 @@ const PeriodToggle: React.FC<PeriodToggleProps> = ({ period, onChangePeriod }) =
         return (
           <TouchableOpacity
             key={opt.value}
-            style={[styles.option, isActive && styles.activeOption]}
+            style={[styles.chip, isActive && styles.activeChip]}
             onPress={() => onChangePeriod(opt.value)}
             activeOpacity={0.8}
           >
-            <Text style={[styles.label, isActive && styles.activeLabel]}>
+            <Text style={[styles.chipText, isActive && styles.activeChipText]}>
               {opt.label}
             </Text>
           </TouchableOpacity>
@@ -42,27 +42,27 @@ export default PeriodToggle;
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    backgroundColor: COLORS.ascent,
-    borderRadius: 25,
-    overflow: "hidden",
+    gap: 6,
     marginBottom: 20,
+    flexWrap: "wrap",
   },
-  option: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: "center",
-    justifyContent: "center",
+  chip: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(233,233,237,0.1)",
   },
-  activeOption: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 25,
+  activeChip: {
+    backgroundColor: "rgba(145,132,217,0.14)",
+    borderColor: COLORS.accent700,
   },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: COLORS.primary,
+  chipText: {
+    fontSize: 12,
+    color: COLORS.inactive,
   },
-  activeLabel: {
-    color: COLORS.background,
+  activeChipText: {
+    color: COLORS.accent300,
+    fontWeight: "500",
   },
 });

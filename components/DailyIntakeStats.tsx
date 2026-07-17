@@ -23,7 +23,7 @@ function aggregateIntake(data: UserIntakeSummary[], period: Period): AggregatedB
     return sorted.map((item) => {
       const d = new Date(item.loggedDate + "T00:00:00");
       return {
-        label: `${d.toLocaleDateString("en-US", { weekday: "short" })} ${d.getDate()}`,
+        label: d.toLocaleDateString("en-US", { weekday: "short" }),
         consumedCalories: item.consumedCalories,
         calorieLimit: item.calorieLimit,
       };
@@ -55,7 +55,6 @@ function aggregateIntake(data: UserIntakeSummary[], period: Period): AggregatedB
       });
   }
 
-  // Monthly
   const buckets = new Map<string, UserIntakeSummary[]>();
   sorted.forEach((item) => {
     const key = item.loggedDate.substring(0, 7);
@@ -81,9 +80,9 @@ function aggregateIntake(data: UserIntakeSummary[], period: Period): AggregatedB
 }
 
 const PERIOD_TITLES: Record<Period, string> = {
-  daily: "Caloric Intake — Last 7 Days",
-  weekly: "Caloric Intake — Last 8 Weeks",
-  monthly: "Caloric Intake — Last 6 Months",
+  daily: "Calories — Last 7 Days",
+  weekly: "Calories — Last 8 Weeks",
+  monthly: "Calories — Last 6 Months",
 };
 
 const DailyIntakeStats: React.FC<DailyIntakeStatsProps> = ({ intakeData, period }) => {
@@ -107,9 +106,9 @@ const DailyIntakeStats: React.FC<DailyIntakeStatsProps> = ({ intakeData, period 
     return {
       value: item.consumedCalories || 0,
       label: item.label,
-      frontColor: exceeded ? "#ff4d4d" : COLORS.primary,
+      frontColor: exceeded ? COLORS.accent300 : COLORS.primary,
       topLabelComponent: () => (
-        <Text style={{ fontSize: 9, color: COLORS.primary, marginBottom: 2 }}>
+        <Text style={{ fontSize: 9, color: "rgba(233,233,237,0.5)", marginBottom: 2 }}>
           {Math.round(item.consumedCalories)}
         </Text>
       ),
@@ -117,45 +116,45 @@ const DailyIntakeStats: React.FC<DailyIntakeStatsProps> = ({ intakeData, period 
   });
 
   const pointCount = barData.length;
-  const barWidth = pointCount <= 7 ? 28 : pointCount <= 8 ? 22 : 30;
-  const spacing = pointCount <= 7 ? 24 : pointCount <= 8 ? 16 : 24;
+  const barWidth = pointCount <= 7 ? 26 : pointCount <= 8 ? 20 : 28;
+  const spacing = pointCount <= 7 ? 22 : pointCount <= 8 ? 14 : 22;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{PERIOD_TITLES[period]}</Text>
+      <View style={styles.header}>
+        <Text style={styles.kicker}>{PERIOD_TITLES[period].toUpperCase()}</Text>
+        <Text style={styles.goalText}>goal {referenceLine.toLocaleString()}</Text>
+      </View>
       <BarChart
         data={barData}
-        height={180}
+        height={150}
         barWidth={barWidth}
         spacing={spacing}
         roundedTop
-        roundedBottom
-        hideRules={true}
+        hideRules
         xAxisThickness={0}
         yAxisThickness={0}
-        yAxisTextStyle={{ color: COLORS.primary, fontSize: 10 }}
-        noOfSections={4}
+        yAxisTextStyle={{ color: "rgba(233,233,237,0.45)", fontSize: 9 }}
+        noOfSections={3}
         maxValue={Math.max(referenceLine * 1.2, ...barData.map((d) => d.value))}
         showReferenceLine1
         referenceLine1Position={referenceLine}
         referenceLine1Config={{
-          color: "rgba(255, 77, 77, 0.5)",
+          color: COLORS.inactive,
           dashWidth: 4,
           dashGap: 4,
+          thickness: 1,
         }}
+        backgroundColor="transparent"
       />
       <View style={styles.legend}>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: COLORS.primary }]} />
-          <Text style={styles.legendText}>Under Limit</Text>
+          <View style={[styles.legendSwatch, { backgroundColor: COLORS.primary }]} />
+          <Text style={styles.legendText}>under goal</Text>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: "#ff4d4d" }]} />
-          <Text style={styles.legendText}>Over Limit</Text>
-        </View>
-        <View style={styles.legendItem}>
-          <View style={[styles.legendLine, { backgroundColor: "rgba(255, 77, 77, 0.5)" }]} />
-          <Text style={styles.legendText}>Goal ({referenceLine})</Text>
+          <View style={[styles.legendSwatch, { backgroundColor: COLORS.accent300 }]} />
+          <Text style={styles.legendText}>over goal</Text>
         </View>
       </View>
     </View>
@@ -166,58 +165,50 @@ export default DailyIntakeStats;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.ascent,
-    borderRadius: 20,
-    padding: 16,
     marginBottom: 20,
-    width: "100%",
   },
   emptyContainer: {
-    backgroundColor: COLORS.ascent,
-    borderRadius: 20,
     padding: 30,
     marginBottom: 20,
-    width: "100%",
     alignItems: "center",
-    justifyContent: "center",
   },
   emptyText: {
-    color: COLORS.primary,
-    fontSize: 16,
-    fontWeight: "bold",
+    color: "rgba(233,233,237,0.45)",
+    fontSize: 14,
   },
-  title: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.primary,
-    marginBottom: 20,
-    textAlign: "center",
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    marginBottom: 14,
+  },
+  kicker: {
+    fontSize: 12,
+    letterSpacing: 1,
+    color: COLORS.accent300,
+  },
+  goalText: {
+    fontSize: 12,
+    color: "rgba(233,233,237,0.45)",
+    fontVariant: ["tabular-nums"],
   },
   legend: {
     flexDirection: "row",
-    justifyContent: "center",
-    flexWrap: "wrap",
-    marginTop: 20,
-    gap: 12,
+    gap: 14,
+    marginTop: 10,
   },
   legendItem: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 6,
   },
-  legendDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginRight: 6,
-  },
-  legendLine: {
-    width: 16,
-    height: 3,
-    marginRight: 6,
+  legendSwatch: {
+    width: 8,
+    height: 8,
+    borderRadius: 2,
   },
   legendText: {
-    fontSize: 12,
-    color: COLORS.primary,
-    fontWeight: "600",
+    fontSize: 11,
+    color: "rgba(233,233,237,0.5)",
   },
 });

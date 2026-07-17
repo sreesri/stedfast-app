@@ -106,16 +106,16 @@ const styles = StyleSheet.create({
   selectedItemOverlay: {
     height: ITEM_HEIGHT,
     width: "99%",
-    backgroundColor: COLORS.background,
+    backgroundColor: "rgba(145,132,217,0.12)",
     position: "absolute",
     top: VERTICAL_PADDING,
     zIndex: -1,
-    borderRadius: 10,
+    borderRadius: 8,
   },
   label: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: COLORS.primary,
+    fontWeight: "500",
+    color: COLORS.text,
     marginBottom: 10,
   },
   itemContainer: {
@@ -125,11 +125,11 @@ const styles = StyleSheet.create({
   },
   rollItem: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: COLORS.secondary,
+    color: COLORS.inactive,
     textAlign: "center",
   },
   selectedRollItem: {
-    color: COLORS.primary,
+    fontWeight: "500",
+    color: COLORS.text,
   },
 });

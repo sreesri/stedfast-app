@@ -4,35 +4,78 @@ import { useNavigation } from "@react-navigation/native";
 import SafeScreen from "../components/SafeScreen";
 import { COLORS, SCREEN } from "../utils/Constants";
 import { useAuth } from "../context/AuthContext";
+import { useFastingContext } from "../context/FastingContext";
+import { useLimitContext } from "../context/LimitContext";
+import Ionicons from "@expo/vector-icons/Ionicons";
+
+interface MenuRowProps {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  subtitle: string;
+  onPress: () => void;
+  isLast?: boolean;
+}
+
+const MenuRow: React.FC<MenuRowProps> = ({
+  icon,
+  label,
+  subtitle,
+  onPress,
+  isLast,
+}) => (
+  <TouchableOpacity
+    style={[styles.menuItem, !isLast && styles.menuItemBorder]}
+    onPress={onPress}
+    activeOpacity={0.7}
+  >
+    <View style={styles.menuIconSquare}>
+      <Ionicons name={icon} size={17} color={COLORS.primary} />
+    </View>
+    <View style={styles.menuContent}>
+      <Text style={styles.menuLabel}>{label}</Text>
+      <Text style={styles.menuSub}>{subtitle}</Text>
+    </View>
+    <Ionicons name="chevron-forward" size={14} color="#595d6c" />
+  </TouchableOpacity>
+);
 
 const SettingsScreen = () => {
   const navigation = useNavigation<any>();
   const { logout } = useAuth();
+  const { fastingConfig } = useFastingContext();
+  const { limitConfig } = useLimitContext();
+
+  const fastingSubtitle = fastingConfig
+    ? `${fastingConfig.fastingWindow} : ${fastingConfig.eatingWindow}`
+    : "—";
+
+  const limitsSubtitle = limitConfig
+    ? `${limitConfig.calorieLimit.toLocaleString()} kcal · ${limitConfig.proteinLimit}P · ${limitConfig.carbsLimit}C · ${limitConfig.fatLimit}F`
+    : "—";
 
   return (
     <SafeScreen style={styles.container}>
       <Text style={styles.title}>Settings</Text>
 
       <View style={styles.menuGroup}>
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => navigation.navigate(SCREEN.fastingconfig)}
-        >
-          <Text style={styles.menuItemText}>Fasting Configuration</Text>
-          <Text style={styles.chevron}>›</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.menuItem}
+        <MenuRow
+          icon="timer-outline"
+          label="Fasting schedule"
+          subtitle={fastingSubtitle}
+          onPress={() => navigation.navigate(SCREEN.fastingConfig)}
+        />
+        <MenuRow
+          icon="flag-outline"
+          label="Macro limits"
+          subtitle={limitsSubtitle}
           onPress={() => navigation.navigate(SCREEN.limitConfig)}
-        >
-          <Text style={styles.menuItemText}>Macro Limits Configuration</Text>
-          <Text style={styles.chevron}>›</Text>
-        </TouchableOpacity>
+          isLast
+        />
       </View>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-        <Text style={styles.logoutText}>Logout</Text>
+      <TouchableOpacity style={styles.logoutButton} onPress={logout} activeOpacity={0.7}>
+        <Ionicons name="log-out-outline" size={16} color={COLORS.inactive} />
+        <Text style={styles.logoutText}>Log out</Text>
       </TouchableOpacity>
     </SafeScreen>
   );
@@ -42,49 +85,69 @@ export default SettingsScreen;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    padding: 24,
   },
   title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: COLORS.primary,
-    marginBottom: 30,
+    fontSize: 22,
+    fontWeight: "500",
+    letterSpacing: -0.3,
+    color: COLORS.text,
+    marginBottom: 24,
   },
   menuGroup: {
-    backgroundColor: COLORS.ascent,
-    borderRadius: 16,
-    overflow: "hidden",
-    marginBottom: 40,
+    backgroundColor: COLORS.surface,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingHorizontal: 18,
+    marginBottom: 28,
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
+    gap: 14,
+    paddingVertical: 15,
+  },
+  menuItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.background,
+    borderBottomColor: "rgba(233,233,237,0.08)",
   },
-  menuItemText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: COLORS.primary,
+  menuIconSquare: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: "rgba(145,132,217,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  chevron: {
-    fontSize: 20,
-    color: COLORS.primary,
-    fontWeight: "bold",
+  menuContent: {
+    flex: 1,
+    minWidth: 0,
+  },
+  menuLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: COLORS.text,
+  },
+  menuSub: {
+    fontSize: 11.5,
+    color: "rgba(233,233,237,0.5)",
+    marginTop: 2,
+    fontVariant: ["tabular-nums"],
   },
   logoutButton: {
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: "transparent",
-    borderWidth: 1,
-    borderColor: "#ff4d4d",
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(233,233,237,0.14)",
   },
   logoutText: {
-    color: "#ff4d4d",
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 14,
+    fontWeight: "500",
+    color: COLORS.inactive,
   },
 });

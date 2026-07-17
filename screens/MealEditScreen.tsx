@@ -35,28 +35,28 @@ const MealEditScreen = ({ route, navigation }: any) => {
         label: "Breakfast",
         value: "Breakfast",
         color: COLORS.primary,
-        labelStyle: { color: COLORS.primary },
+        labelStyle: { color: COLORS.text },
       },
       {
         id: "LUNCH",
         label: "Lunch",
         value: "Lunch",
         color: COLORS.primary,
-        labelStyle: { color: COLORS.primary },
+        labelStyle: { color: COLORS.text },
       },
       {
         id: "DINNER",
         label: "Dinner",
         value: "Dinner",
         color: COLORS.primary,
-        labelStyle: { color: COLORS.primary },
+        labelStyle: { color: COLORS.text },
       },
       {
         id: "SNACK",
         label: "Snacks",
         value: "Snacks",
         color: COLORS.primary,
-        labelStyle: { color: COLORS.primary },
+        labelStyle: { color: COLORS.text },
       },
     ],
     [],
@@ -345,11 +345,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: "bold",
-    color: COLORS.primary,
+    color: COLORS.text,
   },
   label: {
     fontSize: 16,
-    color: COLORS.primary,
+    color: COLORS.text,
     fontWeight: "600",
     marginBottom: 8,
     marginTop: 10,
@@ -375,16 +375,16 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: COLORS.primary,
+    color: COLORS.text,
   },
   totalCalories: {
     fontSize: 15,
     fontWeight: "700",
-    color: COLORS.primary,
+    color: COLORS.text,
   },
   emptyState: {
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: COLORS.border,
     borderStyle: "dashed",
     borderRadius: 16,
     padding: 18,
@@ -394,12 +394,11 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: COLORS.primary,
+    color: COLORS.text,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: COLORS.primary,
-    opacity: 0.8,
+    color: COLORS.inactive,
     marginTop: 6,
     textAlign: "center",
   },
@@ -419,11 +418,11 @@ const styles = StyleSheet.create({
   stagedItemName: {
     fontSize: 16,
     fontWeight: "700",
-    color: COLORS.primary,
+    color: COLORS.text,
   },
   stagedItemMeta: {
     fontSize: 13,
-    color: COLORS.primary,
+    color: COLORS.inactive,
     marginTop: 4,
   },
   quantityControls: {
@@ -448,7 +447,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
     fontWeight: "700",
-    color: COLORS.primary,
+    color: COLORS.text,
   },
   tabs: {
     flexDirection: "row",
@@ -467,12 +466,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
   },
   tabButtonText: {
-    color: COLORS.primary,
+    color: COLORS.inactive,
     fontSize: 15,
     fontWeight: "700",
   },
   activeTabButtonText: {
-    color: COLORS.background,
+    color: COLORS.text,
   },
   catalogCard: {
     backgroundColor: COLORS.ascent,
@@ -492,7 +491,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   newButtonText: {
-    color: COLORS.background,
+    color: COLORS.text,
     fontSize: 13,
     fontWeight: "700",
   },
@@ -533,11 +532,11 @@ const styles = StyleSheet.create({
   catalogItemName: {
     fontSize: 16,
     fontWeight: "700",
-    color: COLORS.primary,
+    color: COLORS.text,
   },
   catalogItemMeta: {
     fontSize: 13,
-    color: COLORS.primary,
+    color: COLORS.inactive,
     marginTop: 4,
   },
   actions: {

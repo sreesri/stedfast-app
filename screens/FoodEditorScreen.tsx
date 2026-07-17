@@ -347,7 +347,7 @@ const FoodEditorScreen = ({ route, navigation }: any) => {
           disabled={isSaving || isDeleting}
         >
           {isSaving ? (
-            <ActivityIndicator color={COLORS.background} />
+            <ActivityIndicator color={COLORS.text} />
           ) : (
             <Text style={styles.saveButtonText}>
               {entityType === "dish"
@@ -379,12 +379,12 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   backText: {
-    color: COLORS.primary,
+    color: COLORS.text,
     fontSize: 16,
     fontWeight: "700",
   },
   title: {
-    color: COLORS.primary,
+    color: COLORS.text,
     fontSize: 22,
     fontWeight: "700",
   },
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: "700",
-    color: COLORS.primary,
+    color: COLORS.text,
     marginBottom: 8,
     marginTop: 10,
   },
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 16,
     backgroundColor: COLORS.ascent,
-    color: COLORS.primary,
+    color: COLORS.text,
     fontSize: 16,
     marginBottom: 8,
   },
@@ -418,11 +418,11 @@ const styles = StyleSheet.create({
   summaryTitle: {
     fontSize: 17,
     fontWeight: "700",
-    color: COLORS.primary,
+    color: COLORS.text,
     marginBottom: 10,
   },
   summaryEmpty: {
-    color: COLORS.primary,
+    color: COLORS.inactive,
     fontSize: 14,
   },
   selectedDishRow: {
@@ -441,12 +441,12 @@ const styles = StyleSheet.create({
   selectedDishName: {
     fontSize: 16,
     fontWeight: "700",
-    color: COLORS.primary,
+    color: COLORS.text,
   },
   selectedDishMeta: {
     marginTop: 4,
     fontSize: 13,
-    color: COLORS.primary,
+    color: COLORS.inactive,
   },
   quantityControls: {
     flexDirection: "row",
@@ -463,20 +463,20 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: 18,
     fontWeight: "700",
-    color: COLORS.background,
+    color: COLORS.text,
   },
   quantityValue: {
     minWidth: 28,
     textAlign: "center",
     fontSize: 15,
     fontWeight: "700",
-    color: COLORS.primary,
+    color: COLORS.text,
   },
   totalText: {
     marginTop: 4,
     fontSize: 14,
     fontWeight: "700",
-    color: COLORS.primary,
+    color: COLORS.text,
   },
   emptyState: {
     backgroundColor: COLORS.ascent,
@@ -514,12 +514,12 @@ const styles = StyleSheet.create({
   catalogItemName: {
     fontSize: 16,
     fontWeight: "700",
-    color: COLORS.primary,
+    color: COLORS.text,
   },
   catalogItemMeta: {
     marginTop: 4,
     fontSize: 13,
-    color: COLORS.primary,
+    color: COLORS.inactive,
   },
   saveButton: {
     width: "100%",
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   saveButtonText: {
-    color: COLORS.background,
+    color: COLORS.text,
     fontSize: 17,
     fontWeight: "700",
   },
