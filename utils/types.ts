@@ -16,6 +16,7 @@ export interface FastingSchedule {
   eatingHours: number;
   label: string;
   fastingStartTime?: string;
+  createdAt?: string;
 }
 
 export interface FastingSession {

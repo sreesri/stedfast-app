@@ -8,6 +8,13 @@ interface FastingTrackerProps {
   fastRatio?: number;
   eatRatio?: number;
   onToggle: () => void;
+  /**
+   * When the active fasting schedule was created. Used as a hard floor on
+   * how far back the band will extrapolate — without it, a brand-new
+   * schedule's very first session would get "backfilled" with a fake
+   * eat/fast history before the plan even existed.
+   */
+  scheduleStartTime?: Date;
 }
 
 type ZoneType = "FAST" | "EAT";
@@ -90,6 +97,7 @@ const FastingTracker: React.FC<FastingTrackerProps> = ({
   fastRatio = 18,
   eatRatio = 6,
   onToggle,
+  scheduleStartTime,
 }) => {
   const [now, setNow] = useState(Date.now());
 
@@ -143,17 +151,31 @@ const FastingTracker: React.FC<FastingTrackerProps> = ({
   const windowStartMs = windowStartDate.getTime();
   const windowEndMs = windowStartMs + DAY_MS;
 
+  // Never extrapolate a fast/eat history further back than the schedule
+  // actually existed — otherwise a user's very first session gets padded
+  // with a fabricated eat/fast period that never really happened.
+  const scheduleStartMs = scheduleStartTime?.getTime();
+  const extrapolationFloorMs =
+    scheduleStartMs !== undefined
+      ? Math.max(windowStartMs, Math.min(scheduleStartMs, sessionStartMs))
+      : windowStartMs;
+
   const zones = buildDayZones(
     isFasting ? "FAST" : "EAT",
     sessionStartMs,
     targetMs,
     fastTargetMs,
     eatTargetMs,
-    windowStartMs,
+    extrapolationFloorMs,
     windowEndMs,
   );
 
-  // Every point where consecutive zones meet is a real fast<->eat transition.
+  // The stretch of today before the schedule existed (if any) isn't a real
+  // fast or eat zone — it's simply before tracking began.
+  const noDataEndMs = Math.min(extrapolationFloorMs, windowEndMs);
+  const hasNoDataZone = noDataEndMs > windowStartMs;
+
+  // Every point where consecutive real zones meet is a fast<->eat transition.
   const boundaries = zones.slice(0, -1).map((z) => z.endMs);
 
   const nowPosition = Math.min(Math.max((now - windowStartMs) / DAY_MS, 0), 1);
@@ -183,6 +205,14 @@ const FastingTracker: React.FC<FastingTrackerProps> = ({
           now · {formatClockTime(now)}
         </Text>
         <View style={styles.band}>
+          {hasNoDataZone && (
+            <View
+              style={[
+                styles.noDataZone,
+                { width: `${((noDataEndMs - windowStartMs) / DAY_MS) * 100}%` as any },
+              ]}
+            />
+          )}
           {zones.map((zone, i) => {
             const widthPct = ((zone.endMs - zone.startMs) / DAY_MS) * 100;
             return (
@@ -302,6 +332,9 @@ const styles = StyleSheet.create({
   },
   eatZone: {
     backgroundColor: COLORS.track,
+  },
+  noDataZone: {
+    backgroundColor: "transparent",
   },
   progressOverlay: {
     position: "absolute",

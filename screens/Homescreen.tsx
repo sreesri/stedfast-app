@@ -24,6 +24,7 @@ const Homescreen = () => {
     isLoading,
     trackingState,
     startTime,
+    scheduleStartTime,
     macros,
     rawTrackingState,
     activeScheduleId,
@@ -75,6 +76,7 @@ const Homescreen = () => {
             onToggle={onToggleFast}
             fastRatio={fastingConfig?.fastingWindow}
             eatRatio={fastingConfig?.eatingWindow}
+            scheduleStartTime={scheduleStartTime}
           />
           <DailySummary macros={macros} />
         </>

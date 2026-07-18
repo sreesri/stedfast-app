@@ -58,11 +58,15 @@ export const useHomeLogic = () => {
   };
 
   const activeScheduleId = activeSchedule?.id || "default";
+  const scheduleStartTime = activeSchedule?.createdAt
+    ? new Date(activeSchedule.createdAt)
+    : undefined;
 
   return {
     isLoading,
     trackingState: trackingState === "FAST" ? "FASTING" : "EATING",
     startTime,
+    scheduleStartTime,
     macros,
     rawTrackingState: trackingState,
     activeScheduleId,
