@@ -46,7 +46,16 @@ const FastingConfigScreen = () => {
           minute: date.getMinutes(),
         },
       });
-      navigation.navigate(SCREEN.limitConfig);
+      // Reached from Settings to edit an existing schedule (pushed onto
+      // MainNavigator's stack) -> return to where they came from instead of
+      // forcing them through the intake-targets screen again. Reached during
+      // first-time onboarding (root screen of FastingNavigator, nothing to
+      // go back to) -> continue on to the next onboarding step as before.
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+      } else {
+        navigation.navigate(SCREEN.limitConfig);
+      }
     } catch (error) {
       console.error("Save failed in component:", error);
       Toast.show({

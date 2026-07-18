@@ -8,11 +8,13 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import Toast from "react-native-toast-message";
+import { useNavigation } from "@react-navigation/native";
 import { useLimitContext } from "../context/LimitContext";
 import { COLORS, withOpacity } from "../utils/Constants";
 import SafeScreen from "../components/SafeScreen";
 
 const LimitConfigScreen = () => {
+  const navigation = useNavigation<any>();
   const { setLimitConfig } = useLimitContext();
   const [calorieLimit, setCalorieLimit] = useState("2000");
   const [proteinLimit, setProteinLimit] = useState("150");
@@ -29,6 +31,15 @@ const LimitConfigScreen = () => {
         carbsLimit: parseInt(carbsLimit) || 0,
         fatLimit: parseInt(fatLimit) || 0,
       });
+      // Reached from Settings to edit existing targets (pushed onto
+      // MainNavigator's stack) -> just return to where they came from.
+      // Reached during first-time onboarding (root screen of
+      // FastingNavigator, nothing to go back to) -> RootNavigator swaps
+      // to MainNavigator automatically once isFastingConfigDone &&
+      // isLimitConfigDone are both true, so there's nothing else to do here.
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+      }
     } catch (error) {
       console.error("Save failed in component:", error);
       Toast.show({
