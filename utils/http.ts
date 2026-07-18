@@ -268,6 +268,10 @@ export const doLogin = async ({
   return response.data;
 };
 
+export const deleteAccount = async (): Promise<void> => {
+  await api.delete("/api/users/me");
+};
+
 export const doSignup = async ({
   name,
   email,
