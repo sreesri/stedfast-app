@@ -17,7 +17,17 @@ export const RootNavigator = () => {
   const { isFastingConfigDone, isFastingConfigLoading } = useFastingContext();
   const { isLimitConfigDone, isLimitConfigLoading } = useLimitContext();
 
-  console.log(isFastingConfigDone, isLimitConfigDone);
+  console.log(
+    "[RootNavigator] render:",
+    JSON.stringify({
+      isLoading,
+      isLoggedIn,
+      isFastingConfigLoading,
+      isFastingConfigDone,
+      isLimitConfigLoading,
+      isLimitConfigDone,
+    }),
+  );
 
   if (
     isLoading ||
@@ -36,6 +46,13 @@ export const RootNavigator = () => {
       </View>
     );
   }
+
+  const branch = !isLoggedIn
+    ? "AuthNavigator"
+    : isFastingConfigDone && isLimitConfigDone
+      ? "MainNavigator"
+      : "FastingNavigator";
+  console.log("[RootNavigator] rendering branch:", branch);
 
   return (
     <NavigationContainer>

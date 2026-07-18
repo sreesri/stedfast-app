@@ -69,17 +69,25 @@ export const FastingProvider: React.FC<{ children: React.ReactNode }> = ({
             "fetchFastingConfig: Config found, setIsFastingConfigDone(true)",
           );
         } else {
-          console.log(
-            "fetchFastingConfig: No config found, setIsFastingConfigDone(false)",
-          );
-          setIsFastingConfigDone(false);
+          // This fetch fires once on login and may resolve slowly (cold
+          // backend). If the user has already saved a config in the
+          // meantime (setFastingConfig set isFastingConfigDone true
+          // optimistically), don't let this stale/late response regress it
+          // back to false -- that was clobbering onboarding completion and
+          // preventing RootNavigator from ever swapping to MainNavigator.
+          setIsFastingConfigDone((prev) => {
+            console.log(
+              `fetchFastingConfig: No config found, keeping isFastingConfigDone as ${prev} (not regressing)`,
+            );
+            return prev;
+          });
         }
       } catch (e) {
         console.log(
           "fetchFastingConfig: No config found or error fetching:",
           e,
         );
-        setIsFastingConfigDone(false);
+        setIsFastingConfigDone((prev) => prev);
       } finally {
         setIsFastingConfigLoading(false);
         console.log("fetchFastingConfig: isFastingConfigLoading set to false");

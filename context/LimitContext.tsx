@@ -47,14 +47,22 @@ export const LimitProvider: React.FC<{ children: React.ReactNode }> = ({
             "fetchLimitConfig: Config found, setIsLimitConfigDone(true)",
           );
         } else {
-          console.log(
-            "fetchLimitConfig: No config found, setIsLimitConfigDone(false)",
-          );
-          setIsLimitConfigDone(false);
+          // This fetch fires once on login and may resolve slowly (cold
+          // backend). If the user already saved a config in the meantime
+          // (setLimitConfig set isLimitConfigDone true optimistically),
+          // don't let this stale/late response regress it back to false --
+          // that was clobbering onboarding completion and preventing
+          // RootNavigator from ever swapping to MainNavigator.
+          setIsLimitConfigDone((prev) => {
+            console.log(
+              `fetchLimitConfig: No config found, keeping isLimitConfigDone as ${prev} (not regressing)`,
+            );
+            return prev;
+          });
         }
       } catch (e) {
         console.log("fetchLimitConfig: No config found or error fetching:", e);
-        setIsLimitConfigDone(false);
+        setIsLimitConfigDone((prev) => prev);
       } finally {
         setIsLimitConfigLoading(false);
         console.log("fetchLimitConfig: isLimitConfigLoading set to false");
