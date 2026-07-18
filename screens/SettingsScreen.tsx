@@ -98,13 +98,17 @@ const SettingsScreen = () => {
           icon="timer-outline"
           label="Fasting schedule"
           subtitle={fastingSubtitle}
-          onPress={() => navigation.navigate(SCREEN.fastingConfig)}
+          onPress={() =>
+            navigation.navigate(SCREEN.fastingConfig, { fromSettings: true })
+          }
         />
         <MenuRow
           icon="flag-outline"
           label="Macro limits"
           subtitle={limitsSubtitle}
-          onPress={() => navigation.navigate(SCREEN.limitConfig)}
+          onPress={() =>
+            navigation.navigate(SCREEN.limitConfig, { fromSettings: true })
+          }
           isLast
         />
       </View>

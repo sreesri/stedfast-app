@@ -13,12 +13,14 @@ import { COLORS, SCREEN, withOpacity } from "../utils/Constants";
 import RatioRoller from "../components/RatioRoller";
 import TimePicker from "../components/TimePicker";
 import { useFastingContext } from "../context/FastingContext";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/types";
 
 const FastingConfigScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const route = useRoute<any>();
+  const fromSettings = route.params?.fromSettings === true;
 
   const { setFastingConfig } = useFastingContext();
   const [fastingWindow, setFastingWindow] = useState("18");
@@ -46,12 +48,15 @@ const FastingConfigScreen = () => {
           minute: date.getMinutes(),
         },
       });
-      // Reached from Settings to edit an existing schedule (pushed onto
-      // MainNavigator's stack) -> return to where they came from instead of
-      // forcing them through the intake-targets screen again. Reached during
-      // first-time onboarding (root screen of FastingNavigator, nothing to
-      // go back to) -> continue on to the next onboarding step as before.
-      if (navigation.canGoBack()) {
+      // Reached from Settings to edit an existing schedule -> return to
+      // where they came from instead of forcing them through the
+      // intake-targets screen again. Reached during first-time onboarding
+      // -> continue on to the next onboarding step. We key this off an
+      // explicit `fromSettings` param rather than navigation.canGoBack(),
+      // since during onboarding this screen IS the root of FastingNavigator
+      // (canGoBack() is reliably false here either way, but staying
+      // consistent with LimitConfigScreen avoids the same class of bug).
+      if (fromSettings) {
         navigation.goBack();
       } else {
         navigation.navigate(SCREEN.limitConfig);

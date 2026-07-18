@@ -8,8 +8,8 @@ export type RootStackParamList = {
   [SCREEN.foodlibrary]: undefined;
   [SCREEN.login]: undefined;
   [SCREEN.signup]: undefined;
-  [SCREEN.fastingconfig]: undefined;
-  [SCREEN.limitConfig]: undefined;
+  [SCREEN.fastingConfig]: { fromSettings?: boolean } | undefined;
+  [SCREEN.limitConfig]: { fromSettings?: boolean } | undefined;
   [SCREEN.mealedit]: {
     mealId?: string;
     editingMeal?: MealLog;
