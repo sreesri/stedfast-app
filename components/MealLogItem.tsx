@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React from "react";
-import { COLORS } from "../utils/Constants";
+import { COLORS, withOpacity } from "../utils/Constants";
 
 interface MealLogItemProps {
   meal: any;
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   },
   time: {
     fontSize: 11,
-    color: "rgba(233,233,237,0.5)",
+    color: withOpacity(COLORS.text, 0.5),
     fontVariant: ["tabular-nums"],
   },
   rail: {
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   line: {
     width: 1,
     flex: 1,
-    backgroundColor: "rgba(233,233,237,0.12)",
+    backgroundColor: withOpacity(COLORS.text, 0.12),
     marginTop: 4,
   },
   content: {
@@ -112,11 +112,11 @@ const styles = StyleSheet.create({
   },
   caloriesUnit: {
     fontSize: 10.5,
-    color: "rgba(233,233,237,0.45)",
+    color: withOpacity(COLORS.text, 0.45),
   },
   dishes: {
     fontSize: 12,
-    color: "rgba(233,233,237,0.5)",
+    color: withOpacity(COLORS.text, 0.5),
     marginTop: 3,
   },
 });

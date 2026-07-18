@@ -8,9 +8,10 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import SafeScreen from "../components/SafeScreen";
 import { useSavedFoodCatalog } from "../hooks/useSavedFoodCatalog";
-import { COLORS } from "../utils/Constants";
+import { COLORS, withOpacity } from "../utils/Constants";
 import { Dish, Meal } from "../utils/types";
 
 type SelectedDish = Dish & { quantity: number };
@@ -168,18 +169,29 @@ const FoodEditorScreen = ({ route, navigation }: any) => {
   return (
     <SafeScreen style={styles.container} scrollable={true} onRefresh={refetch} refreshing={isRefreshing}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backText}>Back</Text>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="chevron-back" size={16} color={COLORS.navIcon} />
         </TouchableOpacity>
-        <Text style={styles.title}>
-          {entityType === "dish"
-            ? editingDish
-              ? "Edit Dish"
-              : "Add Dish"
-            : editingMeal
-              ? "Edit Meal"
-              : "Add Meal"}
-        </Text>
+        <View>
+          <Text style={styles.title}>
+            {entityType === "dish"
+              ? editingDish
+                ? "Edit Dish"
+                : "Add Dish"
+              : editingMeal
+                ? "Edit Meal"
+                : "Add Meal"}
+          </Text>
+          <Text style={styles.subtitle}>
+            {entityType === "dish"
+              ? "Log calories and macros for this dish"
+              : "Combine saved dishes into a reusable meal"}
+          </Text>
+        </View>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -191,7 +203,7 @@ const FoodEditorScreen = ({ route, navigation }: any) => {
             value={dishName}
             onChangeText={setDishName}
             placeholder="Ex: Cottage Cheese Bowl"
-            placeholderTextColor="#7a7a7a"
+            placeholderTextColor={COLORS.inactive}
           />
 
           <Text style={styles.label}>Calories</Text>
@@ -201,7 +213,7 @@ const FoodEditorScreen = ({ route, navigation }: any) => {
             onChangeText={setCalories}
             keyboardType="number-pad"
             placeholder="0"
-            placeholderTextColor="#7a7a7a"
+            placeholderTextColor={COLORS.inactive}
           />
 
           <Text style={styles.label}>Protein</Text>
@@ -211,7 +223,7 @@ const FoodEditorScreen = ({ route, navigation }: any) => {
             onChangeText={setProtein}
             keyboardType="number-pad"
             placeholder="0"
-            placeholderTextColor="#7a7a7a"
+            placeholderTextColor={COLORS.inactive}
           />
 
           <Text style={styles.label}>Carbs</Text>
@@ -221,7 +233,7 @@ const FoodEditorScreen = ({ route, navigation }: any) => {
             onChangeText={setCarbs}
             keyboardType="number-pad"
             placeholder="0"
-            placeholderTextColor="#7a7a7a"
+            placeholderTextColor={COLORS.inactive}
           />
 
           <Text style={styles.label}>Fat</Text>
@@ -231,7 +243,7 @@ const FoodEditorScreen = ({ route, navigation }: any) => {
             onChangeText={setFat}
             keyboardType="number-pad"
             placeholder="0"
-            placeholderTextColor="#7a7a7a"
+            placeholderTextColor={COLORS.inactive}
           />
         </>
       ) : (
@@ -242,7 +254,7 @@ const FoodEditorScreen = ({ route, navigation }: any) => {
             value={mealName}
             onChangeText={setMealName}
             placeholder="Ex: Post Workout Lunch"
-            placeholderTextColor="#7a7a7a"
+            placeholderTextColor={COLORS.inactive}
           />
 
           <View style={styles.summaryCard}>
@@ -310,7 +322,9 @@ const FoodEditorScreen = ({ route, navigation }: any) => {
                       isSelected && styles.checkboxSelected,
                     ]}
                   >
-                    {isSelected ? <Text style={styles.checkboxMark}>✓</Text> : null}
+                    {isSelected ? (
+                      <Ionicons name="checkmark" size={14} color={COLORS.background} />
+                    ) : null}
                   </View>
                   <View style={styles.catalogItemInfo}>
                     <Text style={styles.catalogItemName}>{dish.name}</Text>
@@ -334,7 +348,7 @@ const FoodEditorScreen = ({ route, navigation }: any) => {
             disabled={isSaving || isDeleting}
           >
             {isDeleting ? (
-              <ActivityIndicator color="#ff4d4d" />
+              <ActivityIndicator color={COLORS.inactive} />
             ) : (
               <Text style={styles.deleteButtonText}>Delete {entityType === "dish" ? "Dish" : "Meal"}</Text>
             )}
@@ -369,68 +383,82 @@ export default FoodEditorScreen;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    paddingBottom: 120,
+    padding: 24,
+    paddingBottom: 110,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 24,
+    gap: 14,
+    marginBottom: 22,
   },
-  backText: {
-    color: COLORS.text,
-    fontSize: 16,
-    fontWeight: "700",
+  backButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: withOpacity(COLORS.text, 0.14),
+    alignItems: "center",
+    justifyContent: "center",
   },
   title: {
     color: COLORS.text,
     fontSize: 22,
-    fontWeight: "700",
+    fontWeight: "500",
+    letterSpacing: -0.3,
+  },
+  subtitle: {
+    fontSize: 12.5,
+    color: withOpacity(COLORS.text, 0.5),
+    marginTop: 2,
   },
   headerSpacer: {
-    width: 40,
+    flex: 1,
   },
   label: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "500",
     color: COLORS.text,
     marginBottom: 8,
     marginTop: 10,
   },
   input: {
     width: "100%",
-    height: 52,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    backgroundColor: COLORS.ascent,
+    height: 48,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingHorizontal: 14,
+    backgroundColor: COLORS.surface,
     color: COLORS.text,
-    fontSize: 16,
+    fontSize: 15,
     marginBottom: 8,
   },
   summaryCard: {
-    backgroundColor: COLORS.ascent,
-    borderRadius: 18,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 14,
     padding: 16,
     marginTop: 8,
     marginBottom: 16,
   },
   summaryTitle: {
-    fontSize: 17,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "500",
     color: COLORS.text,
     marginBottom: 10,
   },
   summaryEmpty: {
-    color: COLORS.inactive,
-    fontSize: 14,
+    color: withOpacity(COLORS.text, 0.5),
+    fontSize: 12.5,
   },
   selectedDishRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: COLORS.background,
-    borderRadius: 14,
+    borderRadius: 8,
     padding: 12,
     marginBottom: 10,
   },
@@ -439,63 +467,69 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   selectedDishName: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "500",
     color: COLORS.text,
   },
   selectedDishMeta: {
-    marginTop: 4,
-    fontSize: 13,
-    color: COLORS.inactive,
+    marginTop: 2,
+    fontSize: 11.5,
+    color: withOpacity(COLORS.text, 0.5),
+    fontVariant: ["tabular-nums"],
   },
   quantityControls: {
     flexDirection: "row",
     alignItems: "center",
   },
   quantityButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: COLORS.primary,
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: withOpacity(COLORS.primary, 0.14),
     alignItems: "center",
     justifyContent: "center",
   },
   quantityText: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: COLORS.text,
+    fontSize: 16,
+    fontWeight: "600",
+    color: COLORS.primary,
   },
   quantityValue: {
-    minWidth: 28,
+    minWidth: 24,
     textAlign: "center",
-    fontSize: 15,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "500",
     color: COLORS.text,
   },
   totalText: {
     marginTop: 4,
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: 12.5,
+    fontWeight: "500",
     color: COLORS.text,
+    fontVariant: ["tabular-nums"],
   },
   emptyState: {
-    backgroundColor: COLORS.ascent,
-    borderRadius: 18,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 14,
     padding: 18,
   },
   catalogItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.ascent,
-    borderRadius: 16,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 8,
     padding: 14,
     marginBottom: 12,
   },
   checkbox: {
-    width: 24,
-    height: 24,
+    width: 22,
+    height: 22,
     borderRadius: 6,
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: COLORS.primary,
     alignItems: "center",
     justifyContent: "center",
@@ -503,28 +537,26 @@ const styles = StyleSheet.create({
   },
   checkboxSelected: {
     backgroundColor: COLORS.primary,
-  },
-  checkboxMark: {
-    color: COLORS.background,
-    fontWeight: "700",
+    borderColor: COLORS.primary,
   },
   catalogItemInfo: {
     flex: 1,
   },
   catalogItemName: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "500",
     color: COLORS.text,
   },
   catalogItemMeta: {
-    marginTop: 4,
-    fontSize: 13,
-    color: COLORS.inactive,
+    marginTop: 2,
+    fontSize: 11.5,
+    color: withOpacity(COLORS.text, 0.5),
+    fontVariant: ["tabular-nums"],
   },
   saveButton: {
     width: "100%",
     height: 52,
-    borderRadius: 16,
+    borderRadius: 8,
     backgroundColor: COLORS.primary,
     alignItems: "center",
     justifyContent: "center",
@@ -532,8 +564,8 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: COLORS.text,
-    fontSize: 17,
-    fontWeight: "700",
+    fontSize: 15,
+    fontWeight: "500",
   },
   actionRow: {
     flexDirection: "row",
@@ -548,17 +580,17 @@ const styles = StyleSheet.create({
   deleteButton: {
     flex: 1,
     height: 52,
-    borderRadius: 16,
+    borderRadius: 8,
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "#ff4d4d",
+    borderColor: withOpacity(COLORS.text, 0.14),
     alignItems: "center",
     justifyContent: "center",
     marginRight: 8,
   },
   deleteButtonText: {
-    color: "#ff4d4d",
-    fontSize: 17,
-    fontWeight: "700",
+    color: COLORS.inactive,
+    fontSize: 14,
+    fontWeight: "500",
   },
 });

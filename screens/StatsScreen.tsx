@@ -15,7 +15,7 @@ import MacroStats from "../components/MacroStats";
 import PeriodToggle, { Period } from "../components/PeriodToggle";
 import SafeScreen from "../components/SafeScreen";
 import { getHealthStats, saveHealthStats, getIntakeSummary } from "../utils/http";
-import { COLORS } from "../utils/Constants";
+import { COLORS, withOpacity } from "../utils/Constants";
 import Divider from "../components/Divider";
 
 function getDateRange(period: Period) {
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   },
   dateRange: {
     fontSize: 12.5,
-    color: "rgba(233,233,237,0.5)",
+    color: withOpacity(COLORS.text, 0.5),
     marginTop: 2,
   },
   weightHeader: {
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   weightUnit: {
     fontSize: 12,
-    color: "rgba(233,233,237,0.45)",
+    color: withOpacity(COLORS.text, 0.45),
   },
   addButton: {
     height: 42,

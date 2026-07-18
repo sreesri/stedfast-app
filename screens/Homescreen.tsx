@@ -6,7 +6,7 @@ import {
   View,
 } from "react-native";
 import React from "react";
-import { COLORS } from "../utils/Constants";
+import { COLORS, SCREEN, withOpacity } from "../utils/Constants";
 import FastingTracker from "../components/FastingTracker";
 import DailySummary from "../components/DailySummary";
 import { useFastingContext } from "../context/FastingContext";
@@ -34,7 +34,7 @@ const Homescreen = () => {
   const navigation = useNavigation<any>();
 
   const onToggleFast = () => {
-    navigation.navigate("Meal Edit", {
+    navigation.navigate(SCREEN.mealedit, {
       isFastingToggle: true,
       trackingState: rawTrackingState,
       activeScheduleId,
@@ -58,9 +58,9 @@ const Homescreen = () => {
           <Text style={styles.dayName}>{dayName}</Text>
           <Text style={styles.dateStr}>{dateStr}</Text>
         </View>
-        <TouchableOpacity style={styles.avatarButton} activeOpacity={0.7}>
-          <Ionicons name="person-outline" size={17} color="#9397ab" />
-        </TouchableOpacity>
+        {/*<TouchableOpacity style={styles.avatarButton} activeOpacity={0.7}>*/}
+        {/*  <Ionicons name="person-outline" size={17} color={COLORS.navIcon} />*/}
+        {/*</TouchableOpacity>*/}
       </View>
 
       {isLoading ? (
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   },
   dateStr: {
     fontSize: 12.5,
-    color: "rgba(233,233,237,0.5)",
+    color: withOpacity(COLORS.text, 0.5),
     marginTop: 2,
   },
   avatarButton: {
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: "rgba(233,233,237,0.16)",
+    borderColor: withOpacity(COLORS.text, 0.16),
     alignItems: "center",
     justifyContent: "center",
   },

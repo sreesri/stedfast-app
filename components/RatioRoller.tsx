@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import React, { useRef, useState } from "react";
-import { COLORS } from "../utils/Constants";
+import { COLORS, withOpacity } from "../utils/Constants";
 
 const RATIO_DATA = [
   { id: 0, value: "1 : 23" },
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   selectedItemOverlay: {
     height: ITEM_HEIGHT,
     width: "99%",
-    backgroundColor: "rgba(145,132,217,0.12)",
+    backgroundColor: withOpacity(COLORS.primary, 0.12),
     position: "absolute",
     top: VERTICAL_PADDING,
     zIndex: -1,

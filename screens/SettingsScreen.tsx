@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import SafeScreen from "../components/SafeScreen";
-import { COLORS, SCREEN } from "../utils/Constants";
+import { COLORS, SCREEN, withOpacity } from "../utils/Constants";
 import { useAuth } from "../context/AuthContext";
 import { useFastingContext } from "../context/FastingContext";
 import { useLimitContext } from "../context/LimitContext";
@@ -35,7 +35,7 @@ const MenuRow: React.FC<MenuRowProps> = ({
       <Text style={styles.menuLabel}>{label}</Text>
       <Text style={styles.menuSub}>{subtitle}</Text>
     </View>
-    <Ionicons name="chevron-forward" size={14} color="#595d6c" />
+    <Ionicons name="chevron-forward" size={14} color={COLORS.chevron} />
   </TouchableOpacity>
 );
 
@@ -110,13 +110,13 @@ const styles = StyleSheet.create({
   },
   menuItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(233,233,237,0.08)",
+    borderBottomColor: withOpacity(COLORS.text, 0.08),
   },
   menuIconSquare: {
     width: 36,
     height: 36,
     borderRadius: 8,
-    backgroundColor: "rgba(145,132,217,0.1)",
+    backgroundColor: withOpacity(COLORS.primary, 0.1),
     alignItems: "center",
     justifyContent: "center",
   },
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   },
   menuSub: {
     fontSize: 11.5,
-    color: "rgba(233,233,237,0.5)",
+    color: withOpacity(COLORS.text, 0.5),
     marginTop: 2,
     fontVariant: ["tabular-nums"],
   },
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "rgba(233,233,237,0.14)",
+    borderColor: withOpacity(COLORS.text, 0.14),
   },
   logoutText: {
     fontSize: 14,

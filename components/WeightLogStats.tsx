@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import React, { useMemo } from "react";
-import { COLORS } from "../utils/Constants";
+import { COLORS, withOpacity } from "../utils/Constants";
 import { LineChart } from "react-native-gifted-charts";
 import ChartPointer from "./ChartPointer";
 import { BodyStat } from "../utils/types";
@@ -118,8 +118,8 @@ const WeightLogStats: React.FC<WeightLogStatsProps> = ({ healthStats, period }) 
         noOfSections={3}
         pointerConfig={{ pointerLabelComponent: renderPointer }}
         data={chartPoints}
-        xAxisLabelTextStyle={{ color: "rgba(233,233,237,0.45)", fontSize: 9 }}
-        yAxisTextStyle={{ color: "rgba(233,233,237,0.45)", fontSize: 9 }}
+        xAxisLabelTextStyle={{ color: withOpacity(COLORS.text, 0.45), fontSize: 9 }}
+        yAxisTextStyle={{ color: withOpacity(COLORS.text, 0.45), fontSize: 9 }}
         backgroundColor="transparent"
         dataPointsColor={COLORS.accent300}
         dataPointsRadius={4}
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   emptyText: {
-    color: "rgba(233,233,237,0.45)",
+    color: withOpacity(COLORS.text, 0.45),
     fontSize: 14,
   },
 });

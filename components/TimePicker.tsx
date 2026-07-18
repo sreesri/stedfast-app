@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { COLORS } from "../utils/Constants";
+import { COLORS, withOpacity } from "../utils/Constants";
 
 const ITEM_HEIGHT = 50;
 const CONTAINER_HEIGHT = 200;
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     top: VERTICAL_PADDING,
     height: ITEM_HEIGHT,
     width: "100%",
-    backgroundColor: "rgba(145,132,217,0.12)",
+    backgroundColor: withOpacity(COLORS.primary, 0.12),
     borderRadius: 8,
     zIndex: -1,
   },
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
   divider: {
     width: 1,
     height: "60%",
-    backgroundColor: "rgba(233,233,237,0.1)",
+    backgroundColor: withOpacity(COLORS.text, 0.1),
     marginHorizontal: 10,
   },
 });

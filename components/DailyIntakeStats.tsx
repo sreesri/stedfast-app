@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { StyleSheet, View, Text } from "react-native";
-import { COLORS } from "../utils/Constants";
+import { COLORS, withOpacity } from "../utils/Constants";
 import { BarChart } from "react-native-gifted-charts";
 import { UserIntakeSummary } from "../utils/types";
 import { Period } from "./PeriodToggle";
@@ -108,7 +108,7 @@ const DailyIntakeStats: React.FC<DailyIntakeStatsProps> = ({ intakeData, period 
       label: item.label,
       frontColor: exceeded ? COLORS.accent300 : COLORS.primary,
       topLabelComponent: () => (
-        <Text style={{ fontSize: 9, color: "rgba(233,233,237,0.5)", marginBottom: 2 }}>
+        <Text style={{ fontSize: 9, color: withOpacity(COLORS.text, 0.5), marginBottom: 2 }}>
           {Math.round(item.consumedCalories)}
         </Text>
       ),
@@ -134,7 +134,7 @@ const DailyIntakeStats: React.FC<DailyIntakeStatsProps> = ({ intakeData, period 
         hideRules
         xAxisThickness={0}
         yAxisThickness={0}
-        yAxisTextStyle={{ color: "rgba(233,233,237,0.45)", fontSize: 9 }}
+        yAxisTextStyle={{ color: withOpacity(COLORS.text, 0.45), fontSize: 9 }}
         noOfSections={3}
         maxValue={Math.max(referenceLine * 1.2, ...barData.map((d) => d.value))}
         showReferenceLine1
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   emptyText: {
-    color: "rgba(233,233,237,0.45)",
+    color: withOpacity(COLORS.text, 0.45),
     fontSize: 14,
   },
   header: {
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   },
   goalText: {
     fontSize: 12,
-    color: "rgba(233,233,237,0.45)",
+    color: withOpacity(COLORS.text, 0.45),
     fontVariant: ["tabular-nums"],
   },
   legend: {
@@ -209,6 +209,6 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 11,
-    color: "rgba(233,233,237,0.5)",
+    color: withOpacity(COLORS.text, 0.5),
   },
 });

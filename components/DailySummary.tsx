@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React from "react";
-import { COLORS, SCREEN } from "../utils/Constants";
+import { COLORS, SCREEN, withOpacity } from "../utils/Constants";
 import Svg, { Circle } from "react-native-svg";
 import { useNavigation } from "@react-navigation/native";
 
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   ringPct: {
     position: "absolute",
     fontSize: 10,
-    color: "rgba(233,233,237,0.7)",
+    color: withOpacity(COLORS.text, 0.7),
     fontVariant: ["tabular-nums"],
   },
   tileLabels: {
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   },
   tileLabel: {
     fontSize: 12,
-    color: "rgba(233,233,237,0.55)",
+    color: withOpacity(COLORS.text, 0.55),
   },
   tileValue: {
     fontSize: 15,

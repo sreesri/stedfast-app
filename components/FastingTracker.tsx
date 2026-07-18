@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useState, useEffect } from "react";
-import { COLORS } from "../utils/Constants";
+import { COLORS, withOpacity } from "../utils/Constants";
 
 interface FastingTrackerProps {
   trackingState: "FASTING" | "EATING";
@@ -157,13 +157,13 @@ const styles = StyleSheet.create({
   countdownSecs: {
     fontSize: 28,
     fontWeight: "500",
-    color: "rgba(233,233,237,0.4)",
+    color: withOpacity(COLORS.text, 0.4),
     marginBottom: 6,
     fontVariant: ["tabular-nums"],
   },
   subtitle: {
     fontSize: 13,
-    color: "rgba(233,233,237,0.55)",
+    color: withOpacity(COLORS.text, 0.55),
     marginBottom: 26,
   },
   subtitleHighlight: {
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   fastZone: {
-    backgroundColor: "#2d2a55",
+    backgroundColor: COLORS.fastZone,
   },
   eatZone: {
     backgroundColor: COLORS.track,
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    backgroundColor: "rgba(145,132,217,0.25)",
+    backgroundColor: withOpacity(COLORS.primary, 0.25),
   },
   nowMarker: {
     position: "absolute",
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   },
   bandLabel: {
     fontSize: 10,
-    color: "rgba(233,233,237,0.45)",
+    color: withOpacity(COLORS.text, 0.45),
     fontVariant: ["tabular-nums"],
   },
   nowLabel: {

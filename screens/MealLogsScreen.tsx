@@ -7,7 +7,7 @@ import {
   RefreshControl,
 } from "react-native";
 import React, { useState } from "react";
-import { COLORS, SCREEN } from "../utils/Constants";
+import { COLORS, SCREEN, withOpacity } from "../utils/Constants";
 import MealLogContainer from "../components/MealLogContainer";
 import { useMealLogs } from "../hooks/useMealLogs";
 import SafeScreen from "../components/SafeScreen";
@@ -62,7 +62,7 @@ const MealLogsScreen = () => {
           style={styles.navBtn}
           activeOpacity={0.7}
         >
-          <Ionicons name="chevron-back" size={16} color="#9397ab" />
+          <Ionicons name="chevron-back" size={16} color={COLORS.navIcon} />
         </TouchableOpacity>
 
         <View style={styles.headerCenter}>
@@ -78,7 +78,7 @@ const MealLogsScreen = () => {
           style={styles.navBtn}
           activeOpacity={0.7}
         >
-          <Ionicons name="chevron-forward" size={16} color="#9397ab" />
+          <Ionicons name="chevron-forward" size={16} color={COLORS.navIcon} />
         </TouchableOpacity>
       </View>
 
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "rgba(233,233,237,0.14)",
+    borderColor: withOpacity(COLORS.text, 0.14),
     alignItems: "center",
     justifyContent: "center",
   },
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   },
   dateSubtitle: {
     fontSize: 11.5,
-    color: "rgba(233,233,237,0.5)",
+    color: withOpacity(COLORS.text, 0.5),
     marginTop: 1,
     fontVariant: ["tabular-nums"],
   },
@@ -165,13 +165,7 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     borderWidth: 1,
     borderColor: COLORS.primary,
-    backgroundColor: "rgba(145,132,217,0.1)",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 9,
-    elevation: 4,
   },
 });

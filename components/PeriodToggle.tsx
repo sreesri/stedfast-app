@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { COLORS } from "../utils/Constants";
+import { COLORS, withOpacity } from "../utils/Constants";
 
 export type Period = "daily" | "weekly" | "monthly";
 
@@ -51,10 +51,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "rgba(233,233,237,0.1)",
+    borderColor: withOpacity(COLORS.text, 0.1),
   },
   activeChip: {
-    backgroundColor: "rgba(145,132,217,0.14)",
+    backgroundColor: withOpacity(COLORS.primary, 0.14),
     borderColor: COLORS.accent700,
   },
   chipText: {

@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { COLORS, SCREEN } from "../utils/Constants";
+import { COLORS, SCREEN, withOpacity } from "../utils/Constants";
 import { useAuth } from "../context/AuthContext";
 import Toast from "react-native-toast-message";
 import SafeScreen from "../components/SafeScreen";
@@ -80,7 +80,7 @@ const SignupScreen = ({ navigation }: any) => {
         )}
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Login")} activeOpacity={0.7}>
+      <TouchableOpacity onPress={() => navigation.navigate(SCREEN.login)} activeOpacity={0.7}>
         <Text style={styles.linkText}>Already have an account? Log in</Text>
       </TouchableOpacity>
     </SafeScreen>
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    color: "rgba(233,233,237,0.55)",
+    color: withOpacity(COLORS.text, 0.55),
     textAlign: "center",
     marginBottom: 40,
   },

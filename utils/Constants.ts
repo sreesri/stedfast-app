@@ -8,10 +8,25 @@ export const COLORS = {
   inactive: "#75798c",
   track: "#292b31",
   border: "#3f424d",
+  // Muted grays for icons/chevrons, distinct from `inactive`
+  navIcon: "#9397ab",
+  chevron: "#595d6c",
+  // Chart/tracker accents
+  chartBarMuted: "#796cbf",
+  fastZone: "#2d2a55",
   // Legacy aliases for backward compat
   ascent: "#232532",
   secondary: "#9184d9",
   input: "#232532",
+};
+
+/** Derives an rgba() string from a COLORS hex value at the given opacity. */
+export const withOpacity = (hex: string, opacity: number) => {
+  const value = hex.replace("#", "");
+  const r = parseInt(value.substring(0, 2), 16);
+  const g = parseInt(value.substring(2, 4), 16);
+  const b = parseInt(value.substring(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 };
 
 export const SCREEN = {

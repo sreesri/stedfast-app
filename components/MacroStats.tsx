@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { StyleSheet, View, Text } from "react-native";
-import { COLORS } from "../utils/Constants";
+import { COLORS, withOpacity } from "../utils/Constants";
 import { BarChart } from "react-native-gifted-charts";
 import { UserIntakeSummary } from "../utils/types";
 import { Period } from "./PeriodToggle";
@@ -108,7 +108,7 @@ const MacroChart: React.FC<MacroChartProps> = ({ title, lastValue, data, pointCo
   const barData = data.map((item) => ({
     value: item.value || 0,
     label: item.label,
-    frontColor: item.value > item.limit ? COLORS.accent300 : "#796cbf",
+    frontColor: item.value > item.limit ? COLORS.accent300 : COLORS.chartBarMuted,
   }));
 
   return (
@@ -152,7 +152,7 @@ const macroStyles = StyleSheet.create({
   },
   last: {
     fontSize: 11,
-    color: "rgba(233,233,237,0.45)",
+    color: withOpacity(COLORS.text, 0.45),
     marginTop: 2,
     fontVariant: ["tabular-nums"],
   },
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   emptyText: {
-    color: "rgba(233,233,237,0.45)",
+    color: withOpacity(COLORS.text, 0.45),
     fontSize: 14,
   },
   kicker: {

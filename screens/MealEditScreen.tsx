@@ -7,10 +7,11 @@ import {
   View,
 } from "react-native";
 import RadioGroup, { RadioButtonProps } from "react-native-radio-buttons-group";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import SafeScreen from "../components/SafeScreen";
 import { useMealLogs } from "../hooks/useMealLogs";
 import { useMealSelectionCatalog } from "../hooks/useMealSelectionCatalog";
-import { COLORS, SCREEN } from "../utils/Constants";
+import { COLORS, SCREEN, withOpacity } from "../utils/Constants";
 import { MealLog, MealSelectionItem, StagedMealItem } from "../utils/types";
 
 type CatalogTab = "dishes" | "meals";
@@ -138,7 +139,12 @@ const MealEditScreen = ({ route, navigation }: any) => {
     <SafeScreen style={styles.container} scrollable={true} onRefresh={refetch} refreshing={isRefreshing}>
       <View style={styles.header}>
         <Text style={styles.title}>
-          {editingMeal ? "Edit Meal" : "Add New Meal"}
+          {editingMeal ? "Edit Meal" : "Log New Meal"}
+        </Text>
+        <Text style={styles.subtitle}>
+          {editingMeal
+            ? "Update the items in this entry"
+            : "Build this entry from your saved dishes and meals"}
         </Text>
       </View>
 
@@ -281,7 +287,9 @@ const MealEditScreen = ({ route, navigation }: any) => {
                     isSelected && styles.checkboxSelected,
                   ]}
                 >
-                  {isSelected && <Text style={styles.checkboxMark}>✓</Text>}
+                  {isSelected && (
+                    <Ionicons name="checkmark" size={15} color={COLORS.background} />
+                  )}
                 </View>
 
                 <View style={styles.catalogItemDetails}>
@@ -304,7 +312,7 @@ const MealEditScreen = ({ route, navigation }: any) => {
           disabled={isPending}
         >
           {isPending ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={COLORS.text} />
           ) : (
             <Text style={styles.saveButtonText}>
               {editingMeal ? "Update Meal" : "Save Meal"}
@@ -333,24 +341,28 @@ export default MealEditScreen;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    padding: 24,
+    paddingBottom: 110,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 30,
+    marginBottom: 22,
   },
 
   title: {
     fontSize: 22,
-    fontWeight: "bold",
+    fontWeight: "500",
+    letterSpacing: -0.3,
     color: COLORS.text,
   },
+  subtitle: {
+    fontSize: 12.5,
+    color: withOpacity(COLORS.text, 0.5),
+    marginTop: 2,
+  },
   label: {
-    fontSize: 16,
+    fontSize: 14,
     color: COLORS.text,
-    fontWeight: "600",
+    fontWeight: "500",
     marginBottom: 8,
     marginTop: 10,
   },
@@ -361,8 +373,10 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   stagingCard: {
-    backgroundColor: COLORS.ascent,
-    borderRadius: 20,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 14,
     padding: 16,
     marginBottom: 20,
   },
@@ -373,32 +387,33 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "500",
     color: COLORS.text,
   },
   totalCalories: {
-    fontSize: 15,
-    fontWeight: "700",
+    fontSize: 12.5,
+    fontWeight: "500",
     color: COLORS.text,
+    fontVariant: ["tabular-nums"],
   },
   emptyState: {
     borderWidth: 1,
     borderColor: COLORS.border,
     borderStyle: "dashed",
-    borderRadius: 16,
+    borderRadius: 14,
     padding: 18,
     alignItems: "center",
     justifyContent: "center",
   },
   emptyTitle: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "500",
     color: COLORS.text,
   },
   emptySubtitle: {
-    fontSize: 14,
-    color: COLORS.inactive,
+    fontSize: 12.5,
+    color: withOpacity(COLORS.text, 0.5),
     marginTop: 6,
     textAlign: "center",
   },
@@ -407,7 +422,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: COLORS.background,
-    borderRadius: 16,
+    borderRadius: 8,
     padding: 14,
     marginTop: 10,
   },
@@ -416,66 +431,69 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
   stagedItemName: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "500",
     color: COLORS.text,
   },
   stagedItemMeta: {
-    fontSize: 13,
-    color: COLORS.inactive,
-    marginTop: 4,
+    fontSize: 11.5,
+    color: withOpacity(COLORS.text, 0.5),
+    marginTop: 2,
+    fontVariant: ["tabular-nums"],
   },
   quantityControls: {
     flexDirection: "row",
     alignItems: "center",
   },
   quantityButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: COLORS.primary,
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: withOpacity(COLORS.primary, 0.14),
     alignItems: "center",
     justifyContent: "center",
   },
   quantityButtonText: {
-    color: COLORS.background,
-    fontSize: 18,
-    fontWeight: "700",
+    color: COLORS.primary,
+    fontSize: 16,
+    fontWeight: "600",
   },
   quantityValue: {
-    minWidth: 28,
+    minWidth: 24,
     textAlign: "center",
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "500",
     color: COLORS.text,
   },
   tabs: {
     flexDirection: "row",
-    backgroundColor: COLORS.ascent,
-    padding: 6,
-    borderRadius: 16,
-    marginBottom: 16,
+    gap: 6,
+    marginBottom: 18,
   },
   tabButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: "center",
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: withOpacity(COLORS.text, 0.1),
   },
   activeTabButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: withOpacity(COLORS.primary, 0.14),
+    borderColor: COLORS.accent700,
   },
   tabButtonText: {
     color: COLORS.inactive,
-    fontSize: 15,
-    fontWeight: "700",
+    fontSize: 12.5,
   },
   activeTabButtonText: {
-    color: COLORS.text,
+    color: COLORS.accent300,
+    fontWeight: "500",
   },
   catalogCard: {
-    backgroundColor: COLORS.ascent,
-    borderRadius: 20,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 14,
     padding: 16,
   },
   catalogHeader: {
@@ -485,15 +503,15 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   newButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: withOpacity(COLORS.primary, 0.14),
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 10,
+    borderRadius: 8,
   },
   newButtonText: {
-    color: COLORS.text,
-    fontSize: 13,
-    fontWeight: "700",
+    color: COLORS.accent300,
+    fontSize: 12.5,
+    fontWeight: "500",
   },
   loadingState: {
     paddingVertical: 24,
@@ -504,15 +522,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: COLORS.background,
-    borderRadius: 16,
+    borderRadius: 8,
     padding: 14,
     marginTop: 12,
   },
   checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 7,
-    borderWidth: 2,
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 1.5,
     borderColor: COLORS.primary,
     alignItems: "center",
     justifyContent: "center",
@@ -520,55 +538,51 @@ const styles = StyleSheet.create({
   },
   checkboxSelected: {
     backgroundColor: COLORS.primary,
-  },
-  checkboxMark: {
-    color: COLORS.background,
-    fontSize: 13,
-    fontWeight: "700",
+    borderColor: COLORS.primary,
   },
   catalogItemDetails: {
     flex: 1,
   },
   catalogItemName: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "500",
     color: COLORS.text,
   },
   catalogItemMeta: {
-    fontSize: 13,
-    color: COLORS.inactive,
-    marginTop: 4,
+    fontSize: 11.5,
+    color: withOpacity(COLORS.text, 0.5),
+    marginTop: 2,
+    fontVariant: ["tabular-nums"],
   },
   actions: {
-    marginTop: 20,
+    marginTop: 24,
     alignItems: "center",
   },
   button: {
-    height: 50,
+    height: 52,
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 12,
   },
   saveButton: {
     backgroundColor: COLORS.primary,
     width: "100%",
-    borderRadius: 16,
   },
   deleteButton: {
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "#ff4d4d",
+    borderColor: COLORS.inactive,
     width: "100%",
   },
   saveButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
+    color: COLORS.text,
+    fontSize: 15,
+    fontWeight: "500",
   },
   deleteButtonText: {
-    color: "#ff4d4d",
-    fontSize: 16,
-    fontWeight: "bold",
+    color: COLORS.inactive,
+    fontSize: 14,
+    fontWeight: "500",
   },
 });

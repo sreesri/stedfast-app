@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { COLORS } from "../utils/Constants";
+import { COLORS, SCREEN, withOpacity } from "../utils/Constants";
 import { useAuth } from "../context/AuthContext";
 import Toast from "react-native-toast-message";
 import SafeScreen from "../components/SafeScreen";
@@ -101,7 +101,7 @@ const LoginScreen = ({ navigation }: any) => {
         )}
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Signup")} activeOpacity={0.7}>
+      <TouchableOpacity onPress={() => navigation.navigate(SCREEN.signup)} activeOpacity={0.7}>
         <Text style={styles.linkText}>Don't have an account? Sign up</Text>
       </TouchableOpacity>
     </SafeScreen>
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    color: "rgba(233,233,237,0.55)",
+    color: withOpacity(COLORS.text, 0.55),
     textAlign: "center",
     marginBottom: 40,
   },
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   rememberMeText: {
-    color: "rgba(233,233,237,0.55)",
+    color: withOpacity(COLORS.text, 0.55),
     fontSize: 14,
   },
   button: {

@@ -9,7 +9,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import SafeScreen from "../components/SafeScreen";
 import { useSavedFoodCatalog } from "../hooks/useSavedFoodCatalog";
-import { SCREEN, COLORS } from "../utils/Constants";
+import { SCREEN, COLORS, withOpacity } from "../utils/Constants";
 import { Dish, Meal } from "../utils/types";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -134,7 +134,7 @@ const FoodLibraryScreen = () => {
                       : ""}
                   </Text>
                 </View>
-                <Ionicons name="chevron-forward" size={14} color="#595d6c" />
+                <Ionicons name="chevron-forward" size={14} color={COLORS.chevron} />
               </TouchableOpacity>
             );
           })}
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 12.5,
-    color: "rgba(233,233,237,0.5)",
+    color: withOpacity(COLORS.text, 0.5),
     marginTop: 2,
   },
   addButton: {
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.primary,
-    backgroundColor: "rgba(145,132,217,0.08)",
+    backgroundColor: withOpacity(COLORS.primary, 0.08),
     alignItems: "center",
     justifyContent: "center",
   },
@@ -199,10 +199,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "rgba(233,233,237,0.1)",
+    borderColor: withOpacity(COLORS.text, 0.1),
   },
   activeChip: {
-    backgroundColor: "rgba(145,132,217,0.14)",
+    backgroundColor: withOpacity(COLORS.primary, 0.14),
     borderColor: COLORS.accent700,
   },
   chipText: {
@@ -228,13 +228,13 @@ const styles = StyleSheet.create({
   },
   listRowBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(233,233,237,0.08)",
+    borderBottomColor: withOpacity(COLORS.text, 0.08),
   },
   iconSquare: {
     width: 36,
     height: 36,
     borderRadius: 8,
-    backgroundColor: "rgba(145,132,217,0.1)",
+    backgroundColor: withOpacity(COLORS.primary, 0.1),
     alignItems: "center",
     justifyContent: "center",
   },
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   },
   rowMeta: {
     fontSize: 11.5,
-    color: "rgba(233,233,237,0.5)",
+    color: withOpacity(COLORS.text, 0.5),
     marginTop: 2,
     fontVariant: ["tabular-nums"],
   },
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
   emptySubtitle: {
     marginTop: 8,
     fontSize: 12.5,
-    color: "rgba(233,233,237,0.5)",
+    color: withOpacity(COLORS.text, 0.5),
     textAlign: "center",
   },
 });

@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import SafeScreen from "../components/SafeScreen";
-import { COLORS, SCREEN } from "../utils/Constants";
+import { COLORS, SCREEN, withOpacity } from "../utils/Constants";
 import RatioRoller from "../components/RatioRoller";
 import TimePicker from "../components/TimePicker";
 import { useFastingContext } from "../context/FastingContext";
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: "rgba(233,233,237,0.55)",
+    color: withOpacity(COLORS.text, 0.55),
     lineHeight: 22,
   },
   content: {

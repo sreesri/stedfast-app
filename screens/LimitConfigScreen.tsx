@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { useLimitContext } from "../context/LimitContext";
-import { COLORS } from "../utils/Constants";
+import { COLORS, withOpacity } from "../utils/Constants";
 import SafeScreen from "../components/SafeScreen";
 
 const LimitConfigScreen = () => {
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: "rgba(233,233,237,0.55)",
+    color: withOpacity(COLORS.text, 0.55),
     lineHeight: 22,
   },
   content: {
