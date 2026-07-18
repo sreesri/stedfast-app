@@ -10,6 +10,80 @@ interface FastingTrackerProps {
   onToggle: () => void;
 }
 
+type ZoneType = "FAST" | "EAT";
+
+interface Zone {
+  type: ZoneType;
+  startMs: number;
+  endMs: number;
+}
+
+const HOUR_MS = 3600000;
+const DAY_MS = 24 * HOUR_MS;
+// Safety cap on how many zones we'll tile in either direction — well beyond
+// any realistic fast/eat ratio, just guards against a degenerate 0h config.
+const MAX_TILES = 48;
+
+const formatClockTime = (ms: number) =>
+  new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+
+/**
+ * Tiles the repeating fast/eat schedule forward and backward from the
+ * currently active session's real boundaries to cover [windowStart, windowEnd).
+ * Because the schedule doesn't reset at midnight, a fixed calendar-day window
+ * can clip a zone at either edge — e.g. a fast that started yesterday evening
+ * still occupies the first few hours of today. That's why this can produce
+ * either 2 zones (a boundary happens to land on midnight) or 3 (fast-eat-fast
+ * / eat-fast-eat, the more common case).
+ */
+function buildDayZones(
+  currentType: ZoneType,
+  currentStartMs: number,
+  currentDurationMs: number,
+  fastDurationMs: number,
+  eatDurationMs: number,
+  windowStartMs: number,
+  windowEndMs: number,
+): Zone[] {
+  const safeFastMs = Math.max(fastDurationMs, 60000);
+  const safeEatMs = Math.max(eatDurationMs, 60000);
+  const durationFor = (type: ZoneType) => (type === "FAST" ? safeFastMs : safeEatMs);
+
+  const zones: Zone[] = [
+    { type: currentType, startMs: currentStartMs, endMs: currentStartMs + currentDurationMs },
+  ];
+
+  let cursorStart = currentStartMs;
+  let cursorType = currentType;
+  for (let i = 0; i < MAX_TILES && cursorStart > windowStartMs; i++) {
+    const prevType: ZoneType = cursorType === "FAST" ? "EAT" : "FAST";
+    const prevEnd = cursorStart;
+    const prevStart = prevEnd - durationFor(prevType);
+    zones.unshift({ type: prevType, startMs: prevStart, endMs: prevEnd });
+    cursorStart = prevStart;
+    cursorType = prevType;
+  }
+
+  let cursorEnd = currentStartMs + currentDurationMs;
+  cursorType = currentType;
+  for (let i = 0; i < MAX_TILES && cursorEnd < windowEndMs; i++) {
+    const nextType: ZoneType = cursorType === "FAST" ? "EAT" : "FAST";
+    const nextStart = cursorEnd;
+    const nextEnd = nextStart + durationFor(nextType);
+    zones.push({ type: nextType, startMs: nextStart, endMs: nextEnd });
+    cursorEnd = nextEnd;
+    cursorType = nextType;
+  }
+
+  return zones
+    .map((z) => ({
+      type: z.type,
+      startMs: Math.max(z.startMs, windowStartMs),
+      endMs: Math.min(z.endMs, windowEndMs),
+    }))
+    .filter((z) => z.endMs > z.startMs);
+}
+
 const FastingTracker: React.FC<FastingTrackerProps> = ({
   trackingState,
   startTime,
@@ -24,48 +98,37 @@ const FastingTracker: React.FC<FastingTrackerProps> = ({
     return () => clearInterval(interval);
   }, []);
 
-  const fastTargetMs = fastRatio * 3600000;
-  const totalCycleMs = 24 * 3600000;
-  const fastStartMs = startTime instanceof Date ? startTime.getTime() : Number(startTime);
+  const fastTargetMs = fastRatio * HOUR_MS;
+  const eatTargetMs = eatRatio * HOUR_MS;
+  const sessionStartMs = startTime instanceof Date ? startTime.getTime() : Number(startTime);
 
-  const elapsedMs = now - fastStartMs;
+  const elapsedMs = now - sessionStartMs;
   const isFasting = trackingState === "FASTING";
-  const targetMs = isFasting ? fastTargetMs : eatRatio * 3600000;
+  const targetMs = isFasting ? fastTargetMs : eatTargetMs;
   const remainingMs = targetMs - elapsedMs;
 
-  const elapsedHrs = Math.floor(Math.abs(elapsedMs) / 3600000);
-  const elapsedMins = Math.floor((Math.abs(elapsedMs) % 3600000) / 60000);
+  const elapsedHrs = Math.floor(Math.abs(elapsedMs) / HOUR_MS);
+  const elapsedMins = Math.floor((Math.abs(elapsedMs) % HOUR_MS) / 60000);
 
   const displayMs = Math.abs(remainingMs);
-  const hrs = Math.floor(displayMs / 3600000);
-  const mins = Math.floor((displayMs % 3600000) / 60000);
+  const hrs = Math.floor(displayMs / HOUR_MS);
+  const mins = Math.floor((displayMs % HOUR_MS) / 60000);
   const secs = Math.floor((displayMs % 60000) / 1000);
   const timeStr = `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
   const secsStr = `:${String(secs).padStart(2, "0")}`;
 
-  const eatOpenMs = fastStartMs + fastTargetMs;
+  const eatOpenMs = sessionStartMs + fastTargetMs;
   const eatOpenDate = new Date(eatOpenMs);
   const eatOpenStr = eatOpenDate.toLocaleTimeString([], {
     hour: "numeric",
     minute: "2-digit",
   });
 
-  const fastStartDate = new Date(fastStartMs);
-  const fastStartLabel = fastStartDate.toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-  const eatLabel = eatOpenDate.toLocaleTimeString([], { hour: "numeric" });
-  const nextFastDate = new Date(fastStartMs + totalCycleMs);
+  const nextFastDate = new Date(sessionStartMs + DAY_MS);
   const nextFastLabel = nextFastDate.toLocaleTimeString([], {
     hour: "numeric",
     minute: "2-digit",
   });
-
-  // Band position: how far through the 24h cycle we are
-  const positionInCycle = Math.max(0, elapsedMs % totalCycleMs);
-  const bandPosition = Math.min(positionInCycle / totalCycleMs, 1);
-  const fastFraction = fastRatio / 24;
 
   const kicker = `${isFasting ? "Fasting" : "Eating"} · ${elapsedHrs}h ${elapsedMins}m in`.toUpperCase();
   const subtitleText = isFasting
@@ -73,6 +136,27 @@ const FastingTracker: React.FC<FastingTrackerProps> = ({
     : `fasting resumes at `;
   const subtitleHighlight = isFasting ? eatOpenStr : nextFastLabel;
   const buttonLabel = isFasting ? "Break fast" : "Start fasting";
+
+  // Today, midnight to midnight — the band always shows a full calendar day.
+  const windowStartDate = new Date(now);
+  windowStartDate.setHours(0, 0, 0, 0);
+  const windowStartMs = windowStartDate.getTime();
+  const windowEndMs = windowStartMs + DAY_MS;
+
+  const zones = buildDayZones(
+    isFasting ? "FAST" : "EAT",
+    sessionStartMs,
+    targetMs,
+    fastTargetMs,
+    eatTargetMs,
+    windowStartMs,
+    windowEndMs,
+  );
+
+  // Every point where consecutive zones meet is a real fast<->eat transition.
+  const boundaries = zones.slice(0, -1).map((z) => z.endMs);
+
+  const nowPosition = Math.min(Math.max((now - windowStartMs) / DAY_MS, 0), 1);
 
   return (
     <View style={styles.container}>
@@ -88,33 +172,56 @@ const FastingTracker: React.FC<FastingTrackerProps> = ({
         <Text style={styles.subtitleHighlight}>{subtitleHighlight}</Text>
       </Text>
 
-      {/* 24h band */}
-      <View style={styles.band}>
-        {/* Fast zone */}
-        <View style={[styles.fastZone, { flex: fastRatio }]} />
-        {/* Eat zone */}
-        <View style={[styles.eatZone, { flex: eatRatio }]} />
-        {/* Progress overlay */}
-        <View
+      {/* 24h band — today, split into its actual fasting/eating zones */}
+      <View style={styles.bandWrapper}>
+        <Text
           style={[
-            styles.progressOverlay,
-            { width: `${bandPosition * 100}%` as any },
+            styles.nowFloatingLabel,
+            { left: `${Math.min(Math.max(nowPosition * 100, 6), 94)}%` as any },
           ]}
-        />
-        {/* Now marker */}
-        <View
-          style={[
-            styles.nowMarker,
-            { left: `${Math.min(bandPosition * 100, 99)}%` as any },
-          ]}
-        />
+        >
+          now · {formatClockTime(now)}
+        </Text>
+        <View style={styles.band}>
+          {zones.map((zone, i) => {
+            const widthPct = ((zone.endMs - zone.startMs) / DAY_MS) * 100;
+            return (
+              <View
+                key={i}
+                style={[
+                  zone.type === "FAST" ? styles.fastZone : styles.eatZone,
+                  { width: `${widthPct}%` as any },
+                ]}
+              />
+            );
+          })}
+          <View
+            style={[
+              styles.progressOverlay,
+              { width: `${nowPosition * 100}%` as any },
+            ]}
+          />
+          <View
+            style={[
+              styles.nowMarker,
+              { left: `${Math.min(nowPosition * 100, 99)}%` as any },
+            ]}
+          />
+        </View>
       </View>
 
-      <View style={styles.bandLabels}>
-        <Text style={styles.bandLabel}>{fastStartLabel}</Text>
-        <Text style={[styles.bandLabel, styles.nowLabel]}>now</Text>
-        <Text style={styles.bandLabel}>{eatLabel} eat</Text>
-        <Text style={styles.bandLabel}>{nextFastLabel}</Text>
+      <View style={styles.zoneLabelsRow}>
+        {boundaries.map((boundaryMs, i) => (
+          <Text
+            key={i}
+            style={[
+              styles.zoneBoundaryLabel,
+              { left: `${Math.min(Math.max(((boundaryMs - windowStartMs) / DAY_MS) * 100, 4), 96)}%` as any },
+            ]}
+          >
+            {formatClockTime(boundaryMs)}
+          </Text>
+        ))}
       </View>
 
       <TouchableOpacity
@@ -169,6 +276,20 @@ const styles = StyleSheet.create({
   subtitleHighlight: {
     color: COLORS.text,
   },
+  bandWrapper: {
+    position: "relative",
+    marginTop: 16,
+  },
+  nowFloatingLabel: {
+    position: "absolute",
+    top: -16,
+    width: 76,
+    marginLeft: -38,
+    textAlign: "center",
+    fontSize: 10,
+    color: COLORS.accent300,
+    fontVariant: ["tabular-nums"],
+  },
   band: {
     height: 34,
     borderRadius: 6,
@@ -201,19 +322,21 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 3,
   },
-  bandLabels: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  zoneLabelsRow: {
+    position: "relative",
+    height: 14,
     marginTop: 7,
     marginBottom: 26,
   },
-  bandLabel: {
+  zoneBoundaryLabel: {
+    position: "absolute",
+    top: 0,
+    width: 50,
+    marginLeft: -25,
+    textAlign: "center",
     fontSize: 10,
     color: withOpacity(COLORS.text, 0.45),
     fontVariant: ["tabular-nums"],
-  },
-  nowLabel: {
-    color: COLORS.accent300,
   },
   actionButton: {
     alignSelf: "center",
