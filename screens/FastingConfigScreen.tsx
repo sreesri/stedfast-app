@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   StyleSheet,
   Text,
   View,
@@ -6,6 +7,7 @@ import {
   TextInput,
 } from "react-native";
 import React, { useState } from "react";
+import Toast from "react-native-toast-message";
 import SafeScreen from "../components/SafeScreen";
 import { COLORS, SCREEN, withOpacity } from "../utils/Constants";
 import RatioRoller from "../components/RatioRoller";
@@ -21,6 +23,7 @@ const FastingConfigScreen = () => {
   const { setFastingConfig } = useFastingContext();
   const [fastingWindow, setFastingWindow] = useState("18");
   const [eatingWindow, setEatingWindow] = useState("6");
+  const [isSaving, setIsSaving] = useState(false);
 
   const [date, setDate] = useState(() => {
     const d = new Date();
@@ -30,6 +33,7 @@ const FastingConfigScreen = () => {
   });
 
   const onSave = async () => {
+    setIsSaving(true);
     try {
       await setFastingConfig({
         fastingWindow: parseInt(fastingWindow),
@@ -44,8 +48,15 @@ const FastingConfigScreen = () => {
       });
       navigation.navigate(SCREEN.limitConfig);
     } catch (error) {
-      // Toast or error feedback could be added here
       console.error("Save failed in component:", error);
+      Toast.show({
+        type: "error",
+        text1: "Couldn't save your fasting schedule",
+        text2: "Check your connection and try again",
+        position: "bottom",
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -68,12 +79,21 @@ const FastingConfigScreen = () => {
         />
 
         <Text style={styles.label}>
-          Fasting Start Time {date.toISOString()}
+          Fasting Start Time
         </Text>
         <TimePicker initialTime={date} onTimeChange={(d) => setDate(d)} />
 
-        <TouchableOpacity style={styles.saveButton} onPress={onSave}>
-          <Text style={styles.saveButtonText}>Set Intake Targets</Text>
+        <TouchableOpacity
+          style={styles.saveButton}
+          onPress={onSave}
+          disabled={isSaving}
+          activeOpacity={0.8}
+        >
+          {isSaving ? (
+            <ActivityIndicator color={COLORS.text} />
+          ) : (
+            <Text style={styles.saveButtonText}>Set Intake Targets</Text>
+          )}
         </TouchableOpacity>
       </View>
     </SafeScreen>

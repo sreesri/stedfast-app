@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   StyleSheet,
   Text,
   TextInput,
@@ -6,6 +7,7 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
+import Toast from "react-native-toast-message";
 import { useLimitContext } from "../context/LimitContext";
 import { COLORS, withOpacity } from "../utils/Constants";
 import SafeScreen from "../components/SafeScreen";
@@ -16,8 +18,10 @@ const LimitConfigScreen = () => {
   const [proteinLimit, setProteinLimit] = useState("150");
   const [carbsLimit, setCarbsLimit] = useState("200");
   const [fatLimit, setFatLimit] = useState("70");
+  const [isSaving, setIsSaving] = useState(false);
 
   const onSave = async () => {
+    setIsSaving(true);
     try {
       await setLimitConfig({
         calorieLimit: parseInt(calorieLimit) || 0,
@@ -25,9 +29,16 @@ const LimitConfigScreen = () => {
         carbsLimit: parseInt(carbsLimit) || 0,
         fatLimit: parseInt(fatLimit) || 0,
       });
-      console.log("limit config set and saved to backend");
     } catch (error) {
       console.error("Save failed in component:", error);
+      Toast.show({
+        type: "error",
+        text1: "Couldn't save your targets",
+        text2: "Check your connection and try again",
+        position: "bottom",
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -81,8 +92,17 @@ const LimitConfigScreen = () => {
           />
         </View>
 
-        <TouchableOpacity style={styles.saveButton} onPress={onSave}>
-          <Text style={styles.saveButtonText}>Start Journey</Text>
+        <TouchableOpacity
+          style={styles.saveButton}
+          onPress={onSave}
+          disabled={isSaving}
+          activeOpacity={0.8}
+        >
+          {isSaving ? (
+            <ActivityIndicator color={COLORS.text} />
+          ) : (
+            <Text style={styles.saveButtonText}>Start Journey</Text>
+          )}
         </TouchableOpacity>
       </View>
     </SafeScreen>
