@@ -30,7 +30,7 @@ const WeightLogStats: React.FC<WeightLogStatsProps> = ({ healthStats, period }) 
 
     if (period === "daily") {
       return filtered.map((s) => {
-        const d = new Date(s.loggedDate + "T00:00:00");
+        const d = new Date(s.loggedDate.split("T")[0] + "T00:00:00");
         return {
           value: s.weightKg,
           label: d.toLocaleDateString("en-US", { weekday: "short" }),
@@ -41,7 +41,7 @@ const WeightLogStats: React.FC<WeightLogStatsProps> = ({ healthStats, period }) 
     if (period === "weekly") {
       const buckets = new Map<string, number[]>();
       filtered.forEach((s) => {
-        const d = new Date(s.loggedDate + "T00:00:00");
+        const d = new Date(s.loggedDate.split("T")[0] + "T00:00:00");
         const dow = (d.getDay() + 6) % 7;
         const mon = new Date(d);
         mon.setDate(d.getDate() - dow);

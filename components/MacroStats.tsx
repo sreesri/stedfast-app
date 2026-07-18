@@ -25,7 +25,7 @@ function aggregateMacros(data: UserIntakeSummary[], period: Period): AggregatedM
 
   if (period === "daily") {
     return sorted.map((item) => {
-      const d = new Date(item.loggedDate + "T00:00:00");
+      const d = new Date(item.loggedDate.split("T")[0] + "T00:00:00");
       return {
         label: d.toLocaleDateString("en-US", { weekday: "short" }),
         protein: item.consumedProtein,
@@ -41,7 +41,7 @@ function aggregateMacros(data: UserIntakeSummary[], period: Period): AggregatedM
   if (period === "weekly") {
     const buckets = new Map<string, UserIntakeSummary[]>();
     sorted.forEach((item) => {
-      const d = new Date(item.loggedDate + "T00:00:00");
+      const d = new Date(item.loggedDate.split("T")[0] + "T00:00:00");
       const dow = (d.getDay() + 6) % 7;
       const mon = new Date(d);
       mon.setDate(d.getDate() - dow);
