@@ -49,7 +49,11 @@ const StatsScreen = () => {
   const isRefreshing = isHealthRefetching || isIntakeRefetching;
 
   const saveWeightMutation = useMutation({
-    mutationFn: (weight: number) => saveHealthStats({ weightKg: weight }),
+    mutationFn: (weight: number) =>
+      saveHealthStats({
+        weightKg: weight,
+        loggedDate: new Date().toISOString().split("T")[0],
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["healthStats"] });
       setWeightInput("");
