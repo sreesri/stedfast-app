@@ -124,3 +124,49 @@ export interface UserIntakeSummary {
   consumedCarbs: number;
   consumedFat: number;
 }
+
+export type MuscleGroup =
+  | "CHEST"
+  | "BACK"
+  | "LEGS"
+  | "SHOULDERS"
+  | "ARMS"
+  | "CORE"
+  | "GLUTES"
+  | "CARDIO"
+  | "FULL_BODY";
+
+export interface Exercise {
+  id: string;
+  name: string;
+  muscleGroup: MuscleGroup;
+  createdAt?: string;
+}
+
+export interface WorkoutLogExercise {
+  id?: string;
+  exerciseId?: string;
+  name?: string;
+  muscleGroup?: MuscleGroup;
+  sets: number;
+  reps: number;
+}
+
+export interface WorkoutLog {
+  id: string;
+  logDate: string;
+  muscleGroups: MuscleGroup[];
+  notes?: string;
+  exercises: WorkoutLogExercise[];
+}
+
+export interface ExerciseSelectionItem {
+  id: string;
+  name: string;
+  muscleGroup: MuscleGroup;
+}
+
+export interface StagedExerciseItem extends ExerciseSelectionItem {
+  sets: number;
+  reps: number;
+}

@@ -10,6 +10,8 @@ import {
   FastingSchedule,
   BodyStat,
   UserIntakeSummary,
+  Exercise,
+  WorkoutLog,
 } from "./types";
 import { LimitConfig } from "../context/LimitContext";
 import { FastingConfig } from "../context/FastingContext";
@@ -549,6 +551,74 @@ export const setupLimitConfig = async (
 ): Promise<LimitConfig> => {
   const response = await api.post("/api/health/stats/limits", config);
   return response.data;
+};
+
+// --- EXERCISE ---
+export const getExerciseLibrary = async (): Promise<Exercise[]> => {
+  const response = await api.get("/api/exercise/library");
+  return response.data;
+};
+
+export const createExercise = async (
+  data: { name: string; muscleGroup: string },
+): Promise<Exercise> => {
+  const response = await api.post("/api/exercise/library", data);
+  return response.data;
+};
+
+export const updateExercise = async (
+  data: { id: string; name: string; muscleGroup: string },
+): Promise<Exercise> => {
+  const { id, ...payload } = data;
+  const response = await api.put(`/api/exercise/library/${id}`, payload);
+  return response.data;
+};
+
+export const deleteExercise = async (id: string): Promise<void> => {
+  await api.delete(`/api/exercise/library/${id}`);
+};
+
+export const getWorkoutLogs = async (date: string): Promise<WorkoutLog[]> => {
+  const response = await api.get(`/api/exercise/logs?date=${date}`);
+  return response.data;
+};
+
+export const createWorkoutLog = async (data: {
+  logDate?: string;
+  muscleGroups: string[];
+  notes?: string;
+  exercises: Array<{
+    exerciseId?: string;
+    name?: string;
+    muscleGroup?: string;
+    sets?: number;
+    reps?: number;
+  }>;
+}): Promise<WorkoutLog> => {
+  const response = await api.post("/api/exercise/logs", data);
+  return response.data;
+};
+
+export const updateWorkoutLog = async (data: {
+  id: string;
+  logDate?: string;
+  muscleGroups: string[];
+  notes?: string;
+  exercises: Array<{
+    exerciseId?: string;
+    name?: string;
+    muscleGroup?: string;
+    sets?: number;
+    reps?: number;
+  }>;
+}): Promise<WorkoutLog> => {
+  const { id, ...payload } = data;
+  const response = await api.put(`/api/exercise/logs/${id}`, payload);
+  return response.data;
+};
+
+export const deleteWorkoutLog = async (id: string): Promise<void> => {
+  await api.delete(`/api/exercise/logs/${id}`);
 };
 
 export default api;

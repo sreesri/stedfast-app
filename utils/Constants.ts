@@ -41,4 +41,24 @@ export const SCREEN = {
   limitConfig: "Limit Config",
   mealedit: "Meal Edit",
   settings: "Settings",
+  workoutlogs: "Workout Logs",
+  workoutedit: "Workout Edit",
+  exerciselibrary: "Exercise Library",
+  exerciseeditor: "Exercise Editor",
 };
+
+export const MUSCLE_GROUP_LABELS: Record<string, string> = {
+  CHEST: "Chest",
+  BACK: "Back",
+  LEGS: "Legs",
+  SHOULDERS: "Shoulders",
+  ARMS: "Arms",
+  CORE: "Core",
+  GLUTES: "Glutes",
+  CARDIO: "Cardio",
+  FULL_BODY: "Full Body",
+};
+
+export const MUSCLE_GROUPS = Object.keys(MUSCLE_GROUP_LABELS) as Array<
+  keyof typeof MUSCLE_GROUP_LABELS
+>;

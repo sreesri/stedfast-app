@@ -11,6 +11,10 @@ import FastingConfigScreen from "../screens/FastingConfigScreen";
 import LimitConfigScreen from "../screens/LimitConfigScreen";
 import MealEditScreen from "../screens/MealEditScreen";
 import MealLogsScreen from "../screens/MealLogsScreen";
+import WorkoutLogsScreen from "../screens/WorkoutLogsScreen";
+import WorkoutEditScreen from "../screens/WorkoutEditScreen";
+import ExerciseLibraryScreen from "../screens/ExerciseLibraryScreen";
+import ExerciseEditorScreen from "../screens/ExerciseEditorScreen";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 const Stack = createStackNavigator();
@@ -79,6 +83,20 @@ const HomeTabs = () => {
         }}
       />
       <Tabs.Screen
+        name={SCREEN.workoutlogs}
+        component={WorkoutLogsScreen}
+        options={{
+          title: "Exercise",
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons
+              name={focused ? "barbell" : "barbell-outline"}
+              size={22}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name={SCREEN.settings}
         component={SettingsScreen}
         options={{
@@ -108,6 +126,9 @@ export const MainNavigator = () => {
       <Stack.Screen name={SCREEN.foodeditor} component={FoodEditorScreen} />
       <Stack.Screen name={SCREEN.fastingConfig} component={FastingConfigScreen} />
       <Stack.Screen name={SCREEN.limitConfig} component={LimitConfigScreen} />
+      <Stack.Screen name={SCREEN.workoutedit} component={WorkoutEditScreen} />
+      <Stack.Screen name={SCREEN.exerciselibrary} component={ExerciseLibraryScreen} />
+      <Stack.Screen name={SCREEN.exerciseeditor} component={ExerciseEditorScreen} />
     </Stack.Navigator>
   );
 };

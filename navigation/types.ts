@@ -1,5 +1,5 @@
 import { SCREEN } from "../utils/Constants";
-import { MealLog, Dish, Meal } from "../utils/types";
+import { MealLog, Dish, Meal, Exercise, WorkoutLog } from "../utils/types";
 
 export type RootStackParamList = {
   [SCREEN.homescreen]: undefined;
@@ -21,5 +21,13 @@ export type RootStackParamList = {
     entityType: "dish" | "meal";
     editingDish?: Dish;
     editingMeal?: Meal;
+  };
+  [SCREEN.workoutlogs]: undefined;
+  [SCREEN.workoutedit]: {
+    editingLog?: WorkoutLog;
+  };
+  [SCREEN.exerciselibrary]: undefined;
+  [SCREEN.exerciseeditor]: {
+    editingExercise?: Exercise;
   };
 };
