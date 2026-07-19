@@ -138,7 +138,7 @@ const FastingTracker: React.FC<FastingTrackerProps> = ({
     minute: "2-digit",
   });
 
-  const kicker = `${isFasting ? "Fasting" : "Eating"} · ${elapsedHrs}h ${elapsedMins}m in`.toUpperCase();
+  const kicker = `${isFasting ? "Fasting" : "Eating"} for ${elapsedHrs}h ${elapsedMins}m`.toUpperCase();
   const subtitleText = isFasting
     ? `until eating window opens at `
     : `fasting resumes at `;
@@ -346,8 +346,8 @@ const styles = StyleSheet.create({
   nowMarker: {
     position: "absolute",
     top: -2,
-    width: 2,
-    height: 38,
+    width: 3,
+    height: 50,
     backgroundColor: COLORS.accent300,
     shadowColor: COLORS.accent300,
     shadowOffset: { width: 0, height: 0 },

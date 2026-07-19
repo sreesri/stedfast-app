@@ -211,13 +211,13 @@ const toMealSelectionMeal = (
 
 api.interceptors.request.use(
   (config) => {
-    console.log(
-      `🚀 [API Request] ${config.method?.toUpperCase()} ${config.url}`,
-      {
-        data: config.data,
-        headers: config.headers,
-      },
-    );
+    // console.log(
+    //   `🚀 [API Request] ${config.method?.toUpperCase()} ${config.url}`,
+    //   {
+    //     data: config.data,
+    //     headers: config.headers,
+    //   },
+    // );
     return config;
   },
   (error) => {
@@ -228,10 +228,10 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
-    console.log(
-      `✅ [API Response] ${response.config.method?.toUpperCase()} ${response.config.url} | Status: ${response.status}`,
-      { data: response.data },
-    );
+    // console.log(
+    //   `✅ [API Response] ${response.config.method?.toUpperCase()} ${response.config.url} | Status: ${response.status}`,
+    //   { data: response.data },
+    // );
     return response;
   },
   (error) => {
