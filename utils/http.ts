@@ -463,17 +463,12 @@ export const deleteMeal = async (id: string): Promise<void> => {
 };
 
 export const getMealLogs = async (date: string): Promise<MealLog[]> => {
-  try {
-    const response = await api.get(`/api/meal/logs?date=${date}`);
-    const data = response.data;
-    if (Array.isArray(data)) {
-      return data;
-    }
-    return data?.mealLogs ?? [];
-  } catch (error) {
-    console.warn("Failed to Get Meal Logs", error);
-    return [];
+  const response = await api.get(`/api/meal/logs?date=${date}`);
+  const data = response.data;
+  if (Array.isArray(data)) {
+    return data;
   }
+  return data?.mealLogs ?? [];
 };
 
 export const createMealLog = async (data: {

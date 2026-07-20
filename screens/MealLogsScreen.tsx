@@ -22,7 +22,7 @@ const MealLogsScreen = () => {
   const [selectedDate, setSelectedDate] = useState(
     () => new Date().toISOString().split("T")[0]
   );
-  const { mealLogs, refetch, isRefreshing } = useMealLogs(selectedDate);
+  const { mealLogs, isError, refetch, isRefreshing } = useMealLogs(selectedDate);
 
   const changeDate = (days: number) => {
     setSelectedDate((prev) => {
@@ -94,11 +94,21 @@ const MealLogsScreen = () => {
           />
         }
       >
-        <MealLogContainer
-          meal={mealLogs}
-          onPressItem={handleEditMeal}
-          fastEndTime={undefined}
-        />
+        {isError ? (
+          <View style={styles.errorState}>
+            <Text style={styles.errorTitle}>Couldn't load meal logs</Text>
+            <Text style={styles.errorSubtitle}>
+              Something went wrong fetching this day's meals. Pull down to
+              try again.
+            </Text>
+          </View>
+        ) : (
+          <MealLogContainer
+            meal={mealLogs}
+            onPressItem={handleEditMeal}
+            fastEndTime={undefined}
+          />
+        )}
       </ScrollView>
 
       <TouchableOpacity
@@ -167,5 +177,25 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primary,
     alignItems: "center",
     justifyContent: "center",
+  },
+  errorState: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 24,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  errorTitle: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: COLORS.text,
+  },
+  errorSubtitle: {
+    marginTop: 8,
+    fontSize: 12.5,
+    color: withOpacity(COLORS.text, 0.5),
+    textAlign: "center",
   },
 });

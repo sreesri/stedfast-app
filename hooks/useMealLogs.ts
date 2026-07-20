@@ -17,7 +17,7 @@ export const useMealLogs = (date?: string) => {
   
   const resolvedDate = date ?? new Date().toISOString().split("T")[0];
 
-  const { data: mealLogsData, isLoading, refetch, isRefetching } = useQuery({
+  const { data: mealLogsData, isLoading, isError, error: mealLogsError, refetch, isRefetching } = useQuery({
     queryKey: ["mealLogs", resolvedDate],
     queryFn: () => getMealLogs(resolvedDate),
   });
@@ -150,6 +150,8 @@ export const useMealLogs = (date?: string) => {
   return {
     mealLogs,
     isLoading,
+    isError,
+    error: mealLogsError,
     refetch,
     isRefreshing: isRefetching,
     handleSave,
