@@ -9,6 +9,7 @@ import {
 import RadioGroup, { RadioButtonProps } from "react-native-radio-buttons-group";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import SafeScreen from "../components/SafeScreen";
+import TimePicker from "../components/TimePicker";
 import { useMealLogs } from "../hooks/useMealLogs";
 import { useMealSelectionCatalog } from "../hooks/useMealSelectionCatalog";
 import { COLORS, SCREEN, withOpacity } from "../utils/Constants";
@@ -28,6 +29,18 @@ const MealEditScreen = ({ route, navigation }: any) => {
   const [name, setName] = useState("BREAKFAST");
   const [activeTab, setActiveTab] = useState<CatalogTab>("dishes");
   const [stagedItems, setStagedItems] = useState<StagedMealItem[]>([]);
+  const [mealTime, setMealTime] = useState<Date>(() =>
+    editingMeal?.mealTime ? new Date(editingMeal.mealTime) : new Date(),
+  );
+  const [isTimePickerOpen, setIsTimePickerOpen] = useState(false);
+
+  const mealTimeLabel = mealTime.toLocaleString([], {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 
   const radioButtons: RadioButtonProps[] = useMemo(
     () => [
@@ -66,6 +79,9 @@ const MealEditScreen = ({ route, navigation }: any) => {
   useEffect(() => {
     if (editingMeal) {
       setName(editingMeal.notes?.toUpperCase() || "BREAKFAST");
+      setMealTime(
+        editingMeal.mealTime ? new Date(editingMeal.mealTime) : new Date(),
+      );
       if (editingMeal.dishes && editingMeal.dishes.length > 0) {
         setStagedItems(
           editingMeal.dishes.map((d) => ({
@@ -83,6 +99,7 @@ const MealEditScreen = ({ route, navigation }: any) => {
       return;
     }
 
+    setMealTime(new Date());
     setStagedItems([]);
   }, [editingMeal]);
 
@@ -132,6 +149,7 @@ const MealEditScreen = ({ route, navigation }: any) => {
       isFastingToggle,
       trackingState,
       activeScheduleId,
+      mealTime,
     );
   };
 
@@ -156,6 +174,26 @@ const MealEditScreen = ({ route, navigation }: any) => {
         layout="row"
         containerStyle={styles.radioGroup}
       />
+
+      <Text style={styles.label}>Meal Time</Text>
+      <TouchableOpacity
+        style={styles.timeRow}
+        onPress={() => setIsTimePickerOpen((open) => !open)}
+        activeOpacity={0.8}
+      >
+        <Ionicons name="time-outline" size={16} color={COLORS.primary} />
+        <Text style={styles.timeRowText}>{mealTimeLabel}</Text>
+        <Ionicons
+          name={isTimePickerOpen ? "chevron-up" : "chevron-down"}
+          size={16}
+          color={COLORS.chevron}
+        />
+      </TouchableOpacity>
+      {isTimePickerOpen && (
+        <View style={styles.timePickerCard}>
+          <TimePicker initialTime={mealTime} onTimeChange={setMealTime} />
+        </View>
+      )}
 
       <View style={styles.stagingCard}>
         <View style={styles.stagingHeader}>
@@ -371,6 +409,33 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     marginBottom: 20,
     width: "100%",
+  },
+  timeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    marginBottom: 20,
+  },
+  timeRowText: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "500",
+    color: COLORS.text,
+  },
+  timePickerCard: {
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 14,
+    marginTop: -12,
+    marginBottom: 20,
+    overflow: "hidden",
   },
   stagingCard: {
     backgroundColor: COLORS.surface,

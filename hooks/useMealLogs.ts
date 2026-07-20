@@ -97,6 +97,7 @@ export const useMealLogs = (date?: string) => {
     isFastingToggle?: boolean,
     trackingState?: string,
     activeScheduleId?: string,
+    mealTime?: Date,
   ) => {
     if (!stagedItems.length) {
       Toast.show({
@@ -115,9 +116,13 @@ export const useMealLogs = (date?: string) => {
       quantity: item.quantity,
     }));
 
+    const resolvedMealTime = mealTime
+      ? mealTime.toISOString()
+      : (editingMeal?.mealTime ?? new Date().toISOString());
+
     const payload = {
       notes,
-      mealTime: editingMeal?.mealTime ?? new Date().toISOString(),
+      mealTime: resolvedMealTime,
       dishes,
     };
 
