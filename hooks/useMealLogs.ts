@@ -140,7 +140,11 @@ export const useMealLogs = (date?: string) => {
         // trackingState here is rawTrackingState: 'FAST' or 'EAT'
         // If they were FASTING, they are now EATING. If they were EATING, they are now FASTING.
         const nextState = trackingState === "FAST" ? "EAT" : "FAST";
-        await startSession({ scheduleId: activeScheduleId, sessionType: nextState });
+        await startSession({
+          scheduleId: activeScheduleId,
+          sessionType: nextState,
+          startTime: resolvedMealTime,
+        });
         queryClient.invalidateQueries({ queryKey: ["activeSession"] });
       }
     } catch (error) {

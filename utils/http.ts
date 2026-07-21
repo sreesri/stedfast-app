@@ -305,13 +305,16 @@ export const getActiveSession = async (): Promise<FastingSession | null> => {
 export const startSession = async ({
   scheduleId,
   sessionType,
+  startTime,
 }: {
   scheduleId: string;
   sessionType: "FAST" | "EAT";
+  startTime?: string;
 }): Promise<FastingSession> => {
   const response = await api.post("/api/fasting/session/start", {
     scheduleId,
     sessionType,
+    startTime,
   });
   return response.data;
 };
