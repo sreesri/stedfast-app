@@ -33,7 +33,6 @@ const MealEditScreen = ({ route, navigation }: any) => {
     editingMeal?.mealTime ? new Date(editingMeal.mealTime) : new Date(),
   );
   const [isTimePickerOpen, setIsTimePickerOpen] = useState(false);
-  const [isTimePickerTouched, setIsTimePickerTouched] = useState(false);
 
   const mealTimeLabel = mealTime.toLocaleString([], {
     weekday: "short",
@@ -155,13 +154,7 @@ const MealEditScreen = ({ route, navigation }: any) => {
   };
 
   return (
-    <SafeScreen
-      style={styles.container}
-      scrollable={true}
-      onRefresh={refetch}
-      refreshing={isRefreshing}
-      scrollViewProps={{ scrollEnabled: !isTimePickerTouched }}
-    >
+    <SafeScreen style={styles.container} scrollable={true} onRefresh={refetch} refreshing={isRefreshing}>
       <View style={styles.header}>
         <Text style={styles.title}>
           {editingMeal ? "Edit Meal" : "Log New Meal"}
@@ -197,12 +190,7 @@ const MealEditScreen = ({ route, navigation }: any) => {
         />
       </TouchableOpacity>
       {isTimePickerOpen && (
-        <View
-          style={styles.timePickerCard}
-          onTouchStart={() => setIsTimePickerTouched(true)}
-          onTouchEnd={() => setIsTimePickerTouched(false)}
-          onTouchCancel={() => setIsTimePickerTouched(false)}
-        >
+        <View style={styles.timePickerCard}>
           <TimePicker initialTime={mealTime} onTimeChange={setMealTime} />
         </View>
       )}

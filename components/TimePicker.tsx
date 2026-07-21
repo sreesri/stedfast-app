@@ -1,5 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { NativeScrollEvent, NativeSyntheticEvent, StyleSheet, Text, View } from "react-native";
+// gesture-handler's ScrollView participates in RNGH's nested-scroll
+// arbitration: while this column still has room to scroll, it claims the
+// vertical drag for itself instead of handing it to the parent page (which
+// is what caused pull-to-refresh to fire while spinning a wheel).
+import { ScrollView } from "react-native-gesture-handler";
 import { COLORS, withOpacity } from "../utils/Constants";
 
 const ITEM_HEIGHT = 50;
@@ -49,19 +54,59 @@ const CustomScrollPicker: React.FC<CustomScrollPickerProps> = ({
   width = 60,
 }) => {
   const scrollViewRef = useRef<ScrollView>(null);
+  const isInteractingRef = useRef(false);
+  // Local, per-column value used just for highlighting the item under the
+  // selector while the user is actively dragging. Kept separate from
+  // `selectedValue` (owned by the parent) so mid-drag frames don't bounce
+  // state back up and re-render the whole picker on every scroll tick.
+  const [liveValue, setLiveValue] = useState(selectedValue);
 
-  const handleScroll = (event: any) => {
+  const indexOf = (value: string) => Math.max(0, data.indexOf(value));
+
+  // Re-sync this column when its value changes from *outside* (e.g. loading
+  // a different meal to edit), but never fight the user mid-drag.
+  useEffect(() => {
+    if (isInteractingRef.current) return;
+    setLiveValue(selectedValue);
+    scrollViewRef.current?.scrollTo({
+      y: indexOf(selectedValue) * ITEM_HEIGHT,
+      animated: false,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedValue, data]);
+
+  const handleScrollBeginDrag = () => {
+    isInteractingRef.current = true;
+  };
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const yOffset = event.nativeEvent.contentOffset.y;
-    const index = Math.round(yOffset / ITEM_HEIGHT);
-
-    if (index >= 0 && index < data.length) {
-      if (data[index] !== selectedValue) {
-        onValueChange(data[index]);
-      }
+    const index = Math.min(
+      data.length - 1,
+      Math.max(0, Math.round(yOffset / ITEM_HEIGHT)),
+    );
+    if (data[index] !== liveValue) {
+      setLiveValue(data[index]);
     }
   };
 
-  const initialIndex = data.indexOf(selectedValue);
+  // With snapToInterval set, releasing a drag always animates to the
+  // nearest item, so momentum-end is a reliable single point to commit the
+  // final selection from (no need to separately handle onScrollEndDrag).
+  const handleMomentumScrollEnd = (
+    event: NativeSyntheticEvent<NativeScrollEvent>,
+  ) => {
+    const yOffset = event.nativeEvent.contentOffset.y;
+    const index = Math.min(
+      data.length - 1,
+      Math.max(0, Math.round(yOffset / ITEM_HEIGHT)),
+    );
+    isInteractingRef.current = false;
+    setLiveValue(data[index]);
+    if (data[index] !== selectedValue) {
+      onValueChange(data[index]);
+    }
+  };
 
   return (
     <View style={[styles.pickerColumn, { width }]}>
@@ -70,18 +115,19 @@ const CustomScrollPicker: React.FC<CustomScrollPickerProps> = ({
         showsVerticalScrollIndicator={false}
         snapToInterval={ITEM_HEIGHT}
         decelerationRate="fast"
+        onScrollBeginDrag={handleScrollBeginDrag}
         onScroll={handleScroll}
+        onMomentumScrollEnd={handleMomentumScrollEnd}
         scrollEventThrottle={16}
-        nestedScrollEnabled={true}
         contentContainerStyle={{ paddingVertical: VERTICAL_PADDING }}
-        contentOffset={{ x: 0, y: Math.max(0, initialIndex) * ITEM_HEIGHT }}
+        contentOffset={{ x: 0, y: indexOf(selectedValue) * ITEM_HEIGHT }}
       >
         {data.map((item, index) => (
           <View key={`${item}-${index}`} style={styles.itemContainer}>
             <Text
               style={[
                 styles.pickerItemText,
-                item === selectedValue && styles.pickerItemTextSelected,
+                item === liveValue && styles.pickerItemTextSelected,
               ]}
             >
               {item}
@@ -154,6 +200,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
       setSelectedMinute(parts.minute);
       setSelectedAmpm(parts.ampm);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialTime]);
 
   const updateSelectedTime = (
@@ -165,7 +212,12 @@ const TimePicker: React.FC<TimePickerProps> = ({
     ampm: string,
   ) => {
     const monthIndex = monthList.indexOf(month);
-    const d = new Date(parseInt(year), monthIndex, parseInt(day));
+    const daysInMonth = new Date(parseInt(year), monthIndex + 1, 0).getDate();
+    const clampedDay = Math.min(parseInt(day, 10), daysInMonth)
+      .toString()
+      .padStart(2, "0");
+
+    const d = new Date(parseInt(year), monthIndex, parseInt(clampedDay, 10));
 
     let h = parseInt(hour, 10);
     if (ampm === "PM" && h < 12) h += 12;

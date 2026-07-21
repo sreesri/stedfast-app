@@ -4,13 +4,17 @@ import {
   ViewStyle,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
   View,
   ScrollViewProps,
   RefreshControl,
 } from "react-native";
+// Using gesture-handler's ScrollView (rather than the plain React Native one)
+// gives us proper nested-scroll arbitration: a scrollable child (e.g. the
+// TimePicker wheels) can claim vertical drags for itself, so it no longer
+// fights this screen's pull-to-refresh gesture.
+import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView, Edge } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { COLORS } from "../utils/Constants";
